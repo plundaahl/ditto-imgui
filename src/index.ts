@@ -1,1 +1,1 @@
-export { }
+export { DrawContext } from './DrawContext';
