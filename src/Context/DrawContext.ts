@@ -1,4 +1,5 @@
 import { MouseContext, IMouseContext } from './MouseContext';
+import { CurElementContext } from './CurElementContext';
 import { ElementActiveState } from './ElementActiveState';
 
 type CustomCommandFn = { (context: CanvasRenderingContext2D, ...args: any): void };
@@ -136,9 +137,8 @@ const ARGS = 1;
 export class DrawContext {
 
     private readonly mouseContext: MouseContext;
+    private readonly curElementContext: CurElementContext;
 
-    private currentElementId: number = 0;
-    private activeElementId: number = -1;
     private elementBox: BoundingBox;
     private readonly customCmds: CustomCommand[] = [];
     private readonly nativeCmds: NativeCommand[] = [];
@@ -147,6 +147,7 @@ export class DrawContext {
 
     constructor(canvas: HTMLCanvasElement) {
         this.mouseContext = new MouseContext(canvas);
+        this.curElementContext = new CurElementContext(this.mouseContext);
     }
 
     get mouse(): IMouseContext { return this.mouseContext; }
@@ -180,27 +181,17 @@ export class DrawContext {
         customCmds.length = 0;
 
         this.mouseContext.update();
-        this.currentElementId = 0;
-
-        if (this.activeElementId < 0 && this.mouseContext.isMouseDown()) {
-            this.activeElementId = 0;
-        }
-
-        if (!this.mouseContext.isMouseDown()) {
-            this.activeElementId = -1;
-        }
+        this.curElementContext.onPostRender();
     }
 
     setCurElementBounds(x: number, y: number, w: number, h: number) {
         this.elementBox = [x, y, w, h];
-        this.currentElementId++;
-
         this.mouseContext.setCurElementBounds(x, y, w, h);
-        this.setActiveElement();
+        this.curElementContext.nextElement();
     }
 
     isCurElementActive(): boolean {
-        return this.activeElementId === this.currentElementId;
+        return this.curElementContext.isCurElementActive();
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {
@@ -341,22 +332,6 @@ export class DrawContext {
     private pushCustomCommand(cmd: CustomCommand) {
         this.nativeCmds.length++;
         this.customCmds.push(cmd);
-    }
-
-    private setActiveElement() {
-        const { mouseContext } = this;
-        let state: ElementActiveState;
-
-        if (this.activeElementId >= 0) {
-            state = ElementActiveState.OTHER;
-        } else if (mouseContext.isMouseDown() && mouseContext.isCurElementUnderMouse()) {
-            state = ElementActiveState.THIS;
-            this.activeElementId = this.currentElementId;
-        } else {
-            state = ElementActiveState.NONE;
-        }
-
-        this.mouseContext.activeElement = state;
     }
 }
 
