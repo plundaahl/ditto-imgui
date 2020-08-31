@@ -1,3 +1,5 @@
+import { IChildrenContext } from "./ChildrenContext";
+
 type CustomCommandFn = { (context: CanvasRenderingContext2D, ...args: any): void };
 
 // TODO: Continue from https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
@@ -141,7 +143,10 @@ export class DrawContext {
     public x: number = 0;
     public y: number = 0;
 
-    constructor(private readonly renderingContext: CanvasRenderingContext2D) { }
+    constructor(
+        private readonly childrenContext: IChildrenContext,
+        private readonly renderingContext: CanvasRenderingContext2D,
+    ) { }
 
     render() {
         const { nativeCmds, customCmds, renderingContext } = this;
@@ -307,11 +312,17 @@ export class DrawContext {
     }
 
     private pushNativeCommand(cmd: NativeCommand) {
+        if (!this.childrenContext.shouldDraw()) {
+            return;
+        }
         this.customCmds.length++;
         this.nativeCmds.push(cmd);
     }
 
     private pushCustomCommand(cmd: CustomCommand) {
+        if (!this.childrenContext.shouldDraw()) {
+            return;
+        }
         this.nativeCmds.length++;
         this.customCmds.push(cmd);
     }

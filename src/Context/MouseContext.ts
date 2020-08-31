@@ -1,4 +1,5 @@
 import { ElementActiveState } from './shared';
+import { IChildrenContext } from './ChildrenContext';
 
 enum ClickState {
     UP,
@@ -46,7 +47,10 @@ export class MouseContext implements IMouseContext {
     private _isMouseDown: boolean = false;
     private _isClick: ClickState = ClickState.UP;
 
-    constructor(element: HTMLElement) {
+    constructor(
+        element: HTMLElement,
+        private readonly childrenContext: IChildrenContext,
+    ) {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
@@ -130,6 +134,10 @@ export class MouseContext implements IMouseContext {
     }
 
     private isPointOverElement(x: number, y: number): boolean {
+        if (!this.childrenContext.shouldDraw()) {
+            return false;
+        }
+
         const curElement = this.elementBboxStack[this.elementBboxStack.length - 1];
         if (!curElement) {
             return false;

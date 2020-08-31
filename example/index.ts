@@ -12,7 +12,6 @@ if (!context) {
 
 const zoom = 1;
 const dc = new gui.Context(canvas);
-let isVisible: boolean = false;
 
 const winState = gui.window.initState({
     x: 300,
@@ -27,14 +26,12 @@ function main() {
     dc.draw.clearRect(0, 0, canvas.width, canvas.height);
 
     if (gui.button(dc, "Foo!", 20, 20)) {
-        isVisible = !isVisible;
+        winState.expanded(!winState.expanded());
     }
 
     gui.window.begin(dc, winState, 'a window');
-    if (isVisible) {
-        if (gui.button(dc, 'thing', 20, 30)) {
-            console.log('oh hai')
-        }
+    if (gui.button(dc, 'thing', 20, 30)) {
+        console.log('oh hai')
     }
     gui.window.end(dc);
 

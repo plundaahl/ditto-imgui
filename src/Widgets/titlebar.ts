@@ -13,6 +13,7 @@ export function begin(
     const x = state.x();
     const y = state.y();
     const w = state.w();
+    const expanded = state.expanded();
 
     const { draw } = context;
     const titleHeight = draw.measureText(title).height;
@@ -25,6 +26,10 @@ export function begin(
     draw.drawText(title, 0, 0);
 
     context.beginElement(0, titleHeight, w, state.h()); // contents
+
+    if (!expanded) {
+        context.children.setShouldDraw(false);
+    }
 }
 
 export function end(
