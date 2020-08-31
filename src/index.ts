@@ -1,7 +1,7 @@
-import { DrawContext } from './Context';
+import { Context } from './Context';
 import * as CoreFns from './CoreFns';
 
 export default {
-    DrawContext,
+    Context,
     ...CoreFns,
 }

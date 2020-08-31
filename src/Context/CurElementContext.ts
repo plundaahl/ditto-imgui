@@ -1,5 +1,5 @@
 import { MouseContext } from './MouseContext';
-import { ElementActiveState } from './ElementActiveState';
+import { ElementActiveState } from './shared';
 
 export interface ICurElementContext {
     isActive(): boolean;

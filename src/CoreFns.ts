@@ -1,44 +1,44 @@
-import { DrawContext } from './Context';
+import { Context } from './Context';
 
 export function drawFrame(
-    context: DrawContext,
+    context: Context,
     x: number,
     y: number,
     w: number,
     h: number,
 ): void {
-    context.strokeRect(x, y, w, h);
+    context.draw.strokeRect(x, y, w, h);
 }
 
 export function button(
-    context: DrawContext,
+    context: Context,
     text: string,
     x: number = 0,
     y: number = 0,
 ): boolean {
     const padding: number = 4;
-    const { width, height } = context.measureText(text);
+    const { width, height } = context.draw.measureText(text);
 
     const w = width + (padding * 2);
     const h = height + (padding * 2);
 
     context.declareElement(x, y, w, h);
 
-    context.setFillStyle(
+    context.draw.setFillStyle(
         context.curElement.isActive()
             ? '#ff5555'
             : context.curElement.isHot()
                 ? '#8888FF'
                 : '#bbbbbb');
-    context.fillRect(
+    context.draw.fillRect(
         x,
         y,
         w,
         h,
     );
 
-    context.setFillStyle('#000000');
-    context.drawText(
+    context.draw.setFillStyle('#000000');
+    context.draw.drawText(
         text,
         x + padding,
         y + padding,

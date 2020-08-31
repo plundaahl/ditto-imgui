@@ -1,9 +1,4 @@
-import { MouseContext, IMouseContext } from './MouseContext';
-import { CurElementContext, ICurElementContext } from './CurElementContext';
-import { ElementActiveState } from './ElementActiveState';
-
 type CustomCommandFn = { (context: CanvasRenderingContext2D, ...args: any): void };
-type BoundingBox = [number, number, number, number];
 
 // TODO: Continue from https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
 
@@ -136,25 +131,15 @@ const ARGS = 1;
 
 export class DrawContext {
 
-    private readonly mouseContext: MouseContext;
-    private readonly curElementContext: CurElementContext;
-
-    private elementBox: BoundingBox;
     private readonly customCmds: CustomCommand[] = [];
     private readonly nativeCmds: NativeCommand[] = [];
     public x: number = 0;
     public y: number = 0;
 
-    constructor(canvas: HTMLCanvasElement) {
-        this.mouseContext = new MouseContext(canvas);
-        this.curElementContext = new CurElementContext(this.mouseContext);
-    }
+    constructor(private readonly renderingContext: CanvasRenderingContext2D) { }
 
-    get mouse(): IMouseContext { return this.mouseContext; }
-    get curElement(): ICurElementContext { return this.curElementContext; }
-
-    render(context: CanvasRenderingContext2D) {
-        const { nativeCmds, customCmds } = this;
+    render() {
+        const { nativeCmds, customCmds, renderingContext } = this;
 
         for (let i = 0; i < nativeCmds.length; i++) {
             const cmd = (customCmds[i] || nativeCmds[i])[NAME];
@@ -163,32 +148,23 @@ export class DrawContext {
                 const args = customCmds[i][ARGS];
 
                 if (!args) {
-                    customCmds[i][NAME](context);
+                    customCmds[i][NAME](renderingContext);
                 } else {
-                    customCmds[i][NAME](context, ...args);
+                    customCmds[i][NAME](renderingContext, ...args);
                 }
             } else {
                 const args = nativeCmds[i][ARGS];
 
                 if (!args) {
-                    (context[nativeCmds[i][NAME]] as any)();
+                    (renderingContext[nativeCmds[i][NAME]] as any)();
                 } else {
-                    (context[nativeCmds[i][NAME]] as any)(...args);
+                    (renderingContext[nativeCmds[i][NAME]] as any)(...args);
                 }
             }
         }
 
         nativeCmds.length = 0;
         customCmds.length = 0;
-
-        this.mouseContext.update();
-        this.curElementContext.onPostRender();
-    }
-
-    declareElement(x: number, y: number, w: number, h: number) {
-        this.elementBox = [x, y, w, h];
-        this.mouseContext.setCurElementBounds(x, y, w, h);
-        this.curElementContext.nextElement();
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {

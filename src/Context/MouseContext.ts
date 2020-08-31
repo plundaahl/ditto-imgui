@@ -1,4 +1,4 @@
-import { ElementActiveState } from './ElementActiveState';
+import { ElementActiveState } from './shared';
 
 enum ClickState {
     UP,

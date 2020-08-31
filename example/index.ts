@@ -11,7 +11,7 @@ if (!context) {
 }
 
 const zoom = 1;
-const dc = new gui.DrawContext(canvas);
+const dc = new gui.Context(canvas);
 let isVisible: boolean = false;
 
 let b2x = 20;
@@ -20,7 +20,7 @@ let b2y = 70;
 function main() {
     canvas.width = canvas.clientWidth / zoom;
     canvas.height = canvas.clientHeight / zoom;
-    dc.clearRect(0, 0, canvas.width, canvas.height);
+    dc.draw.clearRect(0, 0, canvas.width, canvas.height);
 
     if (gui.button(dc, "Foo!", 20, 20)) {
         isVisible = !isVisible;
@@ -34,7 +34,7 @@ function main() {
         }
     }
 
-    dc.render(context as CanvasRenderingContext2D);
+    dc.render();
 }
 
 function loop(time: number) {
