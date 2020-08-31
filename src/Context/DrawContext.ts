@@ -1,4 +1,5 @@
-import { MouseContext } from './MouseContext';
+import { MouseContext, IMouseContext } from './MouseContext';
+import { ElementActiveState } from './ElementActiveState';
 
 type CustomCommandFn = { (context: CanvasRenderingContext2D, ...args: any): void };
 type BoundingBox = [number, number, number, number];
@@ -148,6 +149,8 @@ export class DrawContext {
         this.mouseContext = new MouseContext(canvas);
     }
 
+    get mouse(): IMouseContext { return this.mouseContext; }
+
     render(context: CanvasRenderingContext2D) {
         const { nativeCmds, customCmds } = this;
 
@@ -179,11 +182,11 @@ export class DrawContext {
         this.mouseContext.update();
         this.currentElementId = 0;
 
-        if (this.activeElementId < 0 && this.mouseContext.isMouseDown) {
+        if (this.activeElementId < 0 && this.mouseContext.isMouseDown()) {
             this.activeElementId = 0;
         }
 
-        if (!this.mouseContext.isMouseDown) {
+        if (!this.mouseContext.isMouseDown()) {
             this.activeElementId = -1;
         }
     }
@@ -192,91 +195,12 @@ export class DrawContext {
         this.elementBox = [x, y, w, h];
         this.currentElementId++;
 
-        if (this.activeElementId < 0 && this.mouseContext.isMouseDown && this.isMouseOver()) {
-            this.activeElementId = this.currentElementId;
-        }
+        this.mouseContext.setCurElementBounds(x, y, w, h);
+        this.setActiveElement();
     }
 
-    private isMouseOver(): boolean {
-        const { elementBox: [x, y, w, h], mouseContext: mouse } = this;
-
-        const mx = mouse.x + this.x;
-        const my = mouse.y + this.y;
-
-        return (
-            x <= mx && mx <= x + w &&
-            y <= my && my <= y + h
-        );
-    }
-
-    isHovered(): boolean {
-        if (this.activeElementId >= 0) {
-            return false;
-        }
-        return this.isMouseOver();
-    }
-
-    isClicked(): boolean {
-        const { elementBox: [x, y, w, h], mouseContext: mouse } = this;
-
-        if (!mouse.isClick) {
-            return false;
-        }
-
-        const mx = mouse.clickX + this.x;
-        const my = mouse.clickY + this.y;
-
-        return (
-            x <= mx && mx <= x + w &&
-            y <= my && my <= y + h
-        ) && mouse.isClick;
-    }
-
-    isActive(): boolean {
+    isCurElementActive(): boolean {
         return this.activeElementId === this.currentElementId;
-        const { elementBox: [x, y, w, h], mouseContext: mouse } = this;
-
-        if (!mouse.isMouseDown) {
-            return false;
-        }
-
-        const mx = mouse.clickX + this.x;
-        const my = mouse.clickY + this.y;
-
-        return (
-            x <= mx && mx <= x + w &&
-            y <= my && my <= y + h
-        );
-    }
-
-    isDrag(): boolean {
-        const { elementBox: [x, y, w, h], mouseContext: mouse } = this;
-
-        if (!mouse.isMouseDown) {
-            return false;
-        }
-
-        const mx = mouse.prevX + this.x;
-        const my = mouse.prevY + this.y;
-
-        return (
-            x <= mx && mx <= x + w &&
-            y <= my && my <= y + h
-        );
-    }
-
-    getDragX(): number {
-        if (!this.isDrag()) {
-            return 0;
-        }
-        return this.mouseContext.x - this.mouseContext.prevX;
-    }
-
-    getDragY(): number {
-        if (!this.isDrag()) {
-            return 0;
-        }
-        return this.mouseContext.y - this.mouseContext.prevY;
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {
@@ -417,6 +341,22 @@ export class DrawContext {
     private pushCustomCommand(cmd: CustomCommand) {
         this.nativeCmds.length++;
         this.customCmds.push(cmd);
+    }
+
+    private setActiveElement() {
+        const { mouseContext } = this;
+        let state: ElementActiveState;
+
+        if (this.activeElementId >= 0) {
+            state = ElementActiveState.OTHER;
+        } else if (mouseContext.isMouseDown() && mouseContext.isCurElementUnderMouse()) {
+            state = ElementActiveState.THIS;
+            this.activeElementId = this.currentElementId;
+        } else {
+            state = ElementActiveState.NONE;
+        }
+
+        this.mouseContext.activeElement = state;
     }
 }
 

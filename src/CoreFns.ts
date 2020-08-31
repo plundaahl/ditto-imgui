@@ -24,7 +24,12 @@ export function button(
 
     context.setCurElementBounds(x, y, w, h);
 
-    context.setFillStyle(context.isActive() ? '#ff5555' : context.isHovered() ? '#8888FF' : '#bbbbbb');
+    context.setFillStyle(
+        context.isCurElementActive()
+            ? '#ff5555'
+            : context.mouse.isCurElementHovered()
+                ? '#8888FF'
+                : '#bbbbbb');
     context.fillRect(
         x,
         y,
@@ -39,5 +44,5 @@ export function button(
         y + padding,
     );
 
-    return context.isClicked();
+    return context.mouse.isCurElementClicked();
 }
