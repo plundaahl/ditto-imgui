@@ -1,5 +1,5 @@
 import { MouseContext, IMouseContext } from './MouseContext';
-import { CurElementContext } from './CurElementContext';
+import { CurElementContext, ICurElementContext } from './CurElementContext';
 import { ElementActiveState } from './ElementActiveState';
 
 type CustomCommandFn = { (context: CanvasRenderingContext2D, ...args: any): void };
@@ -151,6 +151,7 @@ export class DrawContext {
     }
 
     get mouse(): IMouseContext { return this.mouseContext; }
+    get curElement(): ICurElementContext { return this.curElementContext; }
 
     render(context: CanvasRenderingContext2D) {
         const { nativeCmds, customCmds } = this;
@@ -184,14 +185,10 @@ export class DrawContext {
         this.curElementContext.onPostRender();
     }
 
-    setCurElementBounds(x: number, y: number, w: number, h: number) {
+    declareElement(x: number, y: number, w: number, h: number) {
         this.elementBox = [x, y, w, h];
         this.mouseContext.setCurElementBounds(x, y, w, h);
         this.curElementContext.nextElement();
-    }
-
-    isCurElementActive(): boolean {
-        return this.curElementContext.isCurElementActive();
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {

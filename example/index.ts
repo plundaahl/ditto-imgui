@@ -28,7 +28,7 @@ function main() {
 
     if (isVisible) {
         gui.button(dc, "Bar!", b2x, b2y);
-        if (dc.isCurElementActive()) {
+        if (dc.curElement.isActive()) {
             b2x += dc.mouse.getDragX();
             b2y += dc.mouse.getDragY();
         }

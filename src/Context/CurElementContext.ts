@@ -1,7 +1,13 @@
 import { MouseContext } from './MouseContext';
 import { ElementActiveState } from './ElementActiveState';
 
-export class CurElementContext {
+export interface ICurElementContext {
+    isActive(): boolean;
+    isHot(): boolean;
+    isTriggered(): boolean;
+}
+
+export class CurElementContext implements ICurElementContext {
     private currentElementId: number = 0;
     private activeElementId: number = -1;
 
@@ -26,8 +32,16 @@ export class CurElementContext {
         this.setActiveElement();
     }
 
-    isCurElementActive(): boolean {
+    isActive(): boolean {
         return this.activeElementId === this.currentElementId;
+    }
+
+    isHot(): boolean {
+        return this.mouseContext.isCurElementHovered();
+    }
+
+    isTriggered(): boolean {
+        return this.mouseContext.isCurElementClicked();
     }
 
     private setActiveElement() {

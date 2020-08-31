@@ -22,12 +22,12 @@ export function button(
     const w = width + (padding * 2);
     const h = height + (padding * 2);
 
-    context.setCurElementBounds(x, y, w, h);
+    context.declareElement(x, y, w, h);
 
     context.setFillStyle(
-        context.isCurElementActive()
+        context.curElement.isActive()
             ? '#ff5555'
-            : context.mouse.isCurElementHovered()
+            : context.curElement.isHot()
                 ? '#8888FF'
                 : '#bbbbbb');
     context.fillRect(
@@ -44,5 +44,5 @@ export function button(
         y + padding,
     );
 
-    return context.mouse.isCurElementClicked();
+    return context.curElement.isTriggered();
 }
