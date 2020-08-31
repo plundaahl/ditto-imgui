@@ -1,4 +1,4 @@
-import { DrawContext } from './DrawContext';
+import { DrawContext } from './Context';
 
 export function drawFrame(
     context: DrawContext,

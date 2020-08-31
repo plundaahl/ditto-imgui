@@ -17,9 +17,13 @@ export class MouseContext {
     private _isClick: ClickState = ClickState.IDLE;
 
     constructor(element: HTMLElement) {
-        element.onmousemove = this.onMouseMove.bind(this);
-        element.onmousedown = this.onMouseDown.bind(this);
-        element.onmouseup = this.onMouseUp.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
+
+        element.addEventListener('mousemove', this.onMouseMove);
+        element.addEventListener('mousedown', this.onMouseDown);
+        element.addEventListener('mouseup', this.onMouseUp);
     }
 
     get x(): number { return this._x; };
