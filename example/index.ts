@@ -22,6 +22,11 @@ function main() {
     canvas.height = canvas.clientHeight / zoom;
     dc.draw.clearRect(0, 0, canvas.width, canvas.height);
 
+    dc.draw.save();
+    dc.draw.translate(b2x, b2y);
+    dc.draw.strokeRect(200, 200, 20, 20);
+    dc.draw.restore();
+
     if (gui.button(dc, "Foo!", 20, 20)) {
         isVisible = !isVisible;
     }

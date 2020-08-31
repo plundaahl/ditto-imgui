@@ -99,6 +99,10 @@ type RestoreCmd = 'restore';
 type Restore = [RestoreCmd];
 const restore: RestoreCmd = 'restore';
 
+type TranslateCmd = 'translate';
+type Translate = [TranslateCmd, [number, number]];
+const translate: TranslateCmd = 'translate';
+
 type NativeCommand = ClearRect
     | FillRect
     | StrokeRect
@@ -113,6 +117,7 @@ type NativeCommand = ClearRect
     | Clip
     | Save
     | Restore
+    | Translate
     ;
 
 type CustomCommand = LineWidth
@@ -295,6 +300,10 @@ export class DrawContext {
 
     restore(): void {
         this.pushNativeCommand([restore]);
+    }
+
+    translate(x: number, y: number): void {
+        this.pushNativeCommand([translate, [x, y]]);
     }
 
     private pushNativeCommand(cmd: NativeCommand) {
