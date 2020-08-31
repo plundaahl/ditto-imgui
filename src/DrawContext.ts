@@ -1,4 +1,7 @@
+import { MouseContext } from './MouseContext';
+
 type CustomCommandFn = { (context: CanvasRenderingContext2D, ...args: any): void };
+type BoundingBox = [number, number, number, number];
 
 // TODO: Continue from https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
 
@@ -131,17 +134,26 @@ const ARGS = 1;
 
 export class DrawContext {
 
+    private readonly mouseContext: MouseContext;
+
+    private currentElementId: number = 0;
+    private activeElementId: number = -1;
+    private elementBox: BoundingBox;
     private readonly customCmds: CustomCommand[] = [];
     private readonly nativeCmds: NativeCommand[] = [];
     public x: number = 0;
     public y: number = 0;
 
-    constructor() { }
+    constructor(canvas: HTMLCanvasElement) {
+        this.mouseContext = new MouseContext(canvas);
+    }
 
     render(context: CanvasRenderingContext2D) {
         const { nativeCmds, customCmds } = this;
 
         for (let i = 0; i < nativeCmds.length; i++) {
+            const cmd = (customCmds[i] || nativeCmds[i])[NAME];
+
             if (customCmds[i]) {
                 const args = customCmds[i][ARGS];
 
@@ -162,6 +174,109 @@ export class DrawContext {
         }
 
         nativeCmds.length = 0;
+        customCmds.length = 0;
+
+        this.mouseContext.update();
+        this.currentElementId = 0;
+
+        if (this.activeElementId < 0 && this.mouseContext.isMouseDown) {
+            this.activeElementId = 0;
+        }
+
+        if (!this.mouseContext.isMouseDown) {
+            this.activeElementId = -1;
+        }
+    }
+
+    setCurElementBounds(x: number, y: number, w: number, h: number) {
+        this.elementBox = [x, y, w, h];
+        this.currentElementId++;
+
+        if (this.activeElementId < 0 && this.mouseContext.isMouseDown && this.isMouseOver()) {
+            this.activeElementId = this.currentElementId;
+        }
+    }
+
+    private isMouseOver(): boolean {
+        const { elementBox: [x, y, w, h], mouseContext: mouse } = this;
+
+        const mx = mouse.x + this.x;
+        const my = mouse.y + this.y;
+
+        return (
+            x <= mx && mx <= x + w &&
+            y <= my && my <= y + h
+        );
+    }
+
+    isHovered(): boolean {
+        if (this.activeElementId >= 0) {
+            return false;
+        }
+        return this.isMouseOver();
+    }
+
+    isClicked(): boolean {
+        const { elementBox: [x, y, w, h], mouseContext: mouse } = this;
+
+        if (!mouse.isClick) {
+            return false;
+        }
+
+        const mx = mouse.clickX + this.x;
+        const my = mouse.clickY + this.y;
+
+        return (
+            x <= mx && mx <= x + w &&
+            y <= my && my <= y + h
+        ) && mouse.isClick;
+    }
+
+    isActive(): boolean {
+        return this.activeElementId === this.currentElementId;
+        const { elementBox: [x, y, w, h], mouseContext: mouse } = this;
+
+        if (!mouse.isMouseDown) {
+            return false;
+        }
+
+        const mx = mouse.clickX + this.x;
+        const my = mouse.clickY + this.y;
+
+        return (
+            x <= mx && mx <= x + w &&
+            y <= my && my <= y + h
+        );
+    }
+
+    isDrag(): boolean {
+        const { elementBox: [x, y, w, h], mouseContext: mouse } = this;
+
+        if (!mouse.isMouseDown) {
+            return false;
+        }
+
+        const mx = mouse.prevX + this.x;
+        const my = mouse.prevY + this.y;
+
+        return (
+            x <= mx && mx <= x + w &&
+            y <= my && my <= y + h
+        );
+    }
+
+    getDragX(): number {
+        if (!this.isDrag()) {
+            return 0;
+        }
+        return this.mouseContext.x - this.mouseContext.prevX;
+    }
+
+    getDragY(): number {
+        if (!this.isDrag()) {
+            return 0;
+        }
+        return this.mouseContext.y - this.mouseContext.prevY;
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {
@@ -192,10 +307,11 @@ export class DrawContext {
     }
 
     drawText(text: string, x: number, y: number) {
+        const { height } = this.measureText(fillText);
         this.pushNativeCommand([fillText, [
             text,
             x + this.x,
-            y + this.y,
+            y + this.y + height,
         ]]);
     }
 

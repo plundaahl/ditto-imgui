@@ -10,40 +10,35 @@ if (!context) {
     throw new Error('No context');
 }
 
-canvas.width = canvas.clientWidth;
-canvas.height = canvas.clientHeight;
+const zoom = 1;
+const dc = new gui.DrawContext(canvas);
+let isVisible: boolean = false;
 
-const dc = new gui.DrawContext();
-const text = 'hi bob';
-const { width, height } = dc.measureText(text);
+let b2x = 20;
+let b2y = 70;
 
+function main() {
+    canvas.width = canvas.clientWidth / zoom;
+    canvas.height = canvas.clientHeight / zoom;
+    dc.clearRect(0, 0, canvas.width, canvas.height);
 
-const x = 10;
-const y = 100;
-const padding = 4;
+    if (gui.button(dc, "Foo!", 20, 20)) {
+        isVisible = !isVisible;
+    }
 
-dc.setFillStyle('#0000FF');
-dc.fillRect(
-    x - padding,
-    y - height - padding,
-    width + padding + padding,
-    height + padding + padding,
-)
-dc.drawText(text, x, y);
+    if (isVisible) {
+        gui.button(dc, "Bar!", b2x, b2y);
+        if (dc.isActive()) {
+            b2x += dc.getDragX();
+            b2y += dc.getDragY();
+        }
+    }
 
-dc.setFillStyle('#88FF88');
-dc.save();
-dc.beginPath()
-dc.moveTo(30, 30);
-dc.lineTo(150, 10);
-dc.lineTo(100, 100);
-dc.closePath();
-dc.clip();
-dc.fill();
-dc.setFillStyle('#FFFFFF');
-dc.fillRect(0, 70, 100, 20);
-dc.rect(0, 70, 100, 20);
-dc.stroke();
-dc.restore();
+    dc.render(context as CanvasRenderingContext2D);
+}
 
-dc.render(context);
+function loop(time: number) {
+    main();
+    requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
