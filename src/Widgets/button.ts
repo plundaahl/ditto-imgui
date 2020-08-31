@@ -1,14 +1,4 @@
-import { Context } from './Context';
-
-export function drawFrame(
-    context: Context,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-): void {
-    context.draw.strokeRect(x, y, w, h);
-}
+import { Context } from '../Context';
 
 export function button(
     context: Context,
