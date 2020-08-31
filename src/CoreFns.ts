@@ -22,17 +22,17 @@ export function button(
     const w = width + (padding * 2);
     const h = height + (padding * 2);
 
-    context.declareElement(x, y, w, h);
+    context.beginElement(x, y, w, h);
+    const { curElement } = context;
 
-    context.draw.setFillStyle(
-        context.curElement.isActive()
-            ? '#ff5555'
-            : context.curElement.isHot()
-                ? '#8888FF'
-                : '#bbbbbb');
+    const isTriggered = curElement.isTriggered();
+    const isHot = curElement.isHot();
+    const isActive = curElement.isActive();
+
+    context.draw.setFillStyle(isActive ? '#ff5555' : isHot ? '#8888FF' : '#bbbbbb');
     context.draw.fillRect(
-        x,
-        y,
+        0,
+        0,
         w,
         h,
     );
@@ -40,9 +40,10 @@ export function button(
     context.draw.setFillStyle('#000000');
     context.draw.drawText(
         text,
-        x + padding,
-        y + padding,
+        padding,
+        padding,
     );
 
-    return context.curElement.isTriggered();
+    context.endElement();
+    return isTriggered;
 }

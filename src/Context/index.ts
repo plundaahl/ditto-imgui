@@ -26,13 +26,21 @@ export class Context {
     get draw(): DrawContext { return this.drawContext; }
 
     render(): void {
-        this.drawContext.render();
         this.mouseContext.update();
         this.curElementContext.onPostRender();
+        this.drawContext.render();
     }
 
-    declareElement(x: number, y: number, w: number, h: number) {
-        this.mouseContext.setCurElementBounds(x, y, w, h);
-        this.curElementContext.nextElement();
+    beginElement(x: number, y: number, w: number, h: number) {
+        this.mouseContext.pushElement(x, y, w, h);
+        this.curElementContext.pushElement();
+        this.draw.save();
+        this.draw.translate(x, y);
+    }
+
+    endElement() {
+        this.mouseContext.popElement();
+        this.curElementContext.popElement();
+        this.draw.restore();
     }
 }

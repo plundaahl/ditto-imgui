@@ -6,6 +6,17 @@ enum ClickState {
     RELEASED,
 };
 
+type BoundingBox = [
+    number, // left
+    number, // top
+    number, // right
+    number, // bottom
+];
+const BOX_LEFT = 0;
+const BOX_TOP = 1;
+const BOX_RIGHT = 2;
+const BOX_BOTTOM = 3;
+
 export interface IMouseContext {
     getX(): number;
     getY(): number;
@@ -24,10 +35,7 @@ export interface IMouseContext {
 export class MouseContext implements IMouseContext {
 
     public activeElement: ElementActiveState = ElementActiveState.NONE;
-    private curElementLeft: number = 0;
-    private curElementTop: number = 0;
-    private curElementRight: number = 0;
-    private curElementBottom: number = 0;
+    private elementBboxStack: BoundingBox[] = [];
 
     private _x: number = 0;
     private _y: number = 0;
@@ -63,21 +71,32 @@ export class MouseContext implements IMouseContext {
     update(): void {
         this._prevX = this._x;
         this._prevY = this._y;
+
         if (this._isClick === ClickState.RELEASED) {
             this._isClick = ClickState.UP;
         }
+
+        if (this.elementBboxStack.length !== 0) {
+            throw new Error('Mismatched number of calls to #pushElement and #popElement.');
+        }
     }
 
-    clearCurElement() {
-        this.curElementLeft = 0;
-        this.curElementRight = -1;
+    pushElement(x: number, y: number, w: number, h: number) {
+        const { elementBboxStack } = this;
+        const prevElement = elementBboxStack[elementBboxStack.length - 1];
+        const prevLeft = prevElement ? prevElement[BOX_LEFT] : 0;
+        const prevTop = prevElement ? prevElement[BOX_TOP] : 0;
+
+        this.elementBboxStack.push([
+            x + prevLeft,
+            y + prevTop,
+            x + w + prevLeft,
+            y + h + prevTop,
+        ]);
     }
 
-    setCurElementBounds(x: number, y: number, w: number, h: number) {
-        this.curElementLeft = x;
-        this.curElementTop = y;
-        this.curElementBottom = y + h;
-        this.curElementRight = x + w;
+    popElement() {
+        this.elementBboxStack.pop();
     }
 
     isMouseDown(): boolean {
@@ -111,16 +130,14 @@ export class MouseContext implements IMouseContext {
     }
 
     private isPointOverElement(x: number, y: number): boolean {
-        const {
-            curElementBottom,
-            curElementLeft,
-            curElementRight,
-            curElementTop,
-        } = this;
+        const curElement = this.elementBboxStack[this.elementBboxStack.length - 1];
+        if (!curElement) {
+            return false;
+        }
 
         return (
-            curElementLeft <= x && x <= curElementRight &&
-            curElementTop <= y && y <= curElementBottom
+            curElement[BOX_LEFT] <= x && x <= curElement[BOX_RIGHT] &&
+            curElement[BOX_TOP] <= y && y <= curElement[BOX_BOTTOM]
         );
     }
 

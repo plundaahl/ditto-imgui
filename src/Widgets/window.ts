@@ -1,7 +1,8 @@
 import { Context as window } from '../Context';
 import { createBindFn, BindFn } from '../Bind';
+import * as titlebar from './titlebar';
 
-interface WindowState {
+export interface WindowState {
     x: BindFn<number>,
     y: BindFn<number>,
     w: BindFn<number>,
@@ -27,24 +28,14 @@ export function begin(
     state: WindowState,
     title: string,
 ): void {
-    const x = state.x();
-    const y = state.y();
+    titlebar.begin(context, state, title);
+
     const w = state.w();
     const h = state.h();
 
     const { draw } = context;
 
-    context.declareElement(x, y, w, h);
-    const titleHeight = draw.measureText(title).height;
-
-    draw.save();
-
-    draw.translate(x, y + titleHeight);
-
-    draw.setFillStyle('#00FFCC');
-    draw.fillRect(0, -titleHeight, w, titleHeight);
-    draw.setFillStyle('#000000');
-    draw.drawText(title, 0, -titleHeight);
+    context.beginElement(0, 0, w, h);
 
     draw.setFillStyle('#bbbbbb');
     draw.fillRect(0, 0, w, h);
@@ -52,15 +43,11 @@ export function begin(
     draw.beginPath();
     draw.rect(0, 0, w, h);
     draw.clip();
-
-    if (context.curElement.isActive()) {
-        state.x(x + context.mouse.getDragX());
-        state.y(y + context.mouse.getDragY());
-    }
 }
 
 export function end(
     context: window,
 ): void {
-    context.draw.restore();
+    context.endElement();
+    titlebar.end(context);
 }

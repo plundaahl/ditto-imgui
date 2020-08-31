@@ -14,9 +14,6 @@ const zoom = 1;
 const dc = new gui.Context(canvas);
 let isVisible: boolean = false;
 
-let b2x = 20;
-let b2y = 70;
-
 const winState = gui.window.initState({
     x: 300,
     y: 50,
@@ -29,25 +26,16 @@ function main() {
     canvas.height = canvas.clientHeight / zoom;
     dc.draw.clearRect(0, 0, canvas.width, canvas.height);
 
-    dc.draw.save();
-    dc.draw.translate(b2x, b2y);
-    dc.draw.strokeRect(200, 200, 20, 20);
-    dc.draw.restore();
-
     if (gui.button(dc, "Foo!", 20, 20)) {
         isVisible = !isVisible;
     }
 
+    gui.window.begin(dc, winState, 'a window');
     if (isVisible) {
-        gui.button(dc, "Bar!", b2x, b2y);
-        if (dc.curElement.isActive()) {
-            b2x += dc.mouse.getDragX();
-            b2y += dc.mouse.getDragY();
+        if (gui.button(dc, 'thing', 20, 30)) {
+            console.log('oh hai')
         }
     }
-
-    gui.window.begin(dc, winState, 'a window');
-    gui.button(dc, 'thing', 20, 30);
     gui.window.end(dc);
 
     dc.render();
