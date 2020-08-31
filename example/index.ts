@@ -17,6 +17,13 @@ let isVisible: boolean = false;
 let b2x = 20;
 let b2y = 70;
 
+const winState = gui.window.initState({
+    x: 300,
+    y: 50,
+    w: 150,
+    h: 80,
+});
+
 function main() {
     canvas.width = canvas.clientWidth / zoom;
     canvas.height = canvas.clientHeight / zoom;
@@ -38,6 +45,10 @@ function main() {
             b2y += dc.mouse.getDragY();
         }
     }
+
+    gui.window.begin(dc, winState, 'a window');
+    gui.button(dc, 'thing', 20, 30);
+    gui.window.end(dc);
 
     dc.render();
 }
