@@ -1,5 +1,5 @@
 import { Context as window } from '../Context';
-import { createBindFn, BindFn } from '../Bind';
+import { createBindFn, BindFn } from '../lib/bind';
 import * as titlebar from './titlebar';
 
 export interface WindowState {
