@@ -18,6 +18,7 @@ const winState = gui.window.initState({
     y: 50,
     w: 150,
     h: 80,
+    expanded: true,
 });
 
 function main() {
@@ -30,8 +31,10 @@ function main() {
     }
 
     gui.window.begin(dc, winState, 'a window');
-    if (gui.button(dc, 'thing', 20, 30)) {
-        console.log('oh hai')
+    if (winState.expanded()) {
+        if (gui.button(dc, 'thing', 20, 30)) {
+            console.log('oh hai')
+        }
     }
     gui.window.end(dc);
 

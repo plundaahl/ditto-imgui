@@ -1,145 +1,68 @@
 import { IChildrenContext } from "./ChildrenContext";
 
 type CustomCommandFn = { (context: CanvasRenderingContext2D, ...args: any): void };
+type CanvasRenderingContext2DFunctions = Pick<CanvasRenderingContext2D,
+    'clearRect' | 'fillRect' | 'strokeRect' | 'fillText' | 'strokeText' |
+    'measureText' | 'getLineDash' | 'setLineDash' | 'createLinearGradient' |
+    'createRadialGradient' | 'createPattern' | 'beginPath' | 'closePath' |
+    'moveTo' | 'lineTo' | 'bezierCurveTo' | 'quadraticCurveTo' | 'arc' |
+    'arcTo' | 'ellipse' | 'rect' | 'fill' | 'stroke' | 'drawFocusIfNeeded' |
+    'scrollPathIntoView' | 'clip' | 'isPointInPath' | 'isPointInStroke' |
+    'rotate' | 'scale' | 'translate' | 'transform' | 'setTransform' |
+    'resetTransform' | 'drawImage' | 'createImageData' | 'getImageData' |
+    'putImageData' | 'save' | 'restore'
+>
 
-// TODO: Continue from https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
+interface INativeCommandCore<T extends keyof CanvasRenderingContext2DFunctions> {
+    native: true,
+    command: T,
+    args: Parameters<CanvasRenderingContext2DFunctions[T]>
+}
+interface INativeCommand extends INativeCommandCore<keyof CanvasRenderingContext2DFunctions> { }
 
-type ClearRectCmd = 'clearRect';
-type ClearRect = [ClearRectCmd, [number, number, number, number]];
-const clearRect: ClearRectCmd = 'clearRect';
+interface ICustomCommand<T extends (...args: any) => void> {
+    native: false,
+    command: T,
+    args: Parameters<T>,
+}
 
-type FillRectCmd = 'fillRect';
-type FillRect = [FillRectCmd, [number, number, number, number]];
-const fillRect: FillRectCmd = 'fillRect';
-
-type StrokeRectCmd = 'strokeRect';
-type StrokeRect = [StrokeRectCmd, [number, number, number, number]];
-const strokeRect: StrokeRectCmd = 'strokeRect';
-
-type FillTextCmd = 'fillText';
-type FillText = [FillTextCmd, [string, number, number]];
-const fillText: FillTextCmd = 'fillText';
-
-type LineWidth = [CustomCommandFn, [number]];
 function setLineWidth(context: CanvasRenderingContext2D, width: number): void {
     context.lineWidth = width;
 }
 
 type LineCapOpts = 'butt' | 'round' | 'square';
-type LineCap = [CustomCommandFn, [LineCapOpts]];
 function setLineCap(context: CanvasRenderingContext2D, cap: LineCapOpts): void {
     context.lineCap = cap;
 }
 
 type LineJoinOpts = 'bevel' | 'round' | 'miter';
-type LineJoin = [CustomCommandFn, [LineJoinOpts]];
 function setLineJoin(context: CanvasRenderingContext2D, cap: LineJoinOpts): void {
     context.lineJoin = cap;
 }
 
-type Font = [CustomCommandFn, [string]];
 function setFont(context: CanvasRenderingContext2D, font: string): void {
     context.font = font;
 }
 
 type TextAlignOpts = 'start' | 'end' | 'left' | 'right' | 'center';
-type TextAlign = [CustomCommandFn, [TextAlignOpts]];
 function setTextAlign(context: CanvasRenderingContext2D, textAlign: TextAlignOpts): void {
     context.textAlign = textAlign;
 }
 
 type FillStyleOpts = string | CanvasGradient | CanvasPattern;
-type FillStyle = [CustomCommandFn, [FillStyleOpts]];
 function setFillStyle(context: CanvasRenderingContext2D, style: FillStyleOpts): void {
     context.fillStyle = style;
 }
 
 type StrokeStyleOpts = string | CanvasGradient | CanvasPattern;
-type StrokeStyle = [CustomCommandFn, [StrokeStyleOpts]];
 function setStrokeStyle(context: CanvasRenderingContext2D, style: StrokeStyleOpts): void {
     context.strokeStyle = style;
 }
-
-type BeginPathCmd = 'beginPath';
-type BeginPath = [BeginPathCmd];
-const beginPath: BeginPathCmd = 'beginPath';
-
-type ClosePathCmd = 'closePath';
-type ClosePath = [ClosePathCmd];
-const closePath: ClosePathCmd = 'closePath';
-
-type MoveToCmd = 'moveTo';
-type MoveTo = [MoveToCmd, [number, number]];
-const moveTo: MoveToCmd = 'moveTo';
-
-type LineToCmd = 'lineTo';
-type LineTo = [LineToCmd, [number, number]];
-const lineTo: LineToCmd = 'lineTo';
-
-type RectCmd = 'rect';
-type Rect = [RectCmd, [number, number, number, number]];
-const rect: RectCmd = 'rect';
-
-type FillCmd = 'fill';
-type Fill = [FillCmd];
-const fill: FillCmd = 'fill';
-
-type StrokeCmd = 'stroke';
-type Stroke = [StrokeCmd];
-const stroke: StrokeCmd = 'stroke';
-
-type ClipCmd = 'clip';
-type ClipOpts = 'nonzero' | 'evenodd';
-type Clip = [ClipCmd] | [ClipCmd, [ClipOpts]];
-const clip: ClipCmd = 'clip';
-
-type SaveCmd = 'save';
-type Save = [SaveCmd];
-const save: SaveCmd = 'save';
-
-type RestoreCmd = 'restore';
-type Restore = [RestoreCmd];
-const restore: RestoreCmd = 'restore';
-
-type TranslateCmd = 'translate';
-type Translate = [TranslateCmd, [number, number]];
-const translate: TranslateCmd = 'translate';
-
-type NativeCommand = ClearRect
-    | FillRect
-    | StrokeRect
-    | FillText
-    | BeginPath
-    | ClosePath
-    | MoveTo
-    | LineTo
-    | Rect
-    | Fill
-    | Stroke
-    | Clip
-    | Save
-    | Restore
-    | Translate
-    ;
-
-type CustomCommand = LineWidth
-    | LineCap
-    | LineJoin
-    | Font
-    | TextAlign
-    | FillStyle
-    | StrokeStyle
-    ;
-
 const utilityContext: CanvasRenderingContext2D = createContext();
-
-const NAME = 0;
-const ARGS = 1;
 
 export class DrawContext {
 
-    private readonly customCmds: CustomCommand[] = [];
-    private readonly nativeCmds: NativeCommand[] = [];
+    private readonly commands: (ICustomCommand<any> | INativeCommand)[] = [];
     public x: number = 0;
     public y: number = 0;
 
@@ -149,68 +72,68 @@ export class DrawContext {
     ) { }
 
     render() {
-        const { nativeCmds, customCmds, renderingContext } = this;
+        const { renderingContext, commands } = this;
 
-        for (let i = 0; i < nativeCmds.length; i++) {
-            const cmd = (customCmds[i] || nativeCmds[i])[NAME];
-
-            if (customCmds[i]) {
-                const args = customCmds[i][ARGS];
-
-                if (!args) {
-                    customCmds[i][NAME](renderingContext);
-                } else {
-                    customCmds[i][NAME](renderingContext, ...args);
-                }
+        for (let cmd of commands) {
+            if (cmd.native) {
+                (renderingContext[cmd.command] as any)(...cmd.args);
             } else {
-                const args = nativeCmds[i][ARGS];
-
-                if (!args) {
-                    (renderingContext[nativeCmds[i][NAME]] as any)();
-                } else {
-                    (renderingContext[nativeCmds[i][NAME]] as any)(...args);
-                }
+                cmd.command(renderingContext, ...cmd.args);
             }
         }
-
-        nativeCmds.length = 0;
-        customCmds.length = 0;
+        commands.length = 0;
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {
-        this.pushNativeCommand([clearRect, [
-            x + this.x,
-            y + this.y,
-            w,
-            h,
-        ]]);
+        this.commands.push({
+            command: 'clearRect',
+            native: true,
+            args: [
+                x + this.x,
+                y + this.y,
+                w,
+                h,
+            ]
+        });
     }
 
     fillRect(x: number, y: number, w: number, h: number): void {
-        this.pushNativeCommand([fillRect, [
-            x + this.x,
-            y + this.y,
-            w,
-            h,
-        ]]);
+        this.commands.push({
+            command: 'fillRect',
+            native: true,
+            args: [
+                x + this.x,
+                y + this.y,
+                w,
+                h,
+            ]
+        });
     }
 
     strokeRect(x: number, y: number, w: number, h: number): void {
-        this.pushNativeCommand([strokeRect, [
-            x + this.x,
-            y + this.y,
-            w,
-            h,
-        ]]);
+        this.commands.push({
+            command: 'strokeRect',
+            native: true,
+            args: [
+                x + this.x,
+                y + this.y,
+                w,
+                h,
+            ]
+        });
     }
 
     drawText(text: string, x: number, y: number) {
-        const { height } = this.measureText(fillText);
-        this.pushNativeCommand([fillText, [
-            text,
-            x + this.x,
-            y + this.y + height,
-        ]]);
+        const { height } = this.measureText('fillText');
+        this.commands.push({
+            command: 'fillText',
+            native: true,
+            args: [
+                text,
+                x + this.x,
+                y + this.y + height,
+            ]
+        })
     }
 
     measureText(text: string) {
@@ -225,106 +148,166 @@ export class DrawContext {
 
     setLineWidth(width: number): void {
         utilityContext.lineWidth = width;
-        this.pushCustomCommand([setLineWidth, [width]])
+        this.commands.push({
+            native: false,
+            command: setLineWidth,
+            args: [width],
+        });
     }
 
     setLineCap(cap: LineCapOpts): void {
-        this.pushCustomCommand([setLineCap, [cap]]);
+        this.commands.push({
+            native: false,
+            command: setLineCap,
+            args: [cap],
+        })
     }
 
     setLineJoin(join: LineJoinOpts): void {
-        this.pushCustomCommand([setLineJoin, [join]]);
+        this.commands.push({
+            native: false,
+            command: setLineJoin,
+            args: [join],
+        });
     }
 
     setFont(font: string): void {
-        this.pushCustomCommand([setFont, [font]]);
+        this.commands.push({
+            native: false,
+            command: setFont,
+            args: [font],
+        });
     }
 
     setFillStyle(style: FillStyleOpts): void {
-        this.pushCustomCommand([setFillStyle, [style]]);
+        this.commands.push({
+            native: false,
+            command: setFillStyle,
+            args: [style],
+        });
     }
 
     setStrokeStyle(style: StrokeStyleOpts): void {
-        this.pushCustomCommand([setStrokeStyle, [style]]);
+        this.commands.push({
+            native: false,
+            command: setStrokeStyle,
+            args: [style],
+        });
     }
 
     setTextAlign(align: TextAlignOpts): void {
-        this.pushCustomCommand([setTextAlign, [align]]);
+        this.commands.push({
+            native: false,
+            command: setTextAlign,
+            args: [align],
+        });
     }
 
     beginPath(): void {
-        this.pushNativeCommand([beginPath]);
+        this.commands.push({
+            native: true,
+            command: 'beginPath',
+            args: []
+        });
     }
 
     closePath(): void {
-        this.pushNativeCommand([closePath]);
+        this.commands.push({
+            native: true,
+            command: 'closePath',
+            args: [],
+        });
     }
 
     moveTo(x: number, y: number): void {
-        this.pushNativeCommand([moveTo, [
-            x + this.x,
-            y + this.y,
-        ]]);
+        this.commands.push({
+            native: true,
+            command: 'moveTo',
+            args: [
+                x + this.x,
+                y + this.y,
+            ]
+        });
     }
 
     lineTo(x: number, y: number): void {
-        this.pushNativeCommand([lineTo, [
-            x + this.x,
-            y + this.y,
-        ]]);
+        this.commands.push({
+            native: true,
+            command: 'lineTo',
+            args: [
+                x + this.x,
+                y + this.y,
+            ]
+        });
     }
 
     fill(): void {
-        this.pushNativeCommand([fill]);
+        this.commands.push({
+            native: true,
+            command: 'fill',
+            args: []
+        });
     }
 
     stroke(): void {
-        this.pushNativeCommand([stroke]);
+        this.commands.push({
+            native: true,
+            command: 'stroke',
+            args: []
+        });
     }
 
-    clip(fillRule?: ClipOpts): void {
+    clip(fillRule?: 'nonzero' | 'evenodd'): void {
         if (fillRule) {
-            this.pushNativeCommand([clip, [fillRule]]);
+            this.commands.push({
+                native: true,
+                command: 'clip',
+                args: [fillRule]
+            });
         } else {
-            this.pushNativeCommand([clip]);
+            this.commands.push({
+                native: true,
+                command: 'clip',
+                args: []
+            });
         }
     }
 
     rect(x: number, y: number, w: number, h: number): void {
-        this.pushNativeCommand([rect, [
-            x + this.x,
-            y + this.y,
-            w,
-            h,
-        ]]);
+        this.commands.push({
+            native: true,
+            command: 'rect',
+            args: [
+                x + this.x,
+                y + this.y,
+                w,
+                h,
+            ]
+        });
     }
 
     save(): void {
-        this.pushNativeCommand([save]);
+        this.commands.push({
+            native: true,
+            command: 'save',
+            args: [],
+        });
     }
 
     restore(): void {
-        this.pushNativeCommand([restore]);
+        this.commands.push({
+            native: true,
+            command: 'restore',
+            args: [],
+        });
     }
 
     translate(x: number, y: number): void {
-        this.pushNativeCommand([translate, [x, y]]);
-    }
-
-    private pushNativeCommand(cmd: NativeCommand) {
-        if (!this.childrenContext.shouldDraw()) {
-            return;
-        }
-        this.customCmds.length++;
-        this.nativeCmds.push(cmd);
-    }
-
-    private pushCustomCommand(cmd: CustomCommand) {
-        if (!this.childrenContext.shouldDraw()) {
-            return;
-        }
-        this.nativeCmds.length++;
-        this.customCmds.push(cmd);
+        this.commands.push({
+            native: true,
+            command: 'translate',
+            args: [x, y],
+        });
     }
 }
 
