@@ -20,11 +20,15 @@ interface INativeCommandCore<T extends keyof CanvasRenderingContext2DFunctions> 
 }
 interface INativeCommand extends INativeCommandCore<keyof CanvasRenderingContext2DFunctions> { }
 
-interface ICustomCommand<T extends (...args: any) => void> {
+interface ICustomCommandCore<T extends (...args: any) => void> {
     native: false,
     command: T,
     args: Parameters<T>,
 }
+interface ICustomCommand extends ICustomCommandCore<any> { }
+
+type DrawCommand = ICustomCommand | INativeCommand;
+
 
 function setLineWidth(context: CanvasRenderingContext2D, width: number): void {
     context.lineWidth = width;
@@ -62,7 +66,7 @@ const utilityContext: CanvasRenderingContext2D = createContext();
 
 export class DrawContext {
 
-    private readonly commands: (ICustomCommand<any> | INativeCommand)[] = [];
+    private readonly commands: DrawCommand[] = [];
     public x: number = 0;
     public y: number = 0;
 
@@ -85,7 +89,7 @@ export class DrawContext {
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {
-        this.commands.push({
+        this.pushDrawCommand({
             command: 'clearRect',
             native: true,
             args: [
@@ -98,7 +102,7 @@ export class DrawContext {
     }
 
     fillRect(x: number, y: number, w: number, h: number): void {
-        this.commands.push({
+        this.pushDrawCommand({
             command: 'fillRect',
             native: true,
             args: [
@@ -111,7 +115,7 @@ export class DrawContext {
     }
 
     strokeRect(x: number, y: number, w: number, h: number): void {
-        this.commands.push({
+        this.pushDrawCommand({
             command: 'strokeRect',
             native: true,
             args: [
@@ -125,7 +129,7 @@ export class DrawContext {
 
     drawText(text: string, x: number, y: number) {
         const { height } = this.measureText('fillText');
-        this.commands.push({
+        this.pushDrawCommand({
             command: 'fillText',
             native: true,
             args: [
@@ -148,7 +152,7 @@ export class DrawContext {
 
     setLineWidth(width: number): void {
         utilityContext.lineWidth = width;
-        this.commands.push({
+        this.pushDrawCommand({
             native: false,
             command: setLineWidth,
             args: [width],
@@ -156,7 +160,7 @@ export class DrawContext {
     }
 
     setLineCap(cap: LineCapOpts): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: false,
             command: setLineCap,
             args: [cap],
@@ -164,7 +168,7 @@ export class DrawContext {
     }
 
     setLineJoin(join: LineJoinOpts): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: false,
             command: setLineJoin,
             args: [join],
@@ -172,7 +176,7 @@ export class DrawContext {
     }
 
     setFont(font: string): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: false,
             command: setFont,
             args: [font],
@@ -180,7 +184,7 @@ export class DrawContext {
     }
 
     setFillStyle(style: FillStyleOpts): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: false,
             command: setFillStyle,
             args: [style],
@@ -188,7 +192,7 @@ export class DrawContext {
     }
 
     setStrokeStyle(style: StrokeStyleOpts): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: false,
             command: setStrokeStyle,
             args: [style],
@@ -196,7 +200,7 @@ export class DrawContext {
     }
 
     setTextAlign(align: TextAlignOpts): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: false,
             command: setTextAlign,
             args: [align],
@@ -204,7 +208,7 @@ export class DrawContext {
     }
 
     beginPath(): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'beginPath',
             args: []
@@ -212,7 +216,7 @@ export class DrawContext {
     }
 
     closePath(): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'closePath',
             args: [],
@@ -220,7 +224,7 @@ export class DrawContext {
     }
 
     moveTo(x: number, y: number): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'moveTo',
             args: [
@@ -231,7 +235,7 @@ export class DrawContext {
     }
 
     lineTo(x: number, y: number): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'lineTo',
             args: [
@@ -242,7 +246,7 @@ export class DrawContext {
     }
 
     fill(): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'fill',
             args: []
@@ -250,7 +254,7 @@ export class DrawContext {
     }
 
     stroke(): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'stroke',
             args: []
@@ -259,13 +263,13 @@ export class DrawContext {
 
     clip(fillRule?: 'nonzero' | 'evenodd'): void {
         if (fillRule) {
-            this.commands.push({
+            this.pushDrawCommand({
                 native: true,
                 command: 'clip',
                 args: [fillRule]
             });
         } else {
-            this.commands.push({
+            this.pushDrawCommand({
                 native: true,
                 command: 'clip',
                 args: []
@@ -274,7 +278,7 @@ export class DrawContext {
     }
 
     rect(x: number, y: number, w: number, h: number): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'rect',
             args: [
@@ -287,7 +291,7 @@ export class DrawContext {
     }
 
     save(): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'save',
             args: [],
@@ -295,7 +299,7 @@ export class DrawContext {
     }
 
     restore(): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'restore',
             args: [],
@@ -303,11 +307,15 @@ export class DrawContext {
     }
 
     translate(x: number, y: number): void {
-        this.commands.push({
+        this.pushDrawCommand({
             native: true,
             command: 'translate',
             args: [x, y],
         });
+    }
+
+    private pushDrawCommand(command: DrawCommand) {
+        this.commands.push(command);
     }
 }
 
