@@ -13,25 +13,36 @@ if (!context) {
 const zoom = 1;
 const dc = new gui.Context(canvas);
 
-const winState = gui.window.initState({
+const controlWindowState = {
+    x: 10,
+    y: 10,
+    w: 150,
+    h: 80,
+    isOpen: true,
+};
+
+const subjectWindowState = {
     x: 300,
     y: 50,
     w: 150,
     h: 80,
-    expanded: true,
-});
+    isOpen: true,
+};
 
 function main() {
     canvas.width = canvas.clientWidth / zoom;
     canvas.height = canvas.clientHeight / zoom;
     dc.draw.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (gui.button(dc, "Foo!", 20, 20)) {
-        winState.expanded(!winState.expanded());
-    }
 
-    gui.window.begin(dc, winState, 'a window');
-    if (winState.expanded()) {
+    gui.window.begin(dc, controlWindowState, 'control window');
+    if (gui.button(dc, "Foo!", 20, 20)) {
+        subjectWindowState.isOpen = !subjectWindowState.isOpen;
+    }
+    gui.window.end(dc);
+
+    gui.window.begin(dc, subjectWindowState, 'a window');
+    if (subjectWindowState.isOpen) {
         if (gui.button(dc, 'thing', 20, 30)) {
             console.log('oh hai')
         }

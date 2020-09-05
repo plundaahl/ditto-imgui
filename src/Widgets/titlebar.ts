@@ -10,10 +10,7 @@ export function begin(
 ): void {
     stateStack.push(state);
 
-    const x = state.x();
-    const y = state.y();
-    const w = state.w();
-    const expanded = state.expanded();
+    const { x, y, w, h, isOpen } = state;
 
     const { draw } = context;
     const titleHeight = draw.measureText(title).height;
@@ -25,9 +22,9 @@ export function begin(
     draw.setFillStyle('#ffffff');
     draw.drawText(title, 0, 0);
 
-    context.beginElement(0, titleHeight, w, state.h()); // contents
+    context.beginElement(0, titleHeight, w, h); // contents
 
-    if (!expanded) {
+    if (!isOpen) {
         context.children.setShouldDraw(false);
     }
 }
@@ -42,12 +39,9 @@ export function end(
 
     context.endElement(); // contents
 
-    const x = state.x();
-    const y = state.y();
-
     if (context.curElement.isActive()) {
-        state.x(x + context.mouse.getDragX());
-        state.y(y + context.mouse.getDragY());
+        state.x = state.x + context.mouse.getDragX();
+        state.y = state.y + context.mouse.getDragY();
     }
 
     context.endElement();

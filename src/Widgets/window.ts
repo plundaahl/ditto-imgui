@@ -3,11 +3,11 @@ import { createBindFn, BindFn } from '../lib/bind';
 import * as titlebar from './titlebar';
 
 export interface WindowState {
-    x: BindFn<number>,
-    y: BindFn<number>,
-    w: BindFn<number>,
-    h: BindFn<number>,
-    expanded: BindFn<boolean>,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    isOpen: boolean,
 }
 
 export function initState(args: {
@@ -15,14 +15,14 @@ export function initState(args: {
     y?: number,
     w?: number,
     h?: number,
-    expanded?: boolean,
+    isOpen?: boolean,
 }): WindowState {
     return {
-        x: createBindFn(args.x || 0),
-        y: createBindFn(args.y || 0),
-        w: createBindFn(args.w || 150),
-        h: createBindFn(args.h || 80),
-        expanded: createBindFn(args.expanded || true),
+        x: 0,
+        y: 0,
+        w: 150,
+        h: 80,
+        isOpen: true,
     }
 }
 
@@ -31,10 +31,11 @@ export function begin(
     state: WindowState,
     title: string,
 ): void {
+    context.beginWindow(title, state);
     titlebar.begin(context, state, title);
 
-    const w = state.w();
-    const h = state.h();
+    const w = state.w;
+    const h = state.h;
 
     const { draw } = context;
 
@@ -53,4 +54,5 @@ export function end(
 ): void {
     context.endElement();
     titlebar.end(context);
+    context.endWindow();
 }
