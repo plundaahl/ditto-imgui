@@ -13,6 +13,7 @@ export class CurElementContext implements ICurElementContext {
     private nextElementId: number = 1;
     private currentElementId: number = 0;
     private activeElementId: number = -1;
+    private isCurrentWindowHovered: boolean = false;
 
     constructor(
         private readonly mouseContext: MouseContext,
@@ -53,11 +54,21 @@ export class CurElementContext implements ICurElementContext {
         return this.mouseContext.isCurElementClicked();
     }
 
+    setCurWindowHovered(isHovered: boolean) {
+        this.isCurrentWindowHovered = isHovered;
+    }
+
     private setActiveElement() {
         const { mouseContext } = this;
         let state: ElementActiveState;
 
-        if (this.activeElementId < 0) {
+        if (!this.isCurrentWindowHovered) {
+            if (mouseContext.activeElement === ElementActiveState.NONE) {
+                state = ElementActiveState.NONE;
+            } else {
+                state = ElementActiveState.OTHER;
+            }
+        } else if (this.activeElementId < 0) {
             if (mouseContext.isMouseDown() && mouseContext.isCurElementUnderMouse()) {
                 state = ElementActiveState.THIS;
                 this.activeElementId = this.currentElementId;
@@ -74,6 +85,6 @@ export class CurElementContext implements ICurElementContext {
             }
         }
 
-        this.mouseContext.activeElement = state;
+        mouseContext.activeElement = state;
     }
 }

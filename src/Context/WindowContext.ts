@@ -27,7 +27,7 @@ export interface WindowContextUserAPI {
     getBoundingBox(): BoundingBox;
     setOpen(open: boolean): void;
     bringToFront(): void;
-    wasWindowHoveredLastFrame(): boolean;
+    isHovered(): boolean;
 }
 
 export interface WindowContextRenderAPI {
@@ -86,7 +86,7 @@ export class WindowContext
         this.zOrder.pushToFront(this.getCurrentKey());
     }
 
-    wasWindowHoveredLastFrame(): boolean {
+    isHovered(): boolean {
         return this.hoveredWindow === this.getCurrentKey();
     }
 

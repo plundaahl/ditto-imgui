@@ -34,7 +34,7 @@ export class Context {
     get curElement(): ICurElementContext { return this.curElementContext; }
     get draw(): DrawContext { return this.drawContext; }
     get children(): IChildrenContext { return this.childrenContext; }
-    get window(): WindowContextUserAPI { return this.window; }
+    get window(): WindowContextUserAPI { return this.windowContext; }
 
     render(): void {
         this.onPreRender();
@@ -49,16 +49,20 @@ export class Context {
             this.drawContext.renderBuffer(window.key);
         }
 
-        // this.drawContext.render();
-
         this.onPostRender();
     }
 
     private onPreRender() {
-        this.windowContext.endWindow();
+        // Mouse Stuff
+        this.windowContext.setMouseCoordinates(
+            this.mouseContext.getX(),
+            this.mouseContext.getY(),
+        );
+        this.windowContext.onPreRender();
     }
 
     private onPostRender() {
+        // Debug Window
         const { renderingContext: { canvas: { width, height } } } = this;
         this.beginWindow('debug');
         this.windowContext.setBoundingBox(0, 0, width, height);
@@ -83,11 +87,13 @@ export class Context {
 
     beginWindow(key: string, initialState?: WindowState) {
         this.windowContext.beginWindow(key, initialState);
+        this.curElementContext.setCurWindowHovered(this.windowContext.isHovered());
         this.drawContext.setCurrentBuffer(key);
     }
 
     endWindow() {
         const key = this.windowContext.endWindow();
+        this.curElementContext.setCurWindowHovered(this.windowContext.isHovered());
         this.drawContext.setCurrentBuffer(key);
     }
 }
