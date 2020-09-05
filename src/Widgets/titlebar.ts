@@ -22,10 +22,15 @@ export function begin(
     draw.setFillStyle('#ffffff');
     draw.drawText(title, 0, 0);
 
+    if (context.curElement.isActive()) {
+        context.window.bringToFront();
+    }
+
     context.beginElement(0, titleHeight, w, h); // contents
 
     if (!isOpen) {
         context.children.setShouldDraw(false);
+        context.window.setBoundingBox(x, y, w, titleHeight);
     }
 }
 

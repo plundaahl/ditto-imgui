@@ -26,13 +26,19 @@ export function initState(args: {
     }
 }
 
+let states: WindowState[] = [];
+
 export function begin(
     context: window,
     state: WindowState,
     title: string,
 ): void {
+    states.push(state);
     context.beginWindow(title, state);
     titlebar.begin(context, state, title);
+    if (!state.isOpen) {
+        return;
+    }
 
     const w = state.w;
     const h = state.h;
@@ -52,7 +58,10 @@ export function begin(
 export function end(
     context: window,
 ): void {
-    context.endElement();
+    const state = states.pop();
+    if (state?.isOpen) {
+        context.endElement();
+    }
     titlebar.end(context);
     context.endWindow();
 }
