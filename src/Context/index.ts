@@ -2,6 +2,7 @@ import { MouseContext, IMouseContext } from './MouseContext';
 import { CurElementContext, ICurElementContext } from './CurElementContext';
 import { DrawContext } from './DrawContext';
 import { ChildrenContext, IChildrenContext } from './ChildrenContext';
+import { WindowContext, WindowContextUserAPI, WindowState } from './WindowContext';
 
 export class Context {
 
@@ -11,6 +12,7 @@ export class Context {
     private readonly curElementContext: CurElementContext;
     private readonly childrenContext: ChildrenContext;
     private readonly drawContext: DrawContext;
+    private readonly windowContext: WindowContext;
 
     constructor(canvas: HTMLCanvasElement) {
         const canvasContext = canvas.getContext('2d');
@@ -23,21 +25,43 @@ export class Context {
         this.mouseContext = new MouseContext(canvas, this.childrenContext);
         this.curElementContext = new CurElementContext(this.mouseContext);
         this.drawContext = new DrawContext(this.childrenContext, this.renderingContext);
+        this.windowContext = new WindowContext();
+
+        this.onPostRender();
     }
 
     get mouse(): IMouseContext { return this.mouseContext; }
     get curElement(): ICurElementContext { return this.curElementContext; }
     get draw(): DrawContext { return this.drawContext; }
     get children(): IChildrenContext { return this.childrenContext; }
+    get window(): WindowContextUserAPI { return this.window; }
 
     render(): void {
+        this.onPreRender();
+
         if (this.activeElements !== 0) {
             throw new Error('Mismatched calls to #beginElement and #endElement');
         }
-
         this.mouseContext.update();
         this.curElementContext.onPostRender();
-        this.drawContext.render();
+
+        for (let window of [...(this.windowContext.getOrderedWindowRenderDetails())]) {
+            this.drawContext.renderBuffer(window.key);
+        }
+
+        // this.drawContext.render();
+
+        this.onPostRender();
+    }
+
+    private onPreRender() {
+        this.windowContext.endWindow();
+    }
+
+    private onPostRender() {
+        const { renderingContext: { canvas: { width, height } } } = this;
+        this.beginWindow('debug');
+        this.windowContext.setBoundingBox(0, 0, width, height);
     }
 
     beginElement(x: number, y: number, w: number, h: number) {
@@ -55,5 +79,15 @@ export class Context {
         this.curElementContext.popElement();
         this.draw.restore();
         this.childrenContext.popElement();
+    }
+
+    beginWindow(key: string, initialState?: WindowState) {
+        this.windowContext.beginWindow(key, initialState);
+        this.drawContext.setCurrentBuffer(key);
+    }
+
+    endWindow() {
+        const key = this.windowContext.endWindow();
+        this.drawContext.setCurrentBuffer(key);
     }
 }

@@ -9,7 +9,7 @@ interface BoundingBox {
     h: number;
 }
 
-interface WindowState {
+export interface WindowState {
     x: number;
     y: number;
     w: number;
@@ -23,8 +23,6 @@ interface WindowRenderDetails {
 }
 
 export interface WindowContextUserAPI {
-    beginWindow(key: Key, initialState?: WindowState): boolean;
-    endWindow(): Key;
     setBoundingBox(x: number, y: number, w: number, h: number): void;
     getBoundingBox(): BoundingBox;
     setOpen(open: boolean): void;

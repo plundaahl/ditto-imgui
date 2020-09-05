@@ -64,9 +64,12 @@ function setStrokeStyle(context: CanvasRenderingContext2D, style: StrokeStyleOpt
 }
 const utilityContext: CanvasRenderingContext2D = createContext();
 
+type Key = string; // TODO: import this from window, I think
+
 export class DrawContext {
 
-    private readonly commands: DrawCommand[] = [];
+    private readonly drawCommandBuffers: Map<Key, DrawCommand[]> = new Map();
+    private currentBufferKey: Key;
     public x: number = 0;
     public y: number = 0;
 
@@ -75,17 +78,31 @@ export class DrawContext {
         private readonly renderingContext: CanvasRenderingContext2D,
     ) { }
 
-    render() {
-        const { renderingContext, commands } = this;
+    setCurrentBuffer(key: Key) {
+        const { drawCommandBuffers } = this;
+        if (!drawCommandBuffers.has(key)) {
+            drawCommandBuffers.set(key, []);
+        }
+        this.currentBufferKey = key;
+    }
 
-        for (let cmd of commands) {
+    renderBuffer(bufferKey: Key) {
+        const { renderingContext } = this;
+
+        const buffer = this.drawCommandBuffers.get(bufferKey);
+        if (!buffer) {
+            throw new Error(`No buffer for key ${bufferKey}`);
+        }
+
+        for (let cmd of buffer) {
             if (cmd.native) {
                 (renderingContext[cmd.command] as any)(...cmd.args);
             } else {
                 cmd.command(renderingContext, ...cmd.args);
             }
         }
-        commands.length = 0;
+
+        buffer.length = 0;
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {
@@ -315,7 +332,11 @@ export class DrawContext {
     }
 
     private pushDrawCommand(command: DrawCommand) {
-        this.commands.push(command);
+        const buffer = this.drawCommandBuffers.get(this.currentBufferKey);
+        if (!buffer) {
+            throw new Error(`No draw buffer for key ${this.currentBufferKey}.`);
+        }
+        buffer.push(command);
     }
 }
 
