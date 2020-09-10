@@ -58,12 +58,12 @@ export class WindowContext
     private mouseX: number;
     private mouseY: number;
 
-    beginWindow(key: string, initialState?: WindowState): boolean {
+    beginWindow(key: string): boolean {
         this.buildStack.push(key);
 
         let state = this.windowStateLookup.get(key);
         if (!state) {
-            state = initialState || createDefaultWindowState();
+            state = createDefaultWindowState();
             this.windowStateLookup.set(key, state);
         }
 

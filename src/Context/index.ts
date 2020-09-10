@@ -85,8 +85,8 @@ export class Context {
         this.childrenContext.popElement();
     }
 
-    beginWindow(key: string, initialState?: WindowState) {
-        this.windowContext.beginWindow(key, initialState);
+    beginWindow(key: string) {
+        this.windowContext.beginWindow(key);
         this.curElementContext.setCurWindowHovered(this.windowContext.isHovered());
         this.drawContext.setCurrentBuffer(key);
     }

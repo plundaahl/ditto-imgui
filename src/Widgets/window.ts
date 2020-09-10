@@ -33,17 +33,17 @@ export function begin(
     state: WindowState,
     title: string,
 ): void {
+    const { x, y, w, h } = state;
+    const { draw } = context;
+
     states.push(state);
-    context.beginWindow(title, state);
+    context.beginWindow(title);
+    context.window.setBoundingBox(x, y, w, h);
     titlebar.begin(context, state, title);
+
     if (!state.isOpen) {
         return;
     }
-
-    const w = state.w;
-    const h = state.h;
-
-    const { draw } = context;
 
     context.beginElement(0, 0, w, h);
 
