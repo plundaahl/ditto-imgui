@@ -49,6 +49,10 @@ export class ContextImpl implements Context {
     }
 
     endElement(): void {
+        if (this.navigationStack.length === 1) {
+            throw new Error("You called endElement() more times than beginElement(). Cannot remove root element. Are your endElement() and beginElement() calls mismatched?");
+        }
+
         const child = this.curElement;
 
         this.navigationStack.pop();

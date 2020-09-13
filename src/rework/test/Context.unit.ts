@@ -116,6 +116,11 @@ describe('endElement()', () => {
         child = instance.getCurElement();
     });
 
+    test('Should error if removes root element', () => {
+        instance.endElement();
+        expect(() => instance.endElement()).toThrowError();
+    });
+
     test('Should not modify parent children', () => {
         const parentChildrenLength = parent.children.length;
         instance.endElement();
