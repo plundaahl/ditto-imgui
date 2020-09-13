@@ -5,6 +5,13 @@
       "testMatch": ["<rootDir>/**/*.unit.ts"],
       "transform": { "^.+\\.tsx?$": "ts-jest" },
       "roots": [ "./src" ]
+    },
+    {
+      "displayName": "Integration Tests",
+      "testMatch": ["<rootDir>/**/*.integration.ts"],
+      "transform": { "^.+\\.tsx?$": "ts-jest" },
+      "preset": "jest-puppeteer",
+      "roots": [ "./src" ]
     }
   ],
   "verbose": true,
