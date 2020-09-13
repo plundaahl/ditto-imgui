@@ -1,0 +1,17 @@
+{
+  "projects": [
+    {
+      "displayName": "Unit Tests",
+      "testMatch": ["<rootDir>/**/*.unit.ts"],
+      "transform": { "^.+\\.tsx?$": "ts-jest" },
+      "roots": [ "./src" ]
+    }
+  ],
+  "verbose": true,
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/**/*.unit.ts",
+    "!src/**/index.ts"
+  ]
+}
