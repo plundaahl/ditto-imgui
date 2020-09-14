@@ -14,7 +14,6 @@ export class ContextImpl implements Context {
     protected readonly elementPool: ObjectPool<UiElement>;
     protected readonly elementTree: UiElement;
     protected readonly navigationStack: UiElement[] = [];
-    protected curElement: UiElement;
 
     constructor(
         createCanvasFn: () => CanvasRenderingContext2D,
@@ -26,7 +25,6 @@ export class ContextImpl implements Context {
 
         this.elementTree = this.elementPool.provision();
         this.navigationStack.push(this.elementTree);
-        this.curElement = this.elementTree;
     }
 
     get draw(): DrawContext {
@@ -37,12 +35,15 @@ export class ContextImpl implements Context {
         return this.curElement.boundingBox;
     }
 
+    protected get curElement() {
+        return this.navigationStack[this.navigationStack.length - 1];
+    }
+
     beginElement(): void {
         const child = this.elementPool.provision();
         const parent = this.curElement;
 
         this.curElement.children.push(child);
-        this.curElement = child;
         this.navigationStack.push(child);
 
         parent.onBeginChild(parent, child);
@@ -54,10 +55,7 @@ export class ContextImpl implements Context {
         }
 
         const child = this.curElement;
-
         this.navigationStack.pop();
-        this.curElement = this.navigationStack[this.navigationStack.length - 1];
-
         this.curElement.onEndChild(this.curElement, child);
     }
 }
