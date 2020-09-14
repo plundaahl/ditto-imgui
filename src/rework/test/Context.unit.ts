@@ -270,6 +270,15 @@ describe('forEachElementDfs()', () => {
         instance.endElement();
     }
 
+    function beginFloatingElement() {
+        instance.beginFloatingElement();
+        elements.push(instance.getCurElement());
+    }
+
+    function endFloatingElement() {
+        instance.endFloatingElement();
+    }
+
     beforeEach(() => {
         elements = [ instance.getCurElement() ];
         output = [];
@@ -314,6 +323,154 @@ describe('forEachElementDfs()', () => {
         expect(output.length).toEqual(elements.length);
         for (let i = 0; i < elements.length; i++) {
             expect(output[i]).toBe(elements[i]);
+        }
+    });
+
+    test('visit every floating element', () => {
+        {
+            beginFloatingElement();
+            {
+                beginFloatingElement();
+                endFloatingElement();
+
+                beginFloatingElement();
+                {
+                    beginFloatingElement();
+                    {
+                        beginFloatingElement();
+                        endFloatingElement();
+                    }
+                    endFloatingElement();
+                }
+                endFloatingElement();
+            }
+            endFloatingElement();
+
+            beginFloatingElement();
+            endFloatingElement();
+
+            beginFloatingElement();
+            {
+                beginFloatingElement();
+                endFloatingElement();
+            }
+            endFloatingElement();
+
+            beginFloatingElement();
+            endFloatingElement();
+        }
+
+        instance.doForEachElementDfs((e) => output.push(e));
+
+        expect(output.length).toEqual(elements.length);
+        for (let i = 0; i < elements.length; i++) {
+            expect(output[i]).toBe(elements[i]);
+        }
+    });
+
+    test('visits regular children before floating children', () => {
+        const parent = instance.getCurElement();
+        const children: UiElement[] = [];
+        const floatingChildren: UiElement[] = [];
+
+        {
+            beginFloatingElement();
+            floatingChildren.push(instance.getCurElement());
+            endFloatingElement();
+
+            beginElement();
+            children.push(instance.getCurElement());
+            endElement();
+
+            beginFloatingElement();
+            floatingChildren.push(instance.getCurElement());
+            endFloatingElement();
+
+            beginElement();
+            children.push(instance.getCurElement());
+            endElement();
+
+            beginElement();
+            children.push(instance.getCurElement());
+            endElement();
+        }
+
+        let expectedOrder = [ parent, ...children, ...floatingChildren ];
+        let output: UiElement[] = [];
+
+        instance.doForEachElementDfs((e) => output.push(e));
+
+        expect(output.length).toEqual(expectedOrder.length);
+        for (let i = 0; i < output.length; i++) {
+            expect(output[i]).toBe(expectedOrder[i]);
+        }
+    });
+
+    test('can rearrange children in callback before iterating through them', () => {
+        const parent = instance.getCurElement();
+        const children: UiElement[] = [];
+
+        {
+            beginElement();
+            children.push(instance.getCurElement());
+            endElement();
+
+            beginElement();
+            children.push(instance.getCurElement());
+            endElement();
+
+            beginElement();
+            children.push(instance.getCurElement());
+            endElement();
+        }
+
+        const expectedOrder = [ parent, ...children.reverse() ];
+        let output: UiElement[] = [];
+
+        instance.doForEachElementDfs((e) => {
+            const [ ...children ] = e.children;
+            e.children.length = 0;
+            e.children.push(...children.reverse());
+            output.push(e)
+        });
+
+        expect(output.length).toEqual(expectedOrder.length);
+        for (let i = 0; i < output.length; i++) {
+            expect(output[i]).toBe(expectedOrder[i]);
+        }
+    });
+
+    test('can rearrange floatingChildren in callback before iterating through them', () => {
+        const parent = instance.getCurElement();
+        const children: UiElement[] = [];
+
+        {
+            beginFloatingElement();
+            children.push(instance.getCurElement());
+            endFloatingElement();
+
+            beginFloatingElement();
+            children.push(instance.getCurElement());
+            endFloatingElement();
+
+            beginFloatingElement();
+            children.push(instance.getCurElement());
+            endFloatingElement();
+        }
+
+        const expectedOrder = [ parent, ...children.reverse() ];
+        let output: UiElement[] = [];
+
+        instance.doForEachElementDfs((e) => {
+            const [ ...children ] = e.floatingChildren;
+            e.floatingChildren.length = 0;
+            e.floatingChildren.push(...children.reverse());
+            output.push(e)
+        });
+
+        expect(output.length).toEqual(expectedOrder.length);
+        for (let i = 0; i < output.length; i++) {
+            expect(output[i]).toBe(expectedOrder[i]);
         }
     });
 });

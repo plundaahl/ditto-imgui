@@ -120,6 +120,10 @@ export class ContextImpl implements Context {
         for (let child of element.children) {
             this.recurseElementsDfs(child, callback);
         }
+
+        for (let child of element.floatingChildren) {
+            this.recurseElementsDfs(child, callback);
+        }
     }
 }
 
