@@ -31,5 +31,12 @@ export class UiElement {
         element.onBeginChild = defaultChildChangeFn;
         element.onEndChild = defaultChildChangeFn;
     }
+
+    sortFloatingChildrenByZIndex() {
+        this.floatingChildren.sort(zIndexComparator);
+    }
 }
 
+function zIndexComparator(a: UiElement, b: UiElement): number {
+    return a.zIndex - b.zIndex || 1;
+}
