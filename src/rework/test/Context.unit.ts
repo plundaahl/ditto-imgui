@@ -1,5 +1,6 @@
 import { ContextImpl, Context } from '../Context';
 import { UiElement } from '../UiElement';
+
 class InspectableContext extends ContextImpl {
     constructor() {
         super(createFakeCanvasCtx);
@@ -15,8 +16,25 @@ class InspectableContext extends ContextImpl {
     }
 }
 
-function createFakeCanvasCtx() {
-    return {} as CanvasRenderingContext2D;
+function createFakeCanvasCtx(hooks: {
+    onCall?: (fnCalled: string, ...args: any) => void,
+    onGet?: (prop: string) => void,
+    onSet?: (prop: string, value: any) => void,
+} = {}) {
+    const onCall = hooks.onCall || jest.fn();
+    const onGet = hooks.onGet || jest.fn();
+    const onSet = hooks.onSet || jest.fn();
+
+    return new Proxy({}, {
+        get: (target: {}, prop: string) => {
+            onGet(prop);
+            return onCall.bind(undefined, prop);
+        },
+        set: (target: {}, prop: string, value: any) => {
+            onSet(prop, value);
+            return true;
+        },
+    }) as CanvasRenderingContext2D;
 }
 
 let instance: InspectableContext;
