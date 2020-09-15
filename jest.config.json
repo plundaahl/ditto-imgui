@@ -1,13 +1,13 @@
 {
   "projects": [
     {
-      "displayName": "Unit Tests",
+      "displayName": "unit",
       "testMatch": ["<rootDir>/**/*.unit.ts"],
       "transform": { "^.+\\.tsx?$": "ts-jest" },
       "roots": [ "./src" ]
     },
     {
-      "displayName": "Integration Tests",
+      "displayName": "integration",
       "testMatch": ["<rootDir>/**/*.integration.ts"],
       "transform": { "^.+\\.tsx?$": "ts-jest" },
       "preset": "jest-puppeteer",

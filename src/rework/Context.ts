@@ -23,10 +23,20 @@ export class ContextImpl implements Context {
     protected readonly elementTree: UiElement;
     protected readonly navigationStack: UiElement[] = [];
     protected readonly elementTypeStack: ElementType[] = [];
+    private context?: CanvasRenderingContext2D;
 
     constructor(
         createCanvasFn: () => CanvasRenderingContext2D,
     ) {
+        this.beginElement = this.beginElement.bind(this);
+        this.endElement = this.endElement.bind(this);
+        this.beginFloatingElement = this.beginFloatingElement.bind(this);
+        this.endFloatingElement = this.endFloatingElement.bind(this);
+        this.render = this.render.bind(this);
+        this.renderElement = this.renderElement.bind(this);
+        this.forEachElementDfs = this.forEachElementDfs.bind(this);
+        this.recurseElementsDfs = this.recurseElementsDfs.bind(this);
+
         this.elementPool = new ObjectPool(
             UiElement.create.bind(UiElement, createCanvasFn),
             UiElement.reset,
@@ -50,8 +60,8 @@ export class ContextImpl implements Context {
     }
 
     beginElement(): void {
-        const child = this.elementPool.provision();
         const parent = this.curElement;
+        const child = this.elementPool.provision();
 
         this.curElement.children.push(child);
         this.navigationStack.push(child);
@@ -102,27 +112,33 @@ export class ContextImpl implements Context {
     }
 
     render(context: CanvasRenderingContext2D): void {
+        this.context = context;
+        this.forEachElementDfs(this.renderElement);
+        delete this.context;
     }
 
-    private preRender(): void {
+    private renderElement(element: UiElement) {
+        element.sortFloatingChildrenByZIndex();
+        element.drawBuffer.render(this.context as CanvasRenderingContext2D);
+        element.drawBuffer.clear();
     }
 
-    protected forEachElementDfs(callback: (element: UiElement) => void): void {
-        this.recurseElementsDfs(this.elementTree, callback);
+    protected forEachElementDfs(onPreOrder: (element: UiElement) => void): void {
+        this.recurseElementsDfs(this.elementTree, onPreOrder);
     }
 
     private recurseElementsDfs(
         element: UiElement,
-        callback: (element: UiElement) => void,
+        onPreOrder: undefined | ((element: UiElement) => void),
     ): void {
-        callback(element);
+        onPreOrder && onPreOrder(element);
 
         for (let child of element.children) {
-            this.recurseElementsDfs(child, callback);
+            this.recurseElementsDfs(child, onPreOrder);
         }
 
         for (let child of element.floatingChildren) {
-            this.recurseElementsDfs(child, callback);
+            this.recurseElementsDfs(child, onPreOrder);
         }
     }
 }

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx jest",
+    "test:integration": "cd src/rework/test/integration && npx webpack && npx jest --selectProjects integration",
     "build": "npx tsc",
     "pack": "npx webpack"
   },
@@ -15,7 +16,7 @@
     "@types/node": "^14.6.2",
     "@types/puppeteer": "^3.0.2",
     "canvas": "^2.6.1",
-    "jest": "^25.0.0",
+    "jest": "^26.0.0",
     "jest-puppeteer": "^4.4.0",
     "puppeteer": "^5.3.0",
     "ts-jest": "^26.3.0",
