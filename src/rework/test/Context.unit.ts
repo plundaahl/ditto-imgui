@@ -8,6 +8,7 @@ class InspectableContext extends ContextImpl {
 
     getUiElementPool() { return this.elementPool; }
     getUiElementTree() { return this.elementTree; }
+    getLayers() { return this.layers; }
     getBuildStack() { return this.buildStack; }
     getCurLayerStack() { return this.curLayerStack; }
     getCurElement() { return this.curElement; }
@@ -42,6 +43,10 @@ let instance: InspectableContext;
 beforeEach(() => { instance = new InspectableContext(); });
 
 describe('constructor', () => {
+    test('Creates an initial layer', () => {
+        expect(instance.getLayers().length).toBe(1);
+    });
+
     test('sets first element in first build stack to root of elementTree', () => {
         expect(instance.getCurLayerStack()[0]).toBe(instance.getUiElementTree());
     });
@@ -95,6 +100,29 @@ describe('get curLayerStack', () => {
     test('Should error if current layerStack empty', () => {
         instance.getBuildStack().pop();
         expect(() => instance.getCurLayerStack()).toThrowError();
+    });
+});
+
+describe('beginLayer()', () => {
+    test('Should increment buildStack', () => {
+        const buildStackLength = instance.getBuildStack().length;
+        instance.beginLayer();
+        expect(instance.getBuildStack().length).toBe(buildStackLength + 1);
+    });
+
+    test('New curLayerStack should have 1 element', () => {
+        instance.beginLayer();
+        expect(instance.getCurLayerStack().length).toBe(1);
+    });
+});
+
+describe('endLayer()', () => {
+    test("Should error if current layer stack has more than 1 element", () => {
+        instance.beginLayer();
+        instance.beginElement();
+
+        expect(instance.getCurLayerStack().length).toBeGreaterThan(1);
+        expect(() => instance.endLayer()).toThrowError();
     });
 });
 

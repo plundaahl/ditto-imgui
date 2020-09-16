@@ -6,6 +6,8 @@ import { ObjectPool } from './ObjectPool';
 export interface Context {
     readonly draw: DrawContext;
     readonly bounds: BoundingBox;
+    beginLayer(): void;
+    endLayer(): void;
     beginElement(): void;
     endElement(): void;
     render(context: CanvasRenderingContext2D): void;
@@ -14,6 +16,7 @@ export interface Context {
 export class ContextImpl implements Context {
     protected readonly elementPool: ObjectPool<UiElement>;
     protected readonly elementTree: UiElement;
+    protected readonly layers: UiElement[] = [];
     protected readonly buildStack: UiElement[][] = [];
     private context?: CanvasRenderingContext2D;
 
@@ -32,8 +35,10 @@ export class ContextImpl implements Context {
             UiElement.reset,
         );
 
-        this.elementTree = this.elementPool.provision();
-        this.buildStack.push([ this.elementTree ]);
+        let rootElement = this.elementPool.provision();
+        this.layers.push(rootElement);
+        this.elementTree = rootElement;
+        this.buildStack.push([ rootElement ]);
     }
 
     get draw(): DrawContext {
@@ -55,6 +60,17 @@ export class ContextImpl implements Context {
     protected get curElement() {
         const { curLayerStack } = this;
         return curLayerStack[curLayerStack.length - 1];
+    }
+
+    beginLayer(): void {
+        this.buildStack.push([ this.elementPool.provision() ]);
+    }
+
+    endLayer(): void {
+        if (this.curLayerStack.length > 1) {
+            const nUnfinishedElements = this.curLayerStack.length - 1;
+            throw new Error(`You are trying to end the current layer, but it currently contains the root element + ${nUnfinishedElements} unfinished elements. Please call endElement() ${nUnfinishedElements} more times before calling endLayer()`);
+        }
     }
 
     beginElement(): void {
