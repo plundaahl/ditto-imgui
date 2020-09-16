@@ -3,11 +3,6 @@ import { DrawContext } from './DrawBuffer';
 import { BoundingBox } from './BoundingBox';
 import { ObjectPool } from './ObjectPool';
 
-enum ElementType {
-    INFLOW,
-    FLOATING,
-}
-
 export interface Context {
     readonly draw: DrawContext;
     readonly bounds: BoundingBox;
@@ -19,8 +14,7 @@ export interface Context {
 export class ContextImpl implements Context {
     protected readonly elementPool: ObjectPool<UiElement>;
     protected readonly elementTree: UiElement;
-    protected readonly navigationStack: UiElement[] = [];
-    protected readonly elementTypeStack: ElementType[] = [];
+    protected readonly buildStack: UiElement[] = [];
     private context?: CanvasRenderingContext2D;
 
     constructor(
@@ -39,8 +33,7 @@ export class ContextImpl implements Context {
         );
 
         this.elementTree = this.elementPool.provision();
-        this.navigationStack.push(this.elementTree);
-        this.elementTypeStack.push(ElementType.INFLOW);
+        this.buildStack.push(this.elementTree);
     }
 
     get draw(): DrawContext {
@@ -52,7 +45,7 @@ export class ContextImpl implements Context {
     }
 
     protected get curElement() {
-        return this.navigationStack[this.navigationStack.length - 1];
+        return this.buildStack[this.buildStack.length - 1];
     }
 
     beginElement(): void {
@@ -60,27 +53,18 @@ export class ContextImpl implements Context {
         const child = this.elementPool.provision();
 
         this.curElement.children.push(child);
-        this.navigationStack.push(child);
-        this.elementTypeStack.push(ElementType.INFLOW);
+        this.buildStack.push(child);
 
         parent.onBeginChild(parent, child);
     }
 
     endElement(): void {
-        if (this.navigationStack.length === 1) {
+        if (this.buildStack.length === 1) {
             throw new Error("You called endElement() more times than beginElement(). Cannot remove root element. Are your endElement() and beginElement() calls mismatched?");
         }
 
-        const elementType = this.elementTypeStack.pop();
-        if (elementType !== ElementType.INFLOW) {
-            if (elementType !== undefined) {
-                this.elementTypeStack.push(elementType);
-            }
-            throw new Error(`endElement() was called for a mismatched begin* call. Expect ElementType ${ElementType.INFLOW}, but was type ${elementType}`);
-        }
-
         const child = this.curElement;
-        this.navigationStack.pop();
+        this.buildStack.pop();
         this.curElement.onEndChild(this.curElement, child);
     }
 

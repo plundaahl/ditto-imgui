@@ -8,7 +8,7 @@ class InspectableContext extends ContextImpl {
 
     getUiElementPool() { return this.elementPool; }
     getUiElementTree() { return this.elementTree; }
-    getNavigationStack() { return this.navigationStack; }
+    getBuildStack() { return this.buildStack; }
     getCurElement() { return this.curElement; }
 
     doForEachElementDfs(callback: (element: UiElement) => void): void {
@@ -42,11 +42,11 @@ beforeEach(() => { instance = new InspectableContext(); });
 
 describe('constructor', () => {
     test('sets first element in nav stack to root of elementTree', () => {
-        expect(instance.getNavigationStack()[0]).toBe(instance.getUiElementTree());
+        expect(instance.getBuildStack()[0]).toBe(instance.getUiElementTree());
     });
 
     test('sets navigationStack length to 1', () => {
-        expect(instance.getNavigationStack().length).toBe(1);
+        expect(instance.getBuildStack().length).toBe(1);
     });
 
     test('sets cur element to root of elementTree', () => {
@@ -86,7 +86,7 @@ describe('beginElement()', () => {
 
     test("Should push new element onto navigationStack", () => {
         instance.beginElement();
-        const navStack = instance.getNavigationStack();
+        const navStack = instance.getBuildStack();
         expect(navStack[navStack.length - 1]).not.toBe(prevUiElement);
     });
 
@@ -94,7 +94,7 @@ describe('beginElement()', () => {
         beforeEach(() => instance.beginElement());
 
         test('curUiElement should be on end of navigationStack', () => {
-            const navStack = instance.getNavigationStack();
+            const navStack = instance.getBuildStack();
             expect(navStack[navStack.length - 1]).toBe(instance.getCurElement());
         });
 
@@ -104,7 +104,7 @@ describe('beginElement()', () => {
         });
 
         test('Last child of prev element should be on end of navigationStack', () => {
-            const navStack = instance.getNavigationStack();
+            const navStack = instance.getBuildStack();
             expect(navStack[navStack.length - 1])
                 .toBe(prevUiElement.children[prevUiElement.children.length - 1]);
         });
@@ -157,7 +157,7 @@ describe('endElement()', () => {
             });
     
             test("Should set top of navigation stack to parent", () => {
-                const navStack = instance.getNavigationStack();
+                const navStack = instance.getBuildStack();
                 expect(navStack[navStack.length - 1]).toBe(parent);
             });
         });
