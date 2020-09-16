@@ -27,8 +27,6 @@ export class ContextImpl implements Context {
         this.endElement = this.endElement.bind(this);
         this.render = this.render.bind(this);
         this.renderElement = this.renderElement.bind(this);
-        this.forEachElementDfs = this.forEachElementDfs.bind(this);
-        this.recurseElementsDfs = this.recurseElementsDfs.bind(this);
 
         this.elementPool = new ObjectPool(
             UiElement.create.bind(UiElement, createCanvasFn),
@@ -95,7 +93,6 @@ export class ContextImpl implements Context {
 
     render(context: CanvasRenderingContext2D): void {
         this.context = context;
-        this.forEachElementDfs(this.renderElement);
         delete this.context;
     }
 
@@ -103,21 +100,6 @@ export class ContextImpl implements Context {
         element.sortChildrenByZIndex();
         element.drawBuffer.render(this.context as CanvasRenderingContext2D);
         element.drawBuffer.clear();
-    }
-
-    protected forEachElementDfs(onPreOrder: (element: UiElement) => void): void {
-        this.recurseElementsDfs(this.elementTree, onPreOrder);
-    }
-
-    private recurseElementsDfs(
-        element: UiElement,
-        onPreOrder: undefined | ((element: UiElement) => void),
-    ): void {
-        onPreOrder && onPreOrder(element);
-
-        for (let child of element.children) {
-            this.recurseElementsDfs(child, onPreOrder);
-        }
     }
 }
 

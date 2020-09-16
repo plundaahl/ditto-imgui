@@ -12,10 +12,6 @@ class InspectableContext extends ContextImpl {
     getBuildStack() { return this.buildStack; }
     getCurLayerStack() { return this.curLayerStack; }
     getCurElement() { return this.curElement; }
-
-    doForEachElementDfs(callback: (element: UiElement) => void): void {
-        this.forEachElementDfs(callback);
-    }
 }
 
 function createFakeCanvasCtx(hooks: {
@@ -241,103 +237,6 @@ describe('endElement()', () => {
                 expect(parent.onEndChild).toHaveBeenCalledWith(parent, child);
             });
         });
-    });
-});
-
-
-describe('forEachElementDfs()', () => {
-    let elements: UiElement[];
-    let output: UiElement[];
-
-    function beginElement() {
-        instance.beginElement();
-        elements.push(instance.getCurElement());
-    }
-
-    function endElement() {
-        instance.endElement();
-    }
-
-    beforeEach(() => {
-        elements = [ instance.getCurElement() ];
-        output = [];
-    });
-
-    test('visit every element', () => {
-        {
-            beginElement();
-            {
-                beginElement();
-                endElement();
-
-                beginElement();
-                {
-                    beginElement();
-                    {
-                        beginElement();
-                        endElement();
-                    }
-                    endElement();
-                }
-                endElement();
-            }
-            endElement();
-
-            beginElement();
-            endElement();
-
-            beginElement();
-            {
-                beginElement();
-                endElement();
-            }
-            endElement();
-
-            beginElement();
-            endElement();
-        }
-
-        instance.doForEachElementDfs((e) => output.push(e));
-
-        expect(output.length).toEqual(elements.length);
-        for (let i = 0; i < elements.length; i++) {
-            expect(output[i]).toBe(elements[i]);
-        }
-    });
-
-
-    test('can rearrange children in callback before iterating through them', () => {
-        const parent = instance.getCurElement();
-        const children: UiElement[] = [];
-
-        {
-            beginElement();
-            children.push(instance.getCurElement());
-            endElement();
-
-            beginElement();
-            children.push(instance.getCurElement());
-            endElement();
-
-            beginElement();
-            children.push(instance.getCurElement());
-            endElement();
-        }
-
-        const expectedOrder = [ parent, ...children.reverse() ];
-        let output: UiElement[] = [];
-
-        instance.doForEachElementDfs((e) => {
-            const [ ...children ] = e.children;
-            e.children.length = 0;
-            e.children.push(...children.reverse());
-            output.push(e)
-        });
-
-        expect(output.length).toEqual(expectedOrder.length);
-        for (let i = 0; i < output.length; i++) {
-            expect(output[i]).toBe(expectedOrder[i]);
-        }
     });
 });
 
