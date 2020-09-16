@@ -7,7 +7,6 @@ export class UiElement {
     public readonly boundingBox: BoundingBox = new BoundingBox();
     public readonly drawBuffer: DrawBuffer;
     public readonly children: UiElement[] = [];
-    public readonly floatingChildren: UiElement[] = [];
     public key: string | undefined;
     public zIndex: number = 0;
     public onBeginChild: (self: UiElement, child: UiElement) => void;
@@ -25,15 +24,14 @@ export class UiElement {
 
     static reset(element: UiElement) {
         element.children.length = 0;
-        element.floatingChildren.length = 0;
         delete element.key;
         element.zIndex = 0;
         element.onBeginChild = defaultChildChangeFn;
         element.onEndChild = defaultChildChangeFn;
     }
 
-    sortFloatingChildrenByZIndex() {
-        this.floatingChildren.sort(zIndexComparator);
+    sortChildrenByZIndex() {
+        this.children.sort(zIndexComparator);
     }
 }
 

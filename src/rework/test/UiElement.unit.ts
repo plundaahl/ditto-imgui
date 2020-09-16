@@ -27,12 +27,6 @@ describe('reset()', () => {
         expect(instance.children.length).toBe(0);
     });
 
-    test('Clears out floatingChildren', () => {
-        instance.floatingChildren.push(createUiElement());
-        UiElement.reset(instance);
-        expect(instance.floatingChildren.length).toBe(0);
-    });
-
     test('Deletes key', () => {
         instance.key = "yoyoyo";
         UiElement.reset(instance);
@@ -60,7 +54,7 @@ describe('reset()', () => {
     });
 });
 
-describe('sortFloatingChildrenByZIndex()', () => {
+describe('sortChildrenByZIndex()', () => {
     let instance: UiElement;
 
     beforeEach(() => {
@@ -76,11 +70,11 @@ describe('sortFloatingChildrenByZIndex()', () => {
 
         const expectedOrder: UiElement[] = [e4, e2, e5, e1, e3];
 
-        instance.floatingChildren.push(e1, e2, e3, e4, e5);
-        instance.sortFloatingChildrenByZIndex();
+        instance.children.push(e1, e2, e3, e4, e5);
+        instance.sortChildrenByZIndex();
 
-        for (let i = 0; i < instance.floatingChildren.length; i++) {
-            expect(instance.floatingChildren[i]).toBe(expectedOrder[i]);
+        for (let i = 0; i < instance.children.length; i++) {
+            expect(instance.children[i]).toBe(expectedOrder[i]);
         }
     });
 
@@ -93,11 +87,11 @@ describe('sortFloatingChildrenByZIndex()', () => {
 
         const expectedOrder: UiElement[] = [e4, e2, e3, e5, e1];
 
-        instance.floatingChildren.push(e1, e2, e3, e4, e5);
-        instance.sortFloatingChildrenByZIndex();
+        instance.children.push(e1, e2, e3, e4, e5);
+        instance.sortChildrenByZIndex();
 
-        for (let i = 0; i < instance.floatingChildren.length; i++) {
-            expect(instance.floatingChildren[i]).toBe(expectedOrder[i]);
+        for (let i = 0; i < instance.children.length; i++) {
+            expect(instance.children[i]).toBe(expectedOrder[i]);
         }
     });
 });

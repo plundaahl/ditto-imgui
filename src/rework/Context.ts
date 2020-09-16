@@ -13,8 +13,6 @@ export interface Context {
     readonly bounds: BoundingBox;
     beginElement(): void;
     endElement(): void;
-    beginFloatingElement(): void;
-    endFloatingElement(): void;
     render(context: CanvasRenderingContext2D): void;
 }
 
@@ -30,8 +28,6 @@ export class ContextImpl implements Context {
     ) {
         this.beginElement = this.beginElement.bind(this);
         this.endElement = this.endElement.bind(this);
-        this.beginFloatingElement = this.beginFloatingElement.bind(this);
-        this.endFloatingElement = this.endFloatingElement.bind(this);
         this.render = this.render.bind(this);
         this.renderElement = this.renderElement.bind(this);
         this.forEachElementDfs = this.forEachElementDfs.bind(this);
@@ -88,29 +84,6 @@ export class ContextImpl implements Context {
         this.curElement.onEndChild(this.curElement, child);
     }
 
-    beginFloatingElement(): void {
-        const child = this.elementPool.provision();
-        this.curElement.floatingChildren.push(child);
-        this.navigationStack.push(child);
-        this.elementTypeStack.push(ElementType.FLOATING);
-    }
-
-    endFloatingElement(): void {
-        if (this.navigationStack.length === 1) {
-            throw new Error("You called endFloatingElement() more times than beginFloatingElement(). Cannot remove root element. Are your endFloatingElement() and beginFloatingElement() calls mismatched?");
-        }
-
-        const elementType = this.elementTypeStack.pop();
-        if (elementType !== ElementType.FLOATING) {
-            if (elementType !== undefined) {
-                this.elementTypeStack.push(elementType);
-            }
-            throw new Error(`endFloatingElement() was called for a mismatched begin* call. Expect ElementType ${ElementType.FLOATING}, but was type ${elementType}`);
-        }
-
-        this.navigationStack.pop();
-    }
-
     render(context: CanvasRenderingContext2D): void {
         this.context = context;
         this.forEachElementDfs(this.renderElement);
@@ -118,7 +91,7 @@ export class ContextImpl implements Context {
     }
 
     private renderElement(element: UiElement) {
-        element.sortFloatingChildrenByZIndex();
+        element.sortChildrenByZIndex();
         element.drawBuffer.render(this.context as CanvasRenderingContext2D);
         element.drawBuffer.clear();
     }
@@ -134,10 +107,6 @@ export class ContextImpl implements Context {
         onPreOrder && onPreOrder(element);
 
         for (let child of element.children) {
-            this.recurseElementsDfs(child, onPreOrder);
-        }
-
-        for (let child of element.floatingChildren) {
             this.recurseElementsDfs(child, onPreOrder);
         }
     }
