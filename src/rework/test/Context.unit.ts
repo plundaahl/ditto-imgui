@@ -9,6 +9,7 @@ class InspectableContext extends ContextImpl {
     getUiElementPool() { return this.elementPool; }
     getUiElementTree() { return this.elementTree; }
     getBuildStack() { return this.buildStack; }
+    getCurLayerStack() { return this.curLayerStack; }
     getCurElement() { return this.curElement; }
 
     doForEachElementDfs(callback: (element: UiElement) => void): void {
@@ -41,16 +42,20 @@ let instance: InspectableContext;
 beforeEach(() => { instance = new InspectableContext(); });
 
 describe('constructor', () => {
-    test('sets first element in nav stack to root of elementTree', () => {
-        expect(instance.getBuildStack()[0]).toBe(instance.getUiElementTree());
+    test('sets first element in first build stack to root of elementTree', () => {
+        expect(instance.getCurLayerStack()[0]).toBe(instance.getUiElementTree());
     });
 
-    test('sets navigationStack length to 1', () => {
+    test('sets buildStack length to 1', () => {
         expect(instance.getBuildStack().length).toBe(1);
     });
 
-    test('sets cur element to root of elementTree', () => {
-        expect(instance.getCurElement()).toBe(instance.getUiElementTree());
+    test('sets current layer stack length to 1', () => {
+        expect(instance.getCurLayerStack().length).toBe(1);
+    });
+
+    test('sets cur element to root of current layerStack', () => {
+        expect(instance.getCurElement()).toBe(instance.getCurLayerStack()[0]);
     });
 });
 
@@ -66,11 +71,43 @@ describe('get bounds()', () => {
     });
 });
 
+describe('get curLayerStack', () => {
+    test('Should return last element in buildStack', () => {
+        const pool = instance.getUiElementPool();
+        const buildStack = instance.getBuildStack();
+
+        expect(instance.getCurLayerStack()).toBe(buildStack[buildStack.length - 1]);
+
+        let layer = [ pool.provision() ];
+        buildStack.push(layer);
+        expect(instance.getCurLayerStack()).toBe(layer);
+
+        layer = [ pool.provision() ];
+        buildStack.push(layer);
+        expect(instance.getCurLayerStack()).toBe(layer);
+    });
+
+    test('Should error if buildStack empty', () => {
+        instance.getBuildStack().pop();
+        expect(() => instance.getCurLayerStack()).toThrowError();
+    });
+
+    test('Should error if current layerStack empty', () => {
+        instance.getBuildStack().pop();
+        expect(() => instance.getCurLayerStack()).toThrowError();
+    });
+});
+
 describe('beginElement()', () => {
     let prevUiElement: UiElement;
 
     beforeEach(() => {
         prevUiElement = instance.getCurElement();
+    });
+
+    test("Should error if buildStack is empty", () => {
+        instance.getBuildStack().pop();
+        expect(() => instance.beginElement()).toThrowError();
     });
 
     test("Should push a new element into previous element's children", () => {
@@ -84,18 +121,18 @@ describe('beginElement()', () => {
         expect(instance.getCurElement()).not.toBe(prevUiElement);
     });
 
-    test("Should push new element onto navigationStack", () => {
+    test("Should push new element onto current layer stack", () => {
         instance.beginElement();
-        const navStack = instance.getBuildStack();
+        const navStack = instance.getCurLayerStack();
         expect(navStack[navStack.length - 1]).not.toBe(prevUiElement);
     });
 
     describe('postconditions', () => {
         beforeEach(() => instance.beginElement());
 
-        test('curUiElement should be on end of navigationStack', () => {
-            const navStack = instance.getBuildStack();
-            expect(navStack[navStack.length - 1]).toBe(instance.getCurElement());
+        test('curUiElement should be on end of current layer stack', () => {
+            const layerStack = instance.getCurLayerStack();
+            expect(layerStack[layerStack.length - 1]).toBe(instance.getCurElement());
         });
 
         test('curUiElement should be the same as last child of prev element', () => {
@@ -103,9 +140,9 @@ describe('beginElement()', () => {
                 .toBe(prevUiElement.children[prevUiElement.children.length - 1]);
         });
 
-        test('Last child of prev element should be on end of navigationStack', () => {
-            const navStack = instance.getBuildStack();
-            expect(navStack[navStack.length - 1])
+        test('Last child of prev element should be on end of current layer stack', () => {
+            const layerStack = instance.getCurLayerStack();
+            expect(layerStack[layerStack.length - 1])
                 .toBe(prevUiElement.children[prevUiElement.children.length - 1]);
         });
     });
@@ -137,34 +174,39 @@ describe('endElement()', () => {
             instance.beginElement();
             child = instance.getCurElement();
         });
-    
+
+        test('Should error if buildStack empty', () => {
+            instance.getBuildStack().pop();
+            expect(() => instance.endElement()).toThrowError();
+        });
+
         test('Should error if removes root element', () => {
             instance.endElement();
             expect(() => instance.endElement()).toThrowError();
         });
-    
+
         test('Should not modify parent children', () => {
             const parentChildrenLength = parent.children.length;
             instance.endElement();
             expect(parent.children.length).toBe(parentChildrenLength);
         });
-    
+
         describe('postconditions', () => {
             beforeEach(() => instance.endElement());
-    
+
             test("Should set curUiElement to previous parent", () => {
                 expect(instance.getCurElement()).toBe(parent);
             });
-    
-            test("Should set top of navigation stack to parent", () => {
-                const navStack = instance.getBuildStack();
-                expect(navStack[navStack.length - 1]).toBe(parent);
+
+            test("Should set top of current layer stack to parent", () => {
+                const layerStack = instance.getCurLayerStack();
+                expect(layerStack[layerStack.length - 1]).toBe(parent);
             });
         });
-    
+
         describe('onEndChild hook', () => {
             beforeEach(() => parent.onEndChild = jest.fn());
-    
+
             test("Should pass parent and child into parent's onEndChild", () => {
                 instance.endElement();
                 expect(parent.onEndChild).toHaveBeenCalled();
@@ -235,7 +277,7 @@ describe('forEachElementDfs()', () => {
         }
     });
 
-    
+
     test('can rearrange children in callback before iterating through them', () => {
         const parent = instance.getCurElement();
         const children: UiElement[] = [];

@@ -14,7 +14,7 @@ export interface Context {
 export class ContextImpl implements Context {
     protected readonly elementPool: ObjectPool<UiElement>;
     protected readonly elementTree: UiElement;
-    protected readonly buildStack: UiElement[] = [];
+    protected readonly buildStack: UiElement[][] = [];
     private context?: CanvasRenderingContext2D;
 
     constructor(
@@ -33,7 +33,7 @@ export class ContextImpl implements Context {
         );
 
         this.elementTree = this.elementPool.provision();
-        this.buildStack.push(this.elementTree);
+        this.buildStack.push([ this.elementTree ]);
     }
 
     get draw(): DrawContext {
@@ -44,8 +44,17 @@ export class ContextImpl implements Context {
         return this.curElement.boundingBox;
     }
 
+    protected get curLayerStack(): UiElement[] {
+        const curLayerStack = this.buildStack[this.buildStack.length - 1];
+        if (curLayerStack === undefined) {
+            throw new Error('No layer currently mounted');
+        }
+        return curLayerStack;
+    }
+
     protected get curElement() {
-        return this.buildStack[this.buildStack.length - 1];
+        const { curLayerStack } = this;
+        return curLayerStack[curLayerStack.length - 1];
     }
 
     beginElement(): void {
@@ -53,18 +62,18 @@ export class ContextImpl implements Context {
         const child = this.elementPool.provision();
 
         this.curElement.children.push(child);
-        this.buildStack.push(child);
+        this.curLayerStack.push(child);
 
         parent.onBeginChild(parent, child);
     }
 
     endElement(): void {
-        if (this.buildStack.length === 1) {
+        if (this.curLayerStack.length === 1) {
             throw new Error("You called endElement() more times than beginElement(). Cannot remove root element. Are your endElement() and beginElement() calls mismatched?");
         }
 
         const child = this.curElement;
-        this.buildStack.pop();
+        this.curLayerStack.pop();
         this.curElement.onEndChild(this.curElement, child);
     }
 
