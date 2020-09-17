@@ -46,17 +46,17 @@ export class ContextImpl implements Context {
         return this.curElement.boundingBox;
     }
 
-    protected get curLayerStack(): UiElement[] {
-        const curLayerStack = this.buildStack[this.buildStack.length - 1];
-        if (curLayerStack === undefined) {
+    protected get curLayer(): UiElement[] {
+        const curLayer = this.buildStack[this.buildStack.length - 1];
+        if (curLayer === undefined) {
             throw new Error('No layer currently mounted');
         }
-        return curLayerStack;
+        return curLayer;
     }
 
     protected get curElement() {
-        const { curLayerStack } = this;
-        return curLayerStack[curLayerStack.length - 1];
+        const { curLayer } = this;
+        return curLayer[curLayer.length - 1];
     }
 
     beginLayer(): void {
@@ -66,8 +66,8 @@ export class ContextImpl implements Context {
     }
 
     endLayer(): void {
-        if (this.curLayerStack.length > 1) {
-            const nUnfinishedElements = this.curLayerStack.length - 1;
+        if (this.curLayer.length > 1) {
+            const nUnfinishedElements = this.curLayer.length - 1;
             throw new Error(`You are trying to end the current layer, but it currently contains the root element + ${nUnfinishedElements} unfinished elements. Please call endElement() ${nUnfinishedElements} more times before calling endLayer()`);
         }
 
@@ -75,7 +75,7 @@ export class ContextImpl implements Context {
             throw new Error(`There are no more layers to end. Please match your beginLayer() and endLayer() calls`);
         }
 
-        this.curLayerStack.pop();
+        this.curLayer.pop();
         this.buildStack.pop();
     }
 
@@ -84,18 +84,18 @@ export class ContextImpl implements Context {
         const child = this.elementPool.provision();
 
         this.curElement.children.push(child);
-        this.curLayerStack.push(child);
+        this.curLayer.push(child);
 
         parent.onBeginChild(parent, child);
     }
 
     endElement(): void {
-        if (this.curLayerStack.length === 1) {
+        if (this.curLayer.length === 1) {
             throw new Error("You called endElement() more times than beginElement(). Cannot remove root element. Are your endElement() and beginElement() calls mismatched?");
         }
 
         const child = this.curElement;
-        this.curLayerStack.pop();
+        this.curLayer.pop();
         this.curElement.onEndChild(this.curElement, child);
     }
 

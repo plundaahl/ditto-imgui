@@ -16,7 +16,7 @@ class InspectableContext extends ContextImpl {
     getUiElementPool() { return this.elementPool; }
     getLayers() { return this.layers; }
     getBuildStack() { return this.buildStack; }
-    getCurLayerStack() { return this.curLayerStack; }
+    getCurLayer() { return this.curLayer; }
     getCurElement() { return this.curElement; }
 }
 
@@ -58,11 +58,11 @@ describe('constructor', () => {
     });
 
     test('sets current layer stack length to 1', () => {
-        expect(instance.getCurLayerStack().length).toBe(1);
+        expect(instance.getCurLayer().length).toBe(1);
     });
 
-    test('sets cur element to root of current layerStack', () => {
-        expect(instance.getCurElement()).toBe(instance.getCurLayerStack()[0]);
+    test('sets cur element to root of current layer', () => {
+        expect(instance.getCurElement()).toBe(instance.getCurLayer()[0]);
     });
 });
 
@@ -78,30 +78,25 @@ describe('get bounds()', () => {
     });
 });
 
-describe('get curLayerStack', () => {
+describe('get curLayer', () => {
     test('Should return last element in buildStack', () => {
         const pool = instance.getUiElementPool();
         const buildStack = instance.getBuildStack();
 
-        expect(instance.getCurLayerStack()).toBe(buildStack[buildStack.length - 1]);
+        expect(instance.getCurLayer()).toBe(buildStack[buildStack.length - 1]);
 
         let layer = [ pool.provision() ];
         buildStack.push(layer);
-        expect(instance.getCurLayerStack()).toBe(layer);
+        expect(instance.getCurLayer()).toBe(layer);
 
         layer = [ pool.provision() ];
         buildStack.push(layer);
-        expect(instance.getCurLayerStack()).toBe(layer);
+        expect(instance.getCurLayer()).toBe(layer);
     });
 
     test('Should error if buildStack empty', () => {
         instance.getBuildStack().pop();
-        expect(() => instance.getCurLayerStack()).toThrowError();
-    });
-
-    test('Should error if current layerStack empty', () => {
-        instance.getBuildStack().pop();
-        expect(() => instance.getCurLayerStack()).toThrowError();
+        expect(() => instance.getCurLayer()).toThrowError();
     });
 });
 
@@ -112,9 +107,9 @@ describe('beginLayer()', () => {
         expect(instance.getBuildStack().length).toBe(buildStackLength + 1);
     });
 
-    test('New curLayerStack should have 1 element', () => {
+    test('New curLayer should have 1 element', () => {
         instance.beginLayer();
-        expect(instance.getCurLayerStack().length).toBe(1);
+        expect(instance.getCurLayer().length).toBe(1);
     });
 
     test("Should add new layer to layers array", () => {
@@ -130,7 +125,7 @@ describe('endLayer()', () => {
         instance.beginLayer();
         instance.beginElement();
 
-        expect(instance.getCurLayerStack().length).toBeGreaterThan(1);
+        expect(instance.getCurLayer().length).toBeGreaterThan(1);
         expect(() => instance.endLayer()).toThrowError();
     });
 
@@ -175,7 +170,7 @@ describe('beginElement()', () => {
 
     test("Should push new element onto current layer stack", () => {
         instance.beginElement();
-        const navStack = instance.getCurLayerStack();
+        const navStack = instance.getCurLayer();
         expect(navStack[navStack.length - 1]).not.toBe(prevUiElement);
     });
 
@@ -183,8 +178,8 @@ describe('beginElement()', () => {
         beforeEach(() => instance.beginElement());
 
         test('curUiElement should be on end of current layer stack', () => {
-            const layerStack = instance.getCurLayerStack();
-            expect(layerStack[layerStack.length - 1]).toBe(instance.getCurElement());
+            const layer = instance.getCurLayer();
+            expect(layer[layer.length - 1]).toBe(instance.getCurElement());
         });
 
         test('curUiElement should be the same as last child of prev element', () => {
@@ -193,8 +188,8 @@ describe('beginElement()', () => {
         });
 
         test('Last child of prev element should be on end of current layer stack', () => {
-            const layerStack = instance.getCurLayerStack();
-            expect(layerStack[layerStack.length - 1])
+            const layer= instance.getCurLayer();
+            expect(layer[layer.length - 1])
                 .toBe(prevUiElement.children[prevUiElement.children.length - 1]);
         });
     });
@@ -251,8 +246,8 @@ describe('endElement()', () => {
             });
 
             test("Should set top of current layer stack to parent", () => {
-                const layerStack = instance.getCurLayerStack();
-                expect(layerStack[layerStack.length - 1]).toBe(parent);
+                const layer= instance.getCurLayer();
+                expect(layer[layer.length - 1]).toBe(parent);
             });
         });
 
