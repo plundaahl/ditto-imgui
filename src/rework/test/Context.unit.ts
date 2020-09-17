@@ -2,8 +2,15 @@ import { ContextImpl, Context } from '../Context';
 import { UiElement } from '../UiElement';
 
 class InspectableContext extends ContextImpl {
+    public onRenderElement: (element: UiElement) => void;
+
     constructor() {
         super(createFakeCanvasCtx);
+    }
+
+    renderElement(element: UiElement) {
+        this.onRenderElement && this.onRenderElement(element);
+        super.renderElement(element);
     }
 
     getUiElementPool() { return this.elementPool; }
@@ -237,6 +244,29 @@ describe('endElement()', () => {
                 expect(parent.onEndChild).toHaveBeenCalledWith(parent, child);
             });
         });
+    });
+});
+
+describe('render()', () => {
+
+    let canvasContext: CanvasRenderingContext2D;
+    beforeEach(() => { canvasContext = createFakeCanvasCtx() });
+
+    test('should call renderElement on each element', () => {
+        instance.onRenderElement = jest.fn();
+
+        instance.beginElement();
+        instance.endElement();
+        instance.beginElement();
+        {
+            instance.beginElement();
+            instance.endElement();
+        }
+        instance.endElement();
+
+        instance.render(canvasContext);
+
+        expect(instance.onRenderElement).toHaveBeenCalledTimes(4);
     });
 });
 

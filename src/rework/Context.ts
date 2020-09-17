@@ -93,10 +93,13 @@ export class ContextImpl implements Context {
 
     render(context: CanvasRenderingContext2D): void {
         this.context = context;
+        for (let layer of this.layers) {
+            layer.forEachDfs(this.renderElement);
+        }
         delete this.context;
     }
 
-    private renderElement(element: UiElement) {
+    protected renderElement(element: UiElement) {
         element.sortChildrenByZIndex();
         element.drawBuffer.render(this.context as CanvasRenderingContext2D);
         element.drawBuffer.clear();
