@@ -17,7 +17,7 @@ export interface Context {
 export class ContextImpl implements Context {
     protected readonly elementPool: ObjectPool<UiElement>;
     protected readonly layers: Layer[] = [];
-    protected readonly buildStack: UiElement[][] = [];
+    protected readonly buildStack: Layer[] = [];
     private context?: CanvasRenderingContext2D;
 
     constructor(
@@ -44,7 +44,7 @@ export class ContextImpl implements Context {
         return this.curElement.boundingBox;
     }
 
-    protected get curLayer(): UiElement[] {
+    protected get curLayer(): Layer {
         const curLayer = this.buildStack[this.buildStack.length - 1];
         if (curLayer === undefined) {
             throw new Error('No layer currently mounted');
@@ -53,19 +53,24 @@ export class ContextImpl implements Context {
     }
 
     protected get curElement() {
-        const { curLayer } = this;
-        return curLayer[curLayer.length - 1];
+        const curLayerBuildStack = this.curLayer.buildStack;
+        return curLayerBuildStack[curLayerBuildStack.length - 1];
     }
 
     beginLayer(): void {
-        const root= this.elementPool.provision();
-        this.layers.push({ root, floats: [] });
-        this.buildStack.push([root]);
+        const root = this.elementPool.provision();
+        const layer = {
+            root,
+            floats: [],
+            buildStack: [ root ],
+        };
+        this.layers.push(layer);
+        this.buildStack.push(layer);
     }
 
     endLayer(): void {
-        if (this.curLayer.length > 1) {
-            const nUnfinishedElements = this.curLayer.length - 1;
+        if (this.curLayer.buildStack.length > 1) {
+            const nUnfinishedElements = this.curLayer.buildStack.length - 1;
             throw new Error(`You are trying to end the current layer, but it currently contains the root element + ${nUnfinishedElements} unfinished elements. Please call endElement() ${nUnfinishedElements} more times before calling endLayer()`);
         }
 
@@ -73,7 +78,7 @@ export class ContextImpl implements Context {
             throw new Error(`There are no more layers to end. Please match your beginLayer() and endLayer() calls`);
         }
 
-        this.curLayer.pop();
+        this.curLayer.buildStack.pop();
         this.buildStack.pop();
     }
 
@@ -82,18 +87,18 @@ export class ContextImpl implements Context {
         const child = this.elementPool.provision();
 
         this.curElement.children.push(child);
-        this.curLayer.push(child);
+        this.curLayer.buildStack.push(child);
 
         parent.onBeginChild(parent, child);
     }
 
     endElement(): void {
-        if (this.curLayer.length === 1) {
+        if (this.curLayer.buildStack.length === 1) {
             throw new Error("You called endElement() more times than beginElement(). Cannot remove root element. Are your endElement() and beginElement() calls mismatched?");
         }
 
         const child = this.curElement;
-        this.curLayer.pop();
+        this.curLayer.buildStack.pop();
         this.curElement.onEndChild(this.curElement, child);
     }
 
