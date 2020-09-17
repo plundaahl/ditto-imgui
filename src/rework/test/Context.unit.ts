@@ -127,6 +127,21 @@ describe('endLayer()', () => {
         expect(instance.getCurLayerStack().length).toBeGreaterThan(1);
         expect(() => instance.endLayer()).toThrowError();
     });
+
+    test("Should error if there are no layers to end", () => {
+        instance.endLayer();
+        expect(() => instance.endLayer()).toThrowError();
+    });
+
+    test("Should remove the layer at the end of the buildStack", () => {
+        instance.beginLayer();
+
+        const nLayersOnStackAtStart = instance.getBuildStack().length;
+        instance.endLayer();
+        const nLayersOnStackAfterEnd = instance.getBuildStack().length;
+
+        expect(nLayersOnStackAfterEnd).toBe(nLayersOnStackAtStart - 1);
+    });
 });
 
 describe('beginElement()', () => {
