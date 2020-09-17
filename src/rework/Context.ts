@@ -16,7 +16,6 @@ export interface Context {
 
 export class ContextImpl implements Context {
     protected readonly elementPool: ObjectPool<UiElement>;
-    protected readonly elementTree: UiElement;
     protected readonly layers: Layer[] = [];
     protected readonly buildStack: UiElement[][] = [];
     private context?: CanvasRenderingContext2D;
@@ -36,7 +35,6 @@ export class ContextImpl implements Context {
 
         let rootElement = this.elementPool.provision();
         this.layers.push({ root: rootElement, floats: [] });
-        this.elementTree = rootElement;
         this.buildStack.push([ rootElement ]);
     }
 
