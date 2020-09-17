@@ -33,9 +33,7 @@ export class ContextImpl implements Context {
             UiElement.reset,
         );
 
-        let rootElement = this.elementPool.provision();
-        this.layers.push({ root: rootElement, floats: [] });
-        this.buildStack.push([ rootElement ]);
+        this.beginLayer();
     }
 
     get draw(): DrawContext {
