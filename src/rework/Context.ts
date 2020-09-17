@@ -61,7 +61,9 @@ export class ContextImpl implements Context {
     }
 
     beginLayer(): void {
-        this.buildStack.push([ this.elementPool.provision() ]);
+        const layer = this.elementPool.provision();
+        this.layers.push(layer);
+        this.buildStack.push([layer]);
     }
 
     endLayer(): void {

@@ -117,6 +117,13 @@ describe('beginLayer()', () => {
         instance.beginLayer();
         expect(instance.getCurLayerStack().length).toBe(1);
     });
+
+    test("Should add new layer to layers array", () => {
+        const nLayersAtStart = instance.getLayers().length;
+        instance.beginLayer();
+        const nLayersAfterCall = instance.getLayers().length;
+        expect(nLayersAfterCall).toBe(nLayersAtStart + 1);
+    });
 });
 
 describe('endLayer()', () => {
