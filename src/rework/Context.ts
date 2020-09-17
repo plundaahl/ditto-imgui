@@ -1,4 +1,5 @@
 import { UiElement } from './UiElement';
+import { Layer } from './Layer';
 import { DrawContext } from './DrawBuffer';
 import { BoundingBox } from './BoundingBox';
 import { ObjectPool } from './ObjectPool';
@@ -16,7 +17,7 @@ export interface Context {
 export class ContextImpl implements Context {
     protected readonly elementPool: ObjectPool<UiElement>;
     protected readonly elementTree: UiElement;
-    protected readonly layers: UiElement[] = [];
+    protected readonly layers: Layer[] = [];
     protected readonly buildStack: UiElement[][] = [];
     private context?: CanvasRenderingContext2D;
 
@@ -34,7 +35,7 @@ export class ContextImpl implements Context {
         );
 
         let rootElement = this.elementPool.provision();
-        this.layers.push(rootElement);
+        this.layers.push({ root: rootElement, floats: [] });
         this.elementTree = rootElement;
         this.buildStack.push([ rootElement ]);
     }
@@ -61,9 +62,9 @@ export class ContextImpl implements Context {
     }
 
     beginLayer(): void {
-        const layer = this.elementPool.provision();
-        this.layers.push(layer);
-        this.buildStack.push([layer]);
+        const root= this.elementPool.provision();
+        this.layers.push({ root, floats: [] });
+        this.buildStack.push([root]);
     }
 
     endLayer(): void {
@@ -102,8 +103,9 @@ export class ContextImpl implements Context {
 
     render(context: CanvasRenderingContext2D): void {
         this.context = context;
+        this.layers.sort(zIndexComparator);
         for (let layer of this.layers) {
-            layer.forEachDfs(this.renderElement);
+            layer.root.forEachDfs(this.renderElement);
         }
         delete this.context;
     }
@@ -113,5 +115,9 @@ export class ContextImpl implements Context {
         element.drawBuffer.render(this.context as CanvasRenderingContext2D);
         element.drawBuffer.clear();
     }
+}
+
+function zIndexComparator(a: Layer, b: Layer): number {
+    return a.root.zIndex - b.root.zIndex || 1;
 }
 

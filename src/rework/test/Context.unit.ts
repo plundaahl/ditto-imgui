@@ -290,5 +290,40 @@ describe('render()', () => {
 
         expect(instance.onRenderElement).toHaveBeenCalledTimes(4);
     });
+
+    test('Should render layers in order of zIndex, then order of appearance', () => {
+        const l1 = instance.getCurElement();
+
+        instance.beginLayer();
+        const l2 = instance.getCurElement();
+        instance.endLayer();
+
+        instance.beginLayer();
+        const l3 = instance.getCurElement();
+        instance.getCurElement().zIndex = 3;
+        instance.endLayer();
+
+        instance.beginLayer();
+        const l4 = instance.getCurElement();
+        instance.getCurElement().zIndex = 4;
+        instance.endLayer();
+
+        instance.beginLayer();
+        const l5 = instance.getCurElement();
+        instance.endLayer();
+
+
+        const renderOrder: UiElement[] = [];
+        const canvasContext = createFakeCanvasCtx();
+        instance.onRenderElement = (e) => renderOrder.push(e);
+        instance.render(canvasContext);
+
+        expect(renderOrder.length).toBe(5);
+        expect(renderOrder[0]).toBe(l1);
+        expect(renderOrder[1]).toBe(l2);
+        expect(renderOrder[2]).toBe(l5);
+        expect(renderOrder[3]).toBe(l3);
+        expect(renderOrder[4]).toBe(l4);
+    });
 });
 
