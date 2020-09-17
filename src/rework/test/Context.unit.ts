@@ -1,4 +1,4 @@
-import { ContextImpl, Context } from '../Context';
+import { ContextImpl } from '../Context';
 import { UiElement } from '../UiElement';
 
 class InspectableContext extends ContextImpl {
@@ -31,11 +31,11 @@ function createFakeCanvasCtx(hooks: {
     const onSet = hooks.onSet || jest.fn();
 
     return new Proxy({}, {
-        get: (target: {}, prop: string) => {
+        get: (_: {}, prop: string) => {
             onGet(prop);
             return onCall.bind(undefined, prop);
         },
-        set: (target: {}, prop: string, value: any) => {
+        set: (_: {}, prop: string, value: any) => {
             onSet(prop, value);
             return true;
         },
