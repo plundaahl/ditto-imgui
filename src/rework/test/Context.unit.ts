@@ -271,6 +271,18 @@ describe('endElement()', () => {
     });
 });
 
+describe('floatElement()', () => {
+    test("Adds current element to current layer's floats array", () => {
+        instance.beginElement();
+        instance.floatElement();
+
+        const element = instance.getCurElement();
+        const floats = instance.getCurLayer().floats;
+
+        expect(floats.includes(element)).toBe(true);
+    });
+});
+
 describe('render()', () => {
 
     let canvasContext: CanvasRenderingContext2D;

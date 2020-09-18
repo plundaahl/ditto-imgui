@@ -11,6 +11,7 @@ export interface Context {
     endLayer(): void;
     beginElement(): void;
     endElement(): void;
+    floatElement(): void;
     render(context: CanvasRenderingContext2D): void;
 }
 
@@ -100,6 +101,10 @@ export class ContextImpl implements Context {
         const child = this.curElement;
         this.curLayer.buildStack.pop();
         this.curElement.onEndChild(this.curElement, child);
+    }
+
+    floatElement(): void {
+        this.curLayer.floats.push(this.curElement);
     }
 
     render(context: CanvasRenderingContext2D): void {
