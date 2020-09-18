@@ -69,13 +69,13 @@ export class ContextImpl implements Context {
     }
 
     endLayer(): void {
+        if (this.buildStack.length === 0) {
+            throw new Error(`There are no more layers to end. Please match your beginLayer() and endLayer() calls`);
+        }
+
         if (this.curLayer.buildStack.length > 1) {
             const nUnfinishedElements = this.curLayer.buildStack.length - 1;
             throw new Error(`You are trying to end the current layer, but it currently contains the root element + ${nUnfinishedElements} unfinished elements. Please call endElement() ${nUnfinishedElements} more times before calling endLayer()`);
-        }
-
-        if (this.buildStack.length === 0) {
-            throw new Error(`There are no more layers to end. Please match your beginLayer() and endLayer() calls`);
         }
 
         this.curLayer.buildStack.pop();
