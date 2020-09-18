@@ -33,16 +33,6 @@ export class UiElement {
     sortChildrenByZIndex() {
         this.children.sort(zIndexComparator);
     }
-
-    forEachDfs(
-        onPreOrder: undefined | ((element: UiElement) => void),
-    ): void {
-        onPreOrder && onPreOrder(this);
-
-        for (let child of this.children) {
-            child.forEachDfs(onPreOrder);
-        }
-    }
 }
 
 function zIndexComparator(a: UiElement, b: UiElement): number {

@@ -18,6 +18,12 @@ class InspectableContext extends ContextImpl {
     getBuildStack() { return this.buildStack; }
     getCurLayer() { return this.curLayer; }
     getCurElement() { return this.curElement; }
+    doDfsNonFloatSubraph(
+        element: UiElement,
+        onPreOrder: (element: UiElement) => void,
+    ) {
+        this.dfsNonFloatSubraph(element, onPreOrder);
+    }
 }
 
 function createFakeCanvasCtx(hooks: {
@@ -339,5 +345,145 @@ describe('render()', () => {
         expect(renderOrder[3]).toBe(l3);
         expect(renderOrder[4]).toBe(l4);
     });
+
+    test('For each layer, should render floats at end', () => {
+        const l0 = instance.getCurElement();
+
+        instance.beginLayer();
+        const l1 = instance.getCurElement();
+        const l1e1 = normalWidget();
+        const l1e2 = floatingWidget();
+        const l1e3 = floatingWidget();
+        const l1e4 = normalWidget();
+        instance.endLayer();
+
+        instance.beginLayer();
+        const l2 = instance.getCurElement();
+        const l2e1 = floatingWidget();
+        const l2e2 = normalWidget();
+        const l2e3 = floatingWidget();
+        instance.endLayer();
+
+        const expectedElements = [
+            l0,
+            l1,
+            l1e1,
+            l1e4,
+            l1e2,
+            l1e3,
+            l2,
+            l2e2,
+            l2e1,
+            l2e3,
+        ];
+
+        const renderedElements: UiElement[] = [];
+        instance.onRenderElement = (e) => renderedElements.push(e);
+        instance.render(canvasContext);
+
+        expect(renderedElements.length).toBe(expectedElements.length);
+
+        for (let i = 0; i < expectedElements.length; i++) {
+            expect(renderedElements[i]).toBe(expectedElements[i]);
+        }
+    });
 });
 
+describe('dfsNonFloatSubraph()', () => {
+    test('Uses DFS', () => {
+        const root = instance.getCurElement();
+        const A = normalWidget();
+        const B = containerWidget(() => {
+            normalWidget();
+            normalWidget();
+            normalWidget();
+        });
+        const [ BA, BB, BC ] = B.children;
+        const C = containerWidget(() => {
+            containerWidget(() => {
+                normalWidget();
+            });
+        });
+        const [ CA ] = C.children;
+        const [ CAA ] = CA.children;
+
+        const expectedElements = [
+            root,
+            A,
+            B,
+            BA,
+            BB,
+            BC,
+            C,
+            CA,
+            CAA,
+        ];
+
+        const visitedElements: UiElement[] = [];
+        instance.doDfsNonFloatSubraph(
+            root,
+            (e) => visitedElements.push(e),
+        );
+
+        expect(visitedElements.length).toBe(expectedElements.length);
+
+        for (let i = 0; i < expectedElements.length; i++) {
+            expect(visitedElements[i]).toBe(expectedElements[i]);
+        }
+    });
+    
+    test('Does not run for floating elements', () => {
+        const root = instance.getCurElement();
+        const A = normalWidget();
+        const B = containerWidget(() => {
+            normalWidget();
+            floatingWidget();
+            normalWidget();
+        });
+        const [ BA, BB, BC ] = B.children;
+
+        const expectedElements = [
+            root,
+            A,
+            B,
+            BA,
+            BC,
+        ];
+
+        const visitedElements: UiElement[] = [];
+        instance.doDfsNonFloatSubraph(
+            root,
+            (e) => visitedElements.push(e),
+        );
+
+        expect(visitedElements.length).toBe(expectedElements.length);
+
+        for (let i = 0; i < expectedElements.length; i++) {
+            expect(visitedElements[i]).toBe(expectedElements[i]);
+        }
+    });
+});
+
+function normalWidget() {
+    instance.beginElement();
+    const element = instance.getCurElement();
+    instance.endElement();
+    return element;
+}
+
+function floatingWidget() {
+    instance.beginElement();
+    instance.floatElement();
+    const element = instance.getCurElement();
+    element.zIndex++;
+    instance.endElement();
+    return element;
+}
+
+function containerWidget(childBuilder: () => void) {
+    instance.beginElement();
+    const element = instance.getCurElement();
+    childBuilder();
+    instance.endElement();
+    return element;
+}

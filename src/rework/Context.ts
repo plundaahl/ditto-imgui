@@ -28,6 +28,7 @@ export class ContextImpl implements Context {
         this.endElement = this.endElement.bind(this);
         this.render = this.render.bind(this);
         this.renderElement = this.renderElement.bind(this);
+        this.dfsNonFloatSubraph = this.dfsNonFloatSubraph.bind(this);
 
         this.elementPool = new ObjectPool(
             UiElement.create.bind(UiElement, createCanvasFn),
@@ -62,7 +63,7 @@ export class ContextImpl implements Context {
         const root = this.elementPool.provision();
         const layer = {
             root,
-            floats: [],
+            floats: [ root ],
             buildStack: [ root ],
         };
         this.layers.push(layer);
@@ -104,6 +105,7 @@ export class ContextImpl implements Context {
     }
 
     floatElement(): void {
+        this.curElement.zIndex++;
         this.curLayer.floats.push(this.curElement);
     }
 
@@ -111,7 +113,12 @@ export class ContextImpl implements Context {
         this.context = context;
         this.layers.sort(zIndexComparator);
         for (let layer of this.layers) {
-            layer.root.forEachDfs(this.renderElement);
+            for (let element of layer.floats) {
+                this.dfsNonFloatSubraph(
+                    element,
+                    this.renderElement,
+                );
+            }
         }
         delete this.context;
     }
@@ -120,6 +127,19 @@ export class ContextImpl implements Context {
         element.sortChildrenByZIndex();
         element.drawBuffer.render(this.context as CanvasRenderingContext2D);
         element.drawBuffer.clear();
+    }
+
+    protected dfsNonFloatSubraph(
+        element: UiElement,
+        onPreOrder: (element: UiElement) => void,
+    ): void {
+        onPreOrder(element);
+
+        for (let child of element.children) {
+            if (child.zIndex === 0) {
+                this.dfsNonFloatSubraph(child, onPreOrder);
+            }
+        }
     }
 }
 
