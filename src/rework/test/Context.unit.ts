@@ -1,11 +1,15 @@
 import { ContextImpl } from '../Context';
 import { UiElement } from '../UiElement';
+import { StateManagerImpl } from '../StateManager';
 
 class InspectableContext extends ContextImpl {
     public onRenderElement: (element: UiElement) => void;
 
     constructor() {
-        super(createFakeCanvasCtx);
+        super({
+            createCanvasFn: createFakeCanvasCtx,
+            stateManager: new StateManagerImpl(),
+        });
     }
 
     renderElement(element: UiElement) {

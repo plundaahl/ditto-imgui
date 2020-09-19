@@ -3,6 +3,7 @@ import { Layer } from './Layer';
 import { DrawContext } from './DrawBuffer';
 import { BoundingBox } from './BoundingBox';
 import { ObjectPool } from './ObjectPool';
+import { StateManager, StateManagerImpl } from './StateManager';
 
 export interface Context {
     readonly draw: DrawContext;
@@ -16,14 +17,23 @@ export interface Context {
 }
 
 export class ContextImpl implements Context {
+    protected readonly stateManager: StateManager;
     protected readonly elementPool: ObjectPool<UiElement>;
     protected readonly layers: Layer[] = [];
     protected readonly buildStack: Layer[] = [];
     private context?: CanvasRenderingContext2D;
 
-    constructor(
+    constructor(args: {
         createCanvasFn: () => CanvasRenderingContext2D,
-    ) {
+        stateManager: StateManager,
+    }) {
+        const {
+            createCanvasFn,
+            stateManager,
+        } = args;
+
+        this.stateManager = stateManager;
+
         this.beginElement = this.beginElement.bind(this);
         this.endElement = this.endElement.bind(this);
         this.render = this.render.bind(this);
@@ -57,6 +67,10 @@ export class ContextImpl implements Context {
     protected get curElement() {
         const curLayerBuildStack = this.curLayer.buildStack;
         return curLayerBuildStack[curLayerBuildStack.length - 1];
+    }
+
+    registerStateHandle<T extends {}>(key: string) {
+        return this.stateManager.registerHandle<T>(key);
     }
 
     beginLayer(): void {
