@@ -1,58 +1,17 @@
 import { ContextImpl } from '../Context';
 import { UiElement } from '../UiElement';
-import { StateManagerImpl } from '../StateManager';
+import { StateManagerImpl, StateManager } from '../StateManager';
 
-class InspectableContext extends ContextImpl {
-    public onRenderElement: (element: UiElement) => void;
-
-    constructor() {
-        super({
-            createCanvasFn: createFakeCanvasCtx,
-            stateManager: new StateManagerImpl(),
-        });
-    }
-
-    renderElement(element: UiElement) {
-        this.onRenderElement && this.onRenderElement(element);
-        super.renderElement(element);
-    }
-
-    getUiElementPool() { return this.elementPool; }
-    getLayers() { return this.layers; }
-    getBuildStack() { return this.buildStack; }
-    getCurLayer() { return this.curLayer; }
-    getCurElement() { return this.curElement; }
-    doDfsNonFloatSubraph(
-        element: UiElement,
-        onPreOrder: (element: UiElement) => void,
-    ) {
-        this.dfsNonFloatSubraph(element, onPreOrder);
-    }
-}
-
-function createFakeCanvasCtx(hooks: {
-    onCall?: (fnCalled: string, ...args: any) => void,
-    onGet?: (prop: string) => void,
-    onSet?: (prop: string, value: any) => void,
-} = {}) {
-    const onCall = hooks.onCall || jest.fn();
-    const onGet = hooks.onGet || jest.fn();
-    const onSet = hooks.onSet || jest.fn();
-
-    return new Proxy({}, {
-        get: (_: {}, prop: string) => {
-            onGet(prop);
-            return onCall.bind(undefined, prop);
-        },
-        set: (_: {}, prop: string, value: any) => {
-            onSet(prop, value);
-            return true;
-        },
-    }) as CanvasRenderingContext2D;
-}
-
+let stateManager: StateManager;
 let instance: InspectableContext;
-beforeEach(() => { instance = new InspectableContext(); });
+
+beforeEach(() => {
+    stateManager = new StateManagerImpl();
+    instance = new InspectableContext({
+        createCanvasFn: createFakeCanvasCtx,
+        stateManager,
+    });
+});
 
 describe('constructor', () => {
     test('Creates an initial layer', () => {
@@ -490,4 +449,46 @@ function containerWidget(childBuilder: () => void) {
     childBuilder();
     instance.endElement();
     return element;
+}
+
+class InspectableContext extends ContextImpl {
+    public onRenderElement: (element: UiElement) => void;
+
+    renderElement(element: UiElement) {
+        this.onRenderElement && this.onRenderElement(element);
+        super.renderElement(element);
+    }
+
+    getUiElementPool() { return this.elementPool; }
+    getLayers() { return this.layers; }
+    getBuildStack() { return this.buildStack; }
+    getCurLayer() { return this.curLayer; }
+    getCurElement() { return this.curElement; }
+    doDfsNonFloatSubraph(
+        element: UiElement,
+        onPreOrder: (element: UiElement) => void,
+    ) {
+        this.dfsNonFloatSubraph(element, onPreOrder);
+    }
+}
+
+function createFakeCanvasCtx(hooks: {
+    onCall?: (fnCalled: string, ...args: any) => void,
+    onGet?: (prop: string) => void,
+    onSet?: (prop: string, value: any) => void,
+} = {}) {
+    const onCall = hooks.onCall || jest.fn();
+    const onGet = hooks.onGet || jest.fn();
+    const onSet = hooks.onSet || jest.fn();
+
+    return new Proxy({}, {
+        get: (_: {}, prop: string) => {
+            onGet(prop);
+            return onCall.bind(undefined, prop);
+        },
+        set: (_: {}, prop: string, value: any) => {
+            onSet(prop, value);
+            return true;
+        },
+    }) as CanvasRenderingContext2D;
 }
