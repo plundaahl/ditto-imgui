@@ -1,9 +1,8 @@
 import { runOnCanvas } from './runner';
-import { Context, ContextImpl } from '../src/rework/Context';
-import { createCanvasContext } from '../src/rework/DrawBuffer';
+import { getContext, Context } from '../src/rework';
 
 (window as any).data = initializeElements();
-const guiCtx: Context = new ContextImpl(createCanvasContext);
+const guiCtx = getContext();
 runOnCanvas(main, 'canvas');
 
 function main(canvasContext: CanvasRenderingContext2D) {
