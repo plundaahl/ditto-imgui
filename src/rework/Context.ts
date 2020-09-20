@@ -8,9 +8,9 @@ import { StateManager, StateManagerImpl } from './StateManager';
 export interface Context {
     readonly draw: DrawContext;
     readonly bounds: BoundingBox;
-    beginLayer(): void;
+    beginLayer(key: string): void;
     endLayer(): void;
-    beginElement(): void;
+    beginElement(key: string): void;
     endElement(): void;
     floatElement(): void;
     render(context: CanvasRenderingContext2D): void;
@@ -45,7 +45,7 @@ export class ContextImpl implements Context {
             UiElement.reset,
         );
 
-        this.beginLayer();
+        this.beginLayer('_root');
     }
 
     get draw(): DrawContext {
@@ -73,7 +73,7 @@ export class ContextImpl implements Context {
         return this.stateManager.registerHandle<T>(key);
     }
 
-    beginLayer(): void {
+    beginLayer(key: string): void {
         const root = this.elementPool.provision();
         const layer = {
             root,
@@ -82,6 +82,7 @@ export class ContextImpl implements Context {
         };
         this.layers.push(layer);
         this.buildStack.push(layer);
+        this.stateManager.beginKey(key);
     }
 
     endLayer(): void {
@@ -96,9 +97,10 @@ export class ContextImpl implements Context {
 
         this.curLayer.buildStack.pop();
         this.buildStack.pop();
+        this.stateManager.endKey();
     }
 
-    beginElement(): void {
+    beginElement(key: string): void {
         const parent = this.curElement;
         const child = this.elementPool.provision();
 
@@ -106,6 +108,7 @@ export class ContextImpl implements Context {
         this.curLayer.buildStack.push(child);
 
         parent.onBeginChild(parent, child);
+        this.stateManager.beginKey(key);
     }
 
     endElement(): void {
@@ -115,6 +118,7 @@ export class ContextImpl implements Context {
 
         const child = this.curElement;
         this.curLayer.buildStack.pop();
+        this.stateManager.endKey();
         this.curElement.onEndChild(this.curElement, child);
     }
 

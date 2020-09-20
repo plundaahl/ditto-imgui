@@ -17,24 +17,25 @@ type ElementDataTree = {
     w: number,
     h: number,
     style: string,
+    key: string,
     children?: ElementDataTree[]
 }
 
 function initializeElements(): ElementDataTree {
-    const data: ElementDataTree = makeElement(20, 20, 100, 100, '#FF0000', {
+    const data: ElementDataTree = makeElement('root', 20, 20, 100, 100, '#FF0000', {
         children: [
-            makeElement(70, 80, 100, 100, '#8888FF'),
-            makeElement(20, 100, 60, 60, '#bbbbbb'),
-            makeElement(200, 10, 200, 150, '#ffffff'),
+            makeElement('a', 70, 80, 100, 100, '#8888FF'),
+            makeElement('b', 20, 100, 60, 60, '#bbbbbb'),
+            makeElement('c', 200, 10, 200, 150, '#ffffff'),
         ]
     });
     return data;
 }
 
 function drawElementTree(guiCtx: Context, element: ElementDataTree) {
-    const {x, y, w, h} = element;
+    const {x, y, w, h, key} = element;
 
-    guiCtx.beginElement();
+    guiCtx.beginElement(key);
 
     guiCtx.bounds.x = x;
     guiCtx.bounds.y = y;
@@ -56,6 +57,7 @@ function drawElementTree(guiCtx: Context, element: ElementDataTree) {
 }
 
 function makeElement(
+    key: string,
     x: number,
     y: number,
     w: number,
@@ -65,5 +67,5 @@ function makeElement(
         children?: ElementDataTree[]
     } = {}
 ) {
-    return { x, y, w, h, style, children: children.children || []}
+    return { key, x, y, w, h, style, children: children.children || []}
 }

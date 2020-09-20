@@ -77,30 +77,54 @@ describe('get curLayer', () => {
     });
 });
 
+describe('registerStateHandle()', () => {
+    test('passes provdied key into stateManager.registerHandle', () => {
+        const key = 'somekey';
+
+        stateManager.registerHandle = jest.fn(stateManager.registerHandle) as any;
+        instance.registerStateHandle<{}>(key);
+
+        expect(stateManager.registerHandle).toHaveBeenCalledWith(key);
+    });
+});
+
 describe('beginLayer()', () => {
     test('Should increment buildStack', () => {
         const buildStackLength = instance.getBuildStack().length;
-        instance.beginLayer();
+        instance.beginLayer('somekey');
         expect(instance.getBuildStack().length).toBe(buildStackLength + 1);
     });
 
     test('New layer should have 1 element in buildStack', () => {
-        instance.beginLayer();
+        instance.beginLayer('fooofofofof');
         expect(instance.getCurLayer().buildStack.length).toBe(1);
     });
 
     test("Should add new layer to layers array", () => {
         const nLayersAtStart = instance.getLayers().length;
-        instance.beginLayer();
+        instance.beginLayer('fooofofofof');
         const nLayersAfterCall = instance.getLayers().length;
         expect(nLayersAfterCall).toBe(nLayersAtStart + 1);
+    });
+
+    test("Should call stateManager.beginElement()", () => {
+        stateManager.beginKey = jest.fn(stateManager.beginKey);
+        instance.beginLayer('fooofofofof');
+        expect(stateManager.beginKey).toHaveBeenCalled();
+    });
+
+    test("Should call stateManager.beginElement()", () => {
+        const key = 'akey';
+        stateManager.beginKey = jest.fn(stateManager.beginKey);
+        instance.beginLayer(key);
+        expect(stateManager.beginKey).toHaveBeenCalledWith(key);
     });
 });
 
 describe('endLayer()', () => {
     test("Should error if current layer's buildStack has more than 1 element", () => {
-        instance.beginLayer();
-        instance.beginElement();
+        instance.beginLayer('fooofofofof');
+        instance.beginElement('somekey');
 
         expect(instance.getCurLayer().buildStack.length).toBeGreaterThan(1);
         expect(() => instance.endLayer()).toThrowError();
@@ -112,13 +136,20 @@ describe('endLayer()', () => {
     });
 
     test("Should remove the layer at the end of the buildStack", () => {
-        instance.beginLayer();
+        instance.beginLayer('fooofofofof');
 
         const nLayersOnStackAtStart = instance.getBuildStack().length;
         instance.endLayer();
         const nLayersOnStackAfterEnd = instance.getBuildStack().length;
 
         expect(nLayersOnStackAfterEnd).toBe(nLayersOnStackAtStart - 1);
+    });
+
+    test("Calls stateManager.endKey()", () => {
+        instance.beginLayer('whateverkey');
+        stateManager.endKey = jest.fn(stateManager.endKey);
+        instance.endLayer();
+        expect(stateManager.endKey).toHaveBeenCalled();
     });
 });
 
@@ -131,28 +162,35 @@ describe('beginElement()', () => {
 
     test("Should error if buildStack is empty", () => {
         instance.getBuildStack().pop();
-        expect(() => instance.beginElement()).toThrowError();
+        expect(() => instance.beginElement('akey')).toThrowError();
     });
 
     test("Should push a new element into previous element's children", () => {
         const nPrevChildren = prevUiElement.children.length;
-        instance.beginElement();
+        instance.beginElement('testkey');
         expect(prevUiElement.children.length).toBe(nPrevChildren + 1);
     });
 
     test("Should change current element", () => {
-        instance.beginElement();
+        instance.beginElement('testkey');
         expect(instance.getCurElement()).not.toBe(prevUiElement);
     });
 
     test("Should push new element onto current layer's buildStack", () => {
-        instance.beginElement();
+        instance.beginElement('testkey');
         const buildStack = instance.getCurLayer().buildStack;
         expect(buildStack[buildStack.length - 1]).not.toBe(prevUiElement);
     });
 
+    test("Should pass key into stateManager.beginKey()", () => {
+        const key = 'key';
+        stateManager.beginKey = jest.fn(stateManager.beginKey);
+        instance.beginElement(key);
+        expect(stateManager.beginKey).toHaveBeenCalledWith(key);
+    });
+
     describe('postconditions', () => {
-        beforeEach(() => instance.beginElement());
+        beforeEach(() => instance.beginElement('somekey'));
 
         test("curUiElement should be on end of current layer's buildStack", () => {
             const layer = instance.getCurLayer().buildStack;
@@ -175,12 +213,12 @@ describe('beginElement()', () => {
         beforeEach(() => prevUiElement.onBeginChild = jest.fn());
 
         test("Should call previous element's onBeginChild hook", () => {
-            instance.beginElement();
+            instance.beginElement('somekey');
             expect(prevUiElement.onBeginChild).toHaveBeenCalled();
         });
 
         test("Should pass self and child into previous element's onBeginChild hook", () => {
-            instance.beginElement();
+            instance.beginElement('somekey');
             expect(prevUiElement.onBeginChild)
                 .toHaveBeenCalledWith(prevUiElement, instance.getCurElement());
         });
@@ -195,7 +233,7 @@ describe('endElement()', () => {
     describe('base functionality', () => {
         beforeEach(() => {
             parent = instance.getCurElement();
-            instance.beginElement();
+            instance.beginElement('somekey');
             child = instance.getCurElement();
         });
 
@@ -213,6 +251,13 @@ describe('endElement()', () => {
             const parentChildrenLength = parent.children.length;
             instance.endElement();
             expect(parent.children.length).toBe(parentChildrenLength);
+        });
+
+        test('Calls stateManager.endKey()', () => {
+            instance.beginElement('justakey');
+            stateManager.endKey = jest.fn(stateManager.endKey);
+            instance.endElement();
+            expect(stateManager.endKey).toHaveBeenCalled();
         });
 
         describe('postconditions', () => {
@@ -242,7 +287,7 @@ describe('endElement()', () => {
 
 describe('floatElement()', () => {
     test("Adds current element to current layer's floats array", () => {
-        instance.beginElement();
+        instance.beginElement('somekey');
         instance.floatElement();
 
         const element = instance.getCurElement();
@@ -260,11 +305,11 @@ describe('render()', () => {
     test('should call renderElement on each element', () => {
         instance.onRenderElement = jest.fn();
 
-        instance.beginElement();
+        instance.beginElement('somekey');
         instance.endElement();
-        instance.beginElement();
+        instance.beginElement('somekey');
         {
-            instance.beginElement();
+            instance.beginElement('somekey');
             instance.endElement();
         }
         instance.endElement();
@@ -277,21 +322,21 @@ describe('render()', () => {
     test('Should render layers in order of zIndex, then order of appearance', () => {
         const l1 = instance.getCurElement();
 
-        instance.beginLayer();
+        instance.beginLayer('somekey');
         const l2 = instance.getCurElement();
         instance.endLayer();
 
-        instance.beginLayer();
+        instance.beginLayer('somekey');
         const l3 = instance.getCurElement();
         instance.getCurElement().zIndex = 3;
         instance.endLayer();
 
-        instance.beginLayer();
+        instance.beginLayer('somekey');
         const l4 = instance.getCurElement();
         instance.getCurElement().zIndex = 4;
         instance.endLayer();
 
-        instance.beginLayer();
+        instance.beginLayer('somekey');
         const l5 = instance.getCurElement();
         instance.endLayer();
 
@@ -312,7 +357,7 @@ describe('render()', () => {
     test('For each layer, should render floats at end', () => {
         const l0 = instance.getCurElement();
 
-        instance.beginLayer();
+        instance.beginLayer('somekey');
         const l1 = instance.getCurElement();
         const l1e1 = normalWidget();
         const l1e2 = floatingWidget();
@@ -320,7 +365,7 @@ describe('render()', () => {
         const l1e4 = normalWidget();
         instance.endLayer();
 
-        instance.beginLayer();
+        instance.beginLayer('somekey');
         const l2 = instance.getCurElement();
         const l2e1 = floatingWidget();
         const l2e2 = normalWidget();
@@ -428,14 +473,14 @@ describe('dfsNonFloatSubraph()', () => {
 });
 
 function normalWidget() {
-    instance.beginElement();
+    instance.beginElement('somekey');
     const element = instance.getCurElement();
     instance.endElement();
     return element;
 }
 
 function floatingWidget() {
-    instance.beginElement();
+    instance.beginElement('somekey');
     instance.floatElement();
     const element = instance.getCurElement();
     element.zIndex++;
@@ -444,7 +489,7 @@ function floatingWidget() {
 }
 
 function containerWidget(childBuilder: () => void) {
-    instance.beginElement();
+    instance.beginElement('somekey');
     const element = instance.getCurElement();
     childBuilder();
     instance.endElement();
