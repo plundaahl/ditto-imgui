@@ -18,24 +18,29 @@ type ElementDataTree = {
     h: number,
     style: string,
     key: string,
+    float: boolean,
     children?: ElementDataTree[]
 }
 
 function initializeElements(): ElementDataTree {
-    const data: ElementDataTree = makeElement('root', 20, 20, 100, 100, '#FF0000', {
+    const data: ElementDataTree = makeElement('root', 20, 20, 100, 100, '#FF0000', false, {
         children: [
-            makeElement('a', 70, 80, 100, 100, '#8888FF'),
-            makeElement('b', 20, 100, 60, 60, '#bbbbbb'),
-            makeElement('c', 200, 10, 200, 150, '#ffffff'),
+            makeElement('a', 70, 80, 100, 100, '#8888FF', false),
+            makeElement('b', 20, 100, 60, 60, '#bbbbbb', true),
+            makeElement('c', 200, 10, 200, 150, '#ffffff', false),
         ]
     });
     return data;
 }
 
 function drawElementTree(guiCtx: Context, element: ElementDataTree) {
-    const {x, y, w, h, key} = element;
+    const {x, y, w, h, key, float} = element;
 
     guiCtx.beginElement(key);
+
+    if (float) {
+        guiCtx.floatElement();
+    }
 
     guiCtx.bounds.x = x;
     guiCtx.bounds.y = y;
@@ -63,9 +68,10 @@ function makeElement(
     w: number,
     h: number,
     style: string,
+    float: boolean,
     children: {
         children?: ElementDataTree[]
     } = {}
 ) {
-    return { key, x, y, w, h, style, children: children.children || []}
+    return { key, x, y, w, h, style, float, children: children.children || []}
 }
