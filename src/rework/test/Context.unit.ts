@@ -471,6 +471,7 @@ describe('dfsNonFloatSubraph()', () => {
         instance.doDfsNonFloatSubraph(
             root,
             (e) => visitedElements.push(e),
+            jest.fn(),
         );
 
         expect(visitedElements.length).toBe(expectedElements.length);
@@ -502,6 +503,7 @@ describe('dfsNonFloatSubraph()', () => {
         instance.doDfsNonFloatSubraph(
             root,
             (e) => visitedElements.push(e),
+            jest.fn(),
         );
 
         expect(visitedElements.length).toBe(expectedElements.length);
@@ -509,6 +511,14 @@ describe('dfsNonFloatSubraph()', () => {
         for (let i = 0; i < expectedElements.length; i++) {
             expect(visitedElements[i]).toBe(expectedElements[i]);
         }
+    });
+
+    test("Passes element into onPostOrder", () => {
+        const root = instance.getCurElement();
+        const onPostOrder = jest.fn();
+
+        instance.doDfsNonFloatSubraph(root, jest.fn(), onPostOrder);
+        expect(onPostOrder).toHaveBeenCalledWith(root);
     });
 });
 
@@ -552,8 +562,9 @@ class InspectableContext extends ContextImpl {
     doDfsNonFloatSubraph(
         element: UiElement,
         onPreOrder: (element: UiElement) => void,
+        onPostOrder: (element: UiElement) => void,
     ) {
-        this.dfsNonFloatSubraph(element, onPreOrder);
+        this.dfsNonFloatSubraph(element, onPreOrder, onPostOrder);
     }
 }
 

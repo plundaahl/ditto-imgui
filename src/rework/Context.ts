@@ -37,13 +37,18 @@ export class ContextImpl implements Context {
         } = args;
 
         this.stateManager = stateManager;
-        this.keyCollisionDetector = keyCollisionDetector,
+        this.keyCollisionDetector = keyCollisionDetector;
 
+        this.registerStateHandle = this.registerStateHandle.bind(this);
+        this.floatElement = this.floatElement.bind(this);
+        this.beginLayer = this.beginLayer.bind(this);
+        this.endLayer = this.endLayer.bind(this);
         this.beginElement = this.beginElement.bind(this);
         this.endElement = this.endElement.bind(this);
         this.render = this.render.bind(this);
         this.renderElement = this.renderElement.bind(this);
         this.dfsNonFloatSubraph = this.dfsNonFloatSubraph.bind(this);
+        this.restoreContext = this.restoreContext.bind(this);
 
         this.elementPool = new ObjectPool(
             UiElement.create.bind(UiElement, createCanvasFn),
@@ -140,13 +145,22 @@ export class ContextImpl implements Context {
         this.endLayer();
 
         this.context = context;
+
+        const { width, height } = context.canvas;
+
         this.keyCollisionDetector.reset();
         this.layers.sort(zIndexComparator);
         for (let layer of this.layers) {
             for (let element of layer.floats) {
+                element.boundingBox.x = 0;
+                element.boundingBox.y = 0;
+                element.boundingBox.w = width;
+                element.boundingBox.h = height;
+
                 this.dfsNonFloatSubraph(
                     element,
                     this.renderElement,
+                    this.restoreContext,
                 );
             }
         }
@@ -156,22 +170,37 @@ export class ContextImpl implements Context {
     }
 
     protected renderElement(element: UiElement) {
+        const ctx = (this.context as CanvasRenderingContext2D);
+        const {x, y, w, h} = element.boundingBox;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.clip();
+
         element.sortChildrenByZIndex();
         element.drawBuffer.render(this.context as CanvasRenderingContext2D);
         element.drawBuffer.clear();
     }
 
+    protected restoreContext() {
+        (this.context as CanvasRenderingContext2D).restore();
+    }
+
     protected dfsNonFloatSubraph(
         element: UiElement,
         onPreOrder: (element: UiElement) => void,
+        onPostOrder: (element: UiElement) => void,
     ): void {
         onPreOrder(element);
 
         for (let child of element.children) {
             if (child.zIndex === 0) {
-                this.dfsNonFloatSubraph(child, onPreOrder);
+                this.dfsNonFloatSubraph(child, onPreOrder, onPostOrder);
             }
         }
+
+        onPostOrder(element);
     }
 }
 
