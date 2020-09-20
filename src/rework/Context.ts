@@ -3,7 +3,8 @@ import { Layer } from './Layer';
 import { DrawContext } from './DrawBuffer';
 import { BoundingBox } from './BoundingBox';
 import { ObjectPool } from './ObjectPool';
-import { StateManager, StateManagerImpl } from './StateManager';
+import { StateManager } from './StateManager';
+import { KeyCollisionDetector } from './KeyCollisionDetector';
 
 export interface Context {
     readonly draw: DrawContext;
@@ -17,6 +18,7 @@ export interface Context {
 }
 
 export class ContextImpl implements Context {
+    protected readonly keyCollisionDetector: KeyCollisionDetector;
     protected readonly stateManager: StateManager;
     protected readonly elementPool: ObjectPool<UiElement>;
     protected readonly layers: Layer[] = [];
@@ -26,13 +28,16 @@ export class ContextImpl implements Context {
     constructor(args: {
         createCanvasFn: () => CanvasRenderingContext2D,
         stateManager: StateManager,
+        keyCollisionDetector: KeyCollisionDetector,
     }) {
         const {
             createCanvasFn,
             stateManager,
+            keyCollisionDetector,
         } = args;
 
         this.stateManager = stateManager;
+        this.keyCollisionDetector = keyCollisionDetector,
 
         this.beginElement = this.beginElement.bind(this);
         this.endElement = this.endElement.bind(this);
@@ -82,6 +87,7 @@ export class ContextImpl implements Context {
         };
         this.layers.push(layer);
         this.buildStack.push(layer);
+        this.keyCollisionDetector.beginKey(key);
         this.stateManager.beginKey(key);
     }
 
@@ -97,6 +103,7 @@ export class ContextImpl implements Context {
 
         this.curLayer.buildStack.pop();
         this.buildStack.pop();
+        this.keyCollisionDetector.endKey();
         this.stateManager.endKey();
     }
 
@@ -108,6 +115,7 @@ export class ContextImpl implements Context {
         this.curLayer.buildStack.push(child);
 
         parent.onBeginChild(parent, child);
+        this.keyCollisionDetector.beginKey(key);
         this.stateManager.beginKey(key);
     }
 
@@ -118,6 +126,7 @@ export class ContextImpl implements Context {
 
         const child = this.curElement;
         this.curLayer.buildStack.pop();
+        this.keyCollisionDetector.endKey();
         this.stateManager.endKey();
         this.curElement.onEndChild(this.curElement, child);
     }
@@ -128,7 +137,10 @@ export class ContextImpl implements Context {
     }
 
     render(context: CanvasRenderingContext2D): void {
+        this.endLayer();
+
         this.context = context;
+        this.keyCollisionDetector.reset();
         this.layers.sort(zIndexComparator);
         for (let layer of this.layers) {
             for (let element of layer.floats) {
@@ -139,6 +151,8 @@ export class ContextImpl implements Context {
             }
         }
         delete this.context;
+
+        this.beginLayer('_root');
     }
 
     protected renderElement(element: UiElement) {

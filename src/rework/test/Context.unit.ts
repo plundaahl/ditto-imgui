@@ -1,15 +1,21 @@
 import { ContextImpl } from '../Context';
 import { UiElement } from '../UiElement';
 import { StateManagerImpl, StateManager } from '../StateManager';
+import { KeyCollisionDetector } from '../KeyCollisionDetector';
 
 let stateManager: StateManager;
+let keyCollisionDetector: KeyCollisionDetector;
 let instance: InspectableContext;
+let nextKey: number;
 
 beforeEach(() => {
+    nextKey = 0;
     stateManager = new StateManagerImpl();
+    keyCollisionDetector = new KeyCollisionDetector();
     instance = new InspectableContext({
         createCanvasFn: createFakeCanvasCtx,
         stateManager,
+        keyCollisionDetector,
     });
 });
 
@@ -119,6 +125,13 @@ describe('beginLayer()', () => {
         instance.beginLayer(key);
         expect(stateManager.beginKey).toHaveBeenCalledWith(key);
     });
+
+    test("Passes key into keyCollisionDetector.beginKey()", () => {
+        const key = 'bar';
+        keyCollisionDetector.beginKey = jest.fn(keyCollisionDetector.beginKey);
+        instance.beginLayer(key);
+        expect(keyCollisionDetector.beginKey).toHaveBeenCalledWith(key);
+    });
 });
 
 describe('endLayer()', () => {
@@ -150,6 +163,13 @@ describe('endLayer()', () => {
         stateManager.endKey = jest.fn(stateManager.endKey);
         instance.endLayer();
         expect(stateManager.endKey).toHaveBeenCalled();
+    });
+
+    test("Calls keyCollisionDetector.endKey()", () => {
+        instance.beginLayer('foobar');
+        keyCollisionDetector.endKey = jest.fn(keyCollisionDetector.endKey);
+        instance.endLayer();
+        expect(keyCollisionDetector.endKey).toHaveBeenCalled();
     });
 });
 
@@ -187,6 +207,13 @@ describe('beginElement()', () => {
         stateManager.beginKey = jest.fn(stateManager.beginKey);
         instance.beginElement(key);
         expect(stateManager.beginKey).toHaveBeenCalledWith(key);
+    });
+
+    test("Passes key into keyCollisionDetector.beginKey()", () => {
+        const key = 'bar';
+        keyCollisionDetector.beginKey = jest.fn(keyCollisionDetector.beginKey);
+        instance.beginElement(key);
+        expect(keyCollisionDetector.beginKey).toHaveBeenCalledWith(key);
     });
 
     describe('postconditions', () => {
@@ -260,6 +287,13 @@ describe('endElement()', () => {
             expect(stateManager.endKey).toHaveBeenCalled();
         });
 
+        test("Calls keyCollisionDetector.endKey()", () => {
+            instance.beginLayer('foobar');
+            keyCollisionDetector.endKey = jest.fn(keyCollisionDetector.endKey);
+            instance.endLayer();
+            expect(keyCollisionDetector.endKey).toHaveBeenCalled();
+        });
+
         describe('postconditions', () => {
             beforeEach(() => instance.endElement());
 
@@ -305,11 +339,11 @@ describe('render()', () => {
     test('should call renderElement on each element', () => {
         instance.onRenderElement = jest.fn();
 
-        instance.beginElement('somekey');
+        instance.beginElement('key1');
         instance.endElement();
-        instance.beginElement('somekey');
+        instance.beginElement('key2');
         {
-            instance.beginElement('somekey');
+            instance.beginElement('key3');
             instance.endElement();
         }
         instance.endElement();
@@ -322,21 +356,21 @@ describe('render()', () => {
     test('Should render layers in order of zIndex, then order of appearance', () => {
         const l1 = instance.getCurElement();
 
-        instance.beginLayer('somekey');
+        instance.beginLayer('key1');
         const l2 = instance.getCurElement();
         instance.endLayer();
 
-        instance.beginLayer('somekey');
+        instance.beginLayer('key2');
         const l3 = instance.getCurElement();
         instance.getCurElement().zIndex = 3;
         instance.endLayer();
 
-        instance.beginLayer('somekey');
+        instance.beginLayer('key3');
         const l4 = instance.getCurElement();
         instance.getCurElement().zIndex = 4;
         instance.endLayer();
 
-        instance.beginLayer('somekey');
+        instance.beginLayer('key4');
         const l5 = instance.getCurElement();
         instance.endLayer();
 
@@ -357,7 +391,7 @@ describe('render()', () => {
     test('For each layer, should render floats at end', () => {
         const l0 = instance.getCurElement();
 
-        instance.beginLayer('somekey');
+        instance.beginLayer('key1');
         const l1 = instance.getCurElement();
         const l1e1 = normalWidget();
         const l1e2 = floatingWidget();
@@ -365,7 +399,7 @@ describe('render()', () => {
         const l1e4 = normalWidget();
         instance.endLayer();
 
-        instance.beginLayer('somekey');
+        instance.beginLayer('key2');
         const l2 = instance.getCurElement();
         const l2e1 = floatingWidget();
         const l2e2 = normalWidget();
@@ -394,6 +428,12 @@ describe('render()', () => {
         for (let i = 0; i < expectedElements.length; i++) {
             expect(renderedElements[i]).toBe(expectedElements[i]);
         }
+    });
+
+    test('Should call keyCollisionDetector.reset()', () => {
+        keyCollisionDetector.reset = jest.fn(keyCollisionDetector.reset);
+        instance.render(canvasContext);
+        expect(keyCollisionDetector.reset).toHaveBeenCalled();
     });
 });
 
@@ -439,7 +479,7 @@ describe('dfsNonFloatSubraph()', () => {
             expect(visitedElements[i]).toBe(expectedElements[i]);
         }
     });
-    
+
     test('Does not run for floating elements', () => {
         const root = instance.getCurElement();
         const A = normalWidget();
@@ -473,14 +513,14 @@ describe('dfsNonFloatSubraph()', () => {
 });
 
 function normalWidget() {
-    instance.beginElement('somekey');
+    instance.beginElement((nextKey++).toString());
     const element = instance.getCurElement();
     instance.endElement();
     return element;
 }
 
 function floatingWidget() {
-    instance.beginElement('somekey');
+    instance.beginElement((nextKey++).toString());
     instance.floatElement();
     const element = instance.getCurElement();
     element.zIndex++;
@@ -489,7 +529,7 @@ function floatingWidget() {
 }
 
 function containerWidget(childBuilder: () => void) {
-    instance.beginElement('somekey');
+    instance.beginElement((nextKey++).toString());
     const element = instance.getCurElement();
     childBuilder();
     instance.endElement();
