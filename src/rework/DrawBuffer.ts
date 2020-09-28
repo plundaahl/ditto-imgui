@@ -1,18 +1,4 @@
 import { DrawCommand } from './DrawCommand';
-import {
-    setLineWidth,
-    LineCapOpts,
-    setLineCap,
-    LineJoinOpts,
-    setLineJoin,
-    setFont,
-    FillStyleOpts,
-    StrokeStyleOpts,
-    setFillStyle,
-    setStrokeStyle,
-    TextAlignOpts,
-    setTextAlign,
-} from './CustomDrawCommands';
 
 export interface DrawContext {
     clearRect(x: number, y: number, w: number, h: number): void;
@@ -296,6 +282,39 @@ export class DrawBuffer implements DrawContext {
     private pushDrawCommand(command: DrawCommand) {
         this.buffer.push(command);
     }
+}
+
+function setLineWidth(context: CanvasRenderingContext2D, width: number): void {
+    context.lineWidth = width;
+}
+
+type LineCapOpts = 'butt' | 'round' | 'square';
+function setLineCap(context: CanvasRenderingContext2D, cap: LineCapOpts): void {
+    context.lineCap = cap;
+}
+
+type LineJoinOpts = 'bevel' | 'round' | 'miter';
+function setLineJoin(context: CanvasRenderingContext2D, cap: LineJoinOpts): void {
+    context.lineJoin = cap;
+}
+
+function setFont(context: CanvasRenderingContext2D, font: string): void {
+    context.font = font;
+}
+
+type TextAlignOpts = 'start' | 'end' | 'left' | 'right' | 'center';
+function setTextAlign(context: CanvasRenderingContext2D, textAlign: TextAlignOpts): void {
+    context.textAlign = textAlign;
+}
+
+type FillStyleOpts = string | CanvasGradient | CanvasPattern;
+function setFillStyle(context: CanvasRenderingContext2D, style: FillStyleOpts): void {
+    context.fillStyle = style;
+}
+
+type StrokeStyleOpts = string | CanvasGradient | CanvasPattern;
+function setStrokeStyle(context: CanvasRenderingContext2D, style: StrokeStyleOpts): void {
+    context.strokeStyle = style;
 }
 
 export function createCanvasContext() {
