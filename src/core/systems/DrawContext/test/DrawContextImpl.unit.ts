@@ -1,6 +1,6 @@
 import { DrawCommand, UiElement } from '../../../types';
 import { DrawContextImpl } from '../DrawContextImpl';
-import { createFakeCanvasContext } from './createFakeCanvasContext';
+import { createFakeCanvasContext } from '../../../test/createFakeCanvasContext';
 
 class InspectableDrawContextImpl extends DrawContextImpl {
     pushDrawCommand(command: DrawCommand) {
