@@ -92,10 +92,10 @@ export class LayerBuilderImpl implements LayerBuilder {
             }
         }
         layersSeenThisFrame.clear();
-        layerOrder.length -= nLayersNotSeen;
 
         // sort layers
         layerOrder.sort(this.compareLayersForSorting);
+        layerOrder.length -= nLayersNotSeen;
         this.moveToFrontRequests.clear();
 
         this.state = LayerBuilderState.RENDER_MODE;
