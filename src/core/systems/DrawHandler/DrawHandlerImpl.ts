@@ -1,5 +1,5 @@
 import { DrawCommand, UiElement } from '../../types';
-import { DrawContext } from './DrawContext';
+import { DrawHandler } from './DrawHandler';
 import { createOffscreenCanvasContext } from './createOffscreenCanvasContext';
 import {
     setLineWidth,
@@ -16,8 +16,7 @@ import {
     StrokeStyleOpts,
 } from './CustomCommands';
 
-export class DrawContextImpl implements DrawContext {
-    private readonly buffer: DrawCommand[] = [];
+export class DrawHandlerImpl implements DrawHandler {
     private readonly utilityContext: CanvasRenderingContext2D;
     private currentElement: UiElement;
 

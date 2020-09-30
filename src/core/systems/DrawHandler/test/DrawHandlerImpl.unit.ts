@@ -1,17 +1,17 @@
 import { DrawCommand, UiElement } from '../../../types';
-import { DrawContextImpl } from '../DrawContextImpl';
+import { DrawHandlerImpl } from '../DrawHandlerImpl';
 import { createFakeCanvasContext } from '../../../test/createFakeCanvasContext';
 
-class InspectableDrawContextImpl extends DrawContextImpl {
+class InspectableDrawHandlerImpl extends DrawHandlerImpl {
     pushDrawCommand(command: DrawCommand) {
         super.pushDrawCommand(command);
     }
 }
 
-let instance: InspectableDrawContextImpl;
+let instance: InspectableDrawHandlerImpl;
 
 beforeEach(() => {
-    instance = new InspectableDrawContextImpl(createFakeCanvasContext);
+    instance = new InspectableDrawHandlerImpl(createFakeCanvasContext);
 });
 
 describe('pushDrawCommand', () => {
