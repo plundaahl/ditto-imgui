@@ -18,15 +18,16 @@ import {
 
 export class DrawHandlerImpl implements DrawHandler {
     private readonly utilityContext: CanvasRenderingContext2D;
-    private currentElement: UiElement;
+    private currentElement?: UiElement;
 
     constructor(
         createCanvasContext: () => CanvasRenderingContext2D = createOffscreenCanvasContext,
     ) {
         this.utilityContext = createCanvasContext();
+        this.setCurrentElement = this.setCurrentElement.bind(this);
     }
 
-    setCurrentElement(element: UiElement) {
+    setCurrentElement(element: UiElement | undefined) {
         this.currentElement = element;
     }
 
@@ -257,7 +258,11 @@ export class DrawHandlerImpl implements DrawHandler {
     }
 
     protected pushDrawCommand(command: DrawCommand) {
-        this.currentElement.drawBuffer.push(command);
+        const element = this.currentElement;
+        if (!element) {
+            throw new Error('no element present');
+        }
+        element.drawBuffer.push(command);
     }
 }
 

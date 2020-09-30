@@ -1,3 +1,3 @@
-export { DrawContext } from './DrawContext';
-export { DrawContextImpl } from './DrawContextImpl';
+export { DrawHandler, DrawAPI } from './DrawHandler';
+export { DrawHandlerImpl } from './DrawHandlerImpl';
 

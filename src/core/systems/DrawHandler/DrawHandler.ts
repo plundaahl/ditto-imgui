@@ -1,3 +1,5 @@
+import { UiElement } from '../../types';
+
 import {
     LineCapOpts,
     LineJoinOpts,
@@ -6,7 +8,7 @@ import {
     TextAlignOpts,
 } from './CustomCommands';
 
-export interface DrawHandler {
+export interface DrawAPI {
     clearRect(x: number, y: number, w: number, h: number): void;
     fillRect(x: number, y: number, w: number, h: number): void;
     strokeRect(x: number, y: number, w: number, h: number): void;
@@ -31,3 +33,8 @@ export interface DrawHandler {
     restore(): void;
     translate(x: number, y: number): void;
 }
+
+export interface DrawHandler extends DrawAPI {
+    setCurrentElement(element?: UiElement): void;
+}
+
