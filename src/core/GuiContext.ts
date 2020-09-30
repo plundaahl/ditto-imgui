@@ -1,4 +1,5 @@
 import { UiElement } from "./types";
+import { DrawAPI } from './systems/DrawHandler';
 
 export interface GuiContext {
     beginLayer(key: string): void;
@@ -14,5 +15,7 @@ export interface GuiContext {
     }
 
     readonly currentElement: Readonly<UiElement>;
+
+    readonly drawContext: DrawAPI;
 }
 

@@ -74,6 +74,11 @@ describe('beginLayer', () => {
         expect(currentElement.layer).toBe(currentLayer);
         expect(currentLayer.rootElement).toBe(currentElement);
     });
+
+    test('should pass root element into drawHandler.setCurrentElement', () => {
+        const currentElement = elementBuilder.getCurrentElement();
+        expect(drawHandler.setCurrentElement).toHaveBeenCalledWith(currentElement);
+    });
 });
 
 describe('endLayer', () => {

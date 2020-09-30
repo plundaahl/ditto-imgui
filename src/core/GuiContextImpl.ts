@@ -2,7 +2,7 @@ import { UiElement, Layer } from './types';
 import { GuiContext } from './GuiContext';
 import { KeyBuilder } from './systems/KeyBuilder';
 import { Renderer } from './systems/Renderer';
-import { DrawHandler } from './systems/DrawHandler';
+import { DrawHandler, DrawAPI } from './systems/DrawHandler';
 import { LayerBuilder } from './systems/LayerBuilder';
 import { ElementBuilder } from './systems/ElementBuilder';
 
@@ -25,6 +25,8 @@ export class GuiContextImpl implements GuiContext {
         this.currentLayer = {
             bringToFront: layerBuilder.bringCurrentLayerToFront,
         };
+
+        this.drawContext = drawHandler;
     }
 
     readonly currentLayer: {
@@ -38,6 +40,8 @@ export class GuiContextImpl implements GuiContext {
         }
         return element;
     }
+
+    readonly drawContext: DrawAPI;
 
     beginLayer(key: string): void {
         const { keyBuilder, layerBuilder, elementBuilder } = this;
@@ -53,6 +57,7 @@ export class GuiContextImpl implements GuiContext {
         const rootElement = elementBuilder.getCurrentElement() as UiElement;
 
         layer.rootElement = rootElement;
+        this.drawHandler.setCurrentElement(rootElement);
     }
 
     endLayer(): void {
