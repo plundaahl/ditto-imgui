@@ -55,13 +55,9 @@ export class LayerBuilderImpl implements LayerBuilder {
         }
     }
 
-    getCurrentLayer(): Layer {
+    getCurrentLayer(): Layer | undefined {
         const { layerStack } = this;
-        const layer = layerStack[layerStack.length - 1];
-        if (!layer) {
-            throw new Error('No layer currently pushed');
-        }
-        return layer;
+        return layerStack[layerStack.length - 1];
     }
 
     getOrderedLayers(): Layer[] {
@@ -73,7 +69,11 @@ export class LayerBuilderImpl implements LayerBuilder {
 
     bringCurrentLayerToFront(): void {
         const { layerStack } = this;
-        this.moveToFrontRequests.add(layerStack[layerStack.length - 1]);
+        const layer = layerStack[layerStack.length - 1];
+        if (!layer) {
+            throw new Error('No layer currently active. Ensure #bringCurrentLayerToFront is only called between matching beginLayer and endLayer calls.');
+        }
+        this.moveToFrontRequests.add(layer);
     }
 
     onPreRender(): void {

@@ -6,8 +6,8 @@ beforeEach(() => instance = new LayerBuilderImpl());
 
 describe('getCurrentLayer', () => {
     describe('when no layer is pushed', () => {
-        test('should error', () => {
-            expect(instance.getCurrentLayer).toThrow();
+        test('should return undefined', () => {
+            expect(instance.getCurrentLayer()).toBeUndefined();
         });
     });
 
@@ -16,7 +16,9 @@ describe('getCurrentLayer', () => {
         beforeEach(() => instance.beginLayer(key));
 
         test('should return layer matching last-pushed key', () => {
-            expect(instance.getCurrentLayer().key).toBe(key);
+            const layer = instance.getCurrentLayer();
+            if (!layer) { throw new Error('layer is undefined'); }
+            expect(layer.key).toBe(key);
         });
     });
 });
@@ -47,7 +49,7 @@ describe('beginLayer', () => {
 
         beforeEach(() => {
             instance.beginLayer(key);
-            layer = instance.getCurrentLayer();
+            layer = notUndefined(instance.getCurrentLayer());
             instance.endLayer();
 
             instance.onPreRender();
@@ -84,13 +86,21 @@ describe('endLayer', () => {
 
         beforeEach(() => {
             instance.beginLayer(key1);
-            layer1 = instance.getCurrentLayer();
+            layer1 = notUndefined(instance.getCurrentLayer());
             instance.beginLayer(key2);
         });
 
         test('should result in current layer being that before last push', () => {
             instance.endLayer();
             expect(instance.getCurrentLayer()).toBe(layer1);
+        });
+    });
+});
+
+describe('bringCurrentLayerToFront', () => {
+    describe('given no layers are present', () => {
+        test('should error', () => {
+            expect(instance.bringCurrentLayerToFront).toThrow();
         });
     });
 });
@@ -212,3 +222,9 @@ describe('onPreRender', () => {
     });
 });
 
+function notUndefined<T>(value: T | undefined): T {
+    if (value === undefined) {
+        throw new Error('value is undefined');
+    }
+    return value;
+}
