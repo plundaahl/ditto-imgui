@@ -1,13 +1,10 @@
-export function runOnCanvas(
-    drawFn: (context: CanvasRenderingContext2D) => void,
-    canvasId: string,
+export function run(
+    loopFn: () => void,
 ) {
-    const context = getCanvasContext(canvasId);
     let run: boolean = true;
 
     const loop = (time: number) => {
-        resetCanvas(context);
-        drawFn(context);
+        loopFn();
         run && requestAnimationFrame(loop);    
     }
 

@@ -1,77 +1,36 @@
-import { runOnCanvas } from './runner';
-import { getContext, Context } from '../src/rework';
+import { run } from './runner';
+import { createContext, getContext } from '../src/core';
 
-(window as any).data = initializeElements();
-const guiCtx = getContext();
-runOnCanvas(main, 'canvas');
+const { canvas, context } = setupCanvas();
+createContext(canvas);
+const gui = getContext();
 
-function main(canvasContext: CanvasRenderingContext2D) {
-    let rootElement: ElementDataTree = (window as any).data;
-    drawElementTree(guiCtx, rootElement);
-    guiCtx.render(canvasContext);
+run(main);
+
+function main() {
+    resetCanvas(context);
+    gui.render();
 }
 
-type ElementDataTree = {
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    style: string,
-    key: string,
-    float: boolean,
-    children?: ElementDataTree[]
-}
-
-function initializeElements(): ElementDataTree {
-    const data: ElementDataTree = makeElement('root', 20, 20, 100, 100, '#FF0000', false, {
-        children: [
-            makeElement('a', 70, 80, 100, 100, '#8888FF', false),
-            makeElement('b', 20, 100, 60, 60, '#bbbbbb', true),
-            makeElement('c', 200, 10, 200, 150, '#ffffff', false),
-        ]
-    });
-    return data;
-}
-
-function drawElementTree(guiCtx: Context, element: ElementDataTree) {
-    const {x, y, w, h, key, float} = element;
-
-    guiCtx.beginElement(key);
-
-    if (float) {
-        guiCtx.floatElement();
+function setupCanvas() {
+    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    if (!canvas) {
+        throw new Error('No canvas');
+    }
+    const context = canvas.getContext('2d');
+    if (!context) {
+        throw new Error('No canvas context');
     }
 
-    guiCtx.bounds.x = x;
-    guiCtx.bounds.y = y;
-    guiCtx.bounds.w = w;
-    guiCtx.bounds.h = h;
-
-    guiCtx.draw.setFillStyle(element.style);
-    guiCtx.draw.fillRect(x, y, w, h);
-    guiCtx.draw.setStrokeStyle('#000000');
-    guiCtx.draw.strokeRect(x, y, w, h);
-
-    if (element.children) {
-        for (const child of element.children) {
-            drawElementTree(guiCtx, child);
-        }
-    }
-
-    guiCtx.endElement();
+    return { canvas, context };
 }
 
-function makeElement(
-    key: string,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    style: string,
-    float: boolean,
-    children: {
-        children?: ElementDataTree[]
-    } = {}
-) {
-    return { key, x, y, w, h, style, float, children: children.children || []}
+function resetCanvas(context: CanvasRenderingContext2D, zoom: number = 1) {
+    const canvas = context.canvas;
+
+    canvas.width = canvas.clientWidth / zoom;
+    canvas.height = canvas.clientHeight / zoom;
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
 }
+
