@@ -18,7 +18,7 @@ export class ElementBuilderImpl implements ElementBuilder {
         this.onPostRender = this.onPostRender.bind(this);
     }
 
-    setCurrentLayer(layer?: Layer): void {
+    setCurrentLayer(layer: Layer | undefined): void {
         this.currentLayer = layer;
     }
 
@@ -54,12 +54,8 @@ export class ElementBuilderImpl implements ElementBuilder {
         this.currentElement = buildStack[buildStack.length - 1];
     }
 
-    getCurrentElement(): UiElement {
-        const { currentElement } = this;
-        if (!currentElement) {
-            throw new Error('no element present');
-        }
-        return currentElement;
+    getCurrentElement(): UiElement | undefined{
+        return this.currentElement;
     }
 
     onPostRender(): void {

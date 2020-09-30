@@ -19,8 +19,8 @@ beforeEach(() => {
 
 describe('getCurrentElement', () => {
     describe('given no element is present', () => {
-        test('should error', () => {
-            expect(instance.getCurrentElement).toThrow();
+        test('should return undefined', () => {
+            expect(instance.getCurrentElement()).toBeUndefined();
         });
     });
 
@@ -51,7 +51,11 @@ describe('beginElement', () => {
             };
             instance.setCurrentLayer(layer);
             instance.beginElement(key);
-            element = instance.getCurrentElement();
+            const elem = instance.getCurrentElement();
+            if (!elem) {
+                throw new Error('element is undefined');
+            }
+            element = elem;
         });
 
         test('should create element with provided key', () => {
@@ -65,7 +69,7 @@ describe('beginElement', () => {
         describe('given parent layer is current layer', () => {
             const childKey = `${key}/childkey`;
             let parent: UiElement;
-            let child: UiElement;
+            let child: UiElement | undefined;
 
             beforeEach(() => {
                 parent = element;
@@ -74,10 +78,12 @@ describe('beginElement', () => {
             });
 
             test('should have parent property set to parent element', () => {
+                if (!child) { throw new Error('child is undefined'); }
                 expect(child.parent).toBe(parent);
             });
 
             test("should add child to parent's children array", () => {
+                if (!child) { throw new Error('child is undefined'); }
                 expect(parent.children.includes(child)).toBe(true);
             });
         });
@@ -86,7 +92,7 @@ describe('beginElement', () => {
             const childKey = `${key}/childkey`;
             let childLayer: Layer;
             let parent: UiElement;
-            let child: UiElement;
+            let child: UiElement | undefined;
 
             beforeEach(() => {
                 parent = element;
@@ -101,18 +107,20 @@ describe('beginElement', () => {
             });
 
             test('should have parent property set to undefined', () => {
+                if (!child) { throw new Error('child is undefined'); }
                 expect(child.parent).toBeUndefined();
             });
 
             test("parent's children property should not contain child", () => {
+                if (!child) { throw new Error('child is undefined'); }
                 expect(parent.children.includes(child)).toBe(false);
             });
         });
     });
 
     describe('given successive calls without an endElement call', () => {
-        let parent: UiElement;
-        let child: UiElement;
+        let parent: UiElement | undefined;
+        let child: UiElement | undefined;
 
         beforeEach(() => {
             instance.setCurrentLayer({
@@ -140,7 +148,7 @@ describe('endElement', () => {
     });
 
     describe('given elements are pushed', () => {
-        let parent: UiElement;
+        let parent: UiElement | undefined;
 
         beforeEach(() => {
             instance.setCurrentLayer({
@@ -178,7 +186,7 @@ describe('onPostRender', () => {
     });
 
     describe('given all elements are properly ended', () => {
-        let elements: UiElement[];
+        let elements: (UiElement | undefined)[];
 
         beforeEach(() => {
             instance.setCurrentLayer({
@@ -208,7 +216,7 @@ describe('onPostRender', () => {
             instance.endElement();
 
             for (const element of elements) {
-                element.drawBuffer.push({
+                element && element.drawBuffer.push({
                     native: true,
                     command: 'rect',
                     args: [0, 0, 1, 2],
@@ -221,24 +229,28 @@ describe('onPostRender', () => {
         describe('all elements created this frame', () => {
             test('should set their "parent" property to undefined', () => {
                 for (const element of elements) {
+                    if (!element) { throw new Error('element is undefined'); }
                     expect(element.parent).toBeUndefined();
                 }
             });
 
             test('should set their "drawBuffer" array length to 0', () => {
                 for (const element of elements) {
+                    if (!element) { throw new Error('element is undefined'); }
                     expect(element.drawBuffer.length).toBe(0);
                 }
             });
 
             test('should set their "children" array length to 0', () => {
                 for (const element of elements) {
+                    if (!element) { throw new Error('element is undefined'); }
                     expect(element.children.length).toBe(0);
                 }
             });
 
             test("should pass each element into objectPool's release method", () => {
                 for (const element of elements) {
+                    if (!element) { throw new Error('element is undefined'); }
                     expect(pool.release).toHaveBeenCalledWith(element);
                 }
             });
