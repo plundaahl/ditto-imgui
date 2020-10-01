@@ -53,36 +53,37 @@ export class MouseHandlerImpl implements MouseHandler {
             throw new Error('Build stack not finished');
         }
 
-        this.floatParentsOfHoveredElement.length = 0;
-        this.parentsOfHoveredElement.length = 0;
         if (mouseWatcher.action !== MouseAction.DRAG) {
             mouseWatcher.action = MouseAction.NONE;
-        }
-        mouseWatcher.dragX = 0;
-        mouseWatcher.dragY = 0;
 
-        let hoveredElement: UiElement = this.hoverCandidates[0];
-
-        if (hoveredElement) {
-            for (const candidate of this.hoverCandidates) {
-                if (candidate.layer.zIndex > hoveredElement.layer.zIndex) {
-                    hoveredElement = candidate;
+            let hoveredElem: UiElement = this.hoverCandidates[0];
+            if (hoveredElem) {
+                for (const candidate of this.hoverCandidates) {
+                    if (candidate.layer.zIndex > hoveredElem.layer.zIndex) {
+                        hoveredElem = candidate;
+                    }
                 }
             }
+
+            this.hoveredElement = hoveredElem ? hoveredElem.key : undefined;
+            const hoveredElemParent = hoveredElem ? hoveredElem.parent : undefined;
+
+            this.floatParentsOfHoveredElement.length = 0;
+            this.parentsOfHoveredElement.length = 0;
+            for (let parent = hoveredElemParent; parent; parent = parent.parent) {
+                if (Object.is(parent.layer, hoveredElem.layer)) {
+                    this.parentsOfHoveredElement.push(parent.key);
+                } else {
+                    this.floatParentsOfHoveredElement.push(parent.key);
+                }
+            }
+        } else {
+            mouseWatcher.dragX = 0;
+            mouseWatcher.dragY = 0;
         }
 
-        this.hoveredElement = hoveredElement ? hoveredElement.key : undefined;
         this.hoverCandidates.length = 0;
         this.parentsOfCandidates.clear();
-
-        const hoveredElementParent = hoveredElement ? hoveredElement.parent : undefined;
-        for (let parent = hoveredElementParent; parent; parent = parent.parent) {
-            if (Object.is(parent.layer, hoveredElement.layer)) {
-                this.parentsOfHoveredElement.push(parent.key);
-            } else {
-                this.floatParentsOfHoveredElement.push(parent.key);
-            }
-        }
     }
 
     hoversElement(): boolean {

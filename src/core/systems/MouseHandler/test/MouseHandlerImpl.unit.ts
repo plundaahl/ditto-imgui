@@ -123,118 +123,148 @@ describe('onEndElement', () => {
 });
 
 describe('onLayersSorted', () => {
-    describe('given no candidates', () => {
+    describe('given current mouse action is not drag', () => {
         beforeEach(() => {
-            mouseWatcher.posX = 50;
-            mouseWatcher.posY = 50;
-            mouseHandler.onLayersSorted();
+            mouseWatcher.action = MouseAction.CLICK;
         });
 
-        test('should select candidate on layer with highest zIndex', () => {
-            expect(mouseHandler.getHoveredElementKey()).toBeUndefined();
+        describe('given no candidates', () => {
+            beforeEach(() => {
+                mouseWatcher.posX = 50;
+                mouseWatcher.posY = 50;
+                mouseHandler.onLayersSorted();
+            });
+
+            test('should set current hovered element to undefined', () => {
+                expect(mouseHandler.getHoveredElementKey()).toBeUndefined();
+            });
+        });
+
+        describe('given several candidates', () => {
+            let elements: UiElement[];
+
+            beforeEach(() => {
+                mouseWatcher.posX = 50;
+                mouseWatcher.posY = 50;
+
+                const layers: Layer[] = [
+                    { key: 'foo', zIndex: 0 },
+                    { key: 'bar', zIndex: 6 },
+                    { key: 'baz', zIndex: 3 },
+                ];
+
+                elements = [
+                    createElement({ key: 'foo', layer: layers[0] }),
+                    createElement({ key: 'bob', layer: layers[1] }),
+                    createElement({ key: 'bar', layer: layers[1] }),
+                    createElement({ key: 'baz', layer: layers[2] }),
+                    createElement({ key: 'bing', layer: layers[2] }),
+                ];
+
+                let parent: UiElement | undefined;
+                for (const element of elements) {
+                    if (parent) {
+                        parent.children.push(element);
+                        element.parent = parent;
+                    }
+                    parent = element;
+                }
+
+                for (const element of elements) {
+                    mouseHandler.onBeginElement(element);
+                }
+
+                for (const _ of elements) {
+                    mouseHandler.onEndElement();
+                }
+
+                mouseWatcher.action = MouseAction.CLICK;
+                mouseWatcher.dragX = 52;
+                mouseWatcher.dragY = -93;
+
+                mouseHandler.onLayersSorted();
+            });
+
+            test('should select candidate on layer with highest zIndex', () => {
+                expect(mouseHandler.getHoveredElementKey()).toBe('bar');
+            });
+
+            test('should mark parents on same layer for hoveredChild', () => {
+                expect(mouseHandler.getHoveredElementParents().includes('bob'))
+                    .toBe(true);
+            });
+
+            test('should not mark parents on different layers for hoveredChild', () => {
+                expect(mouseHandler.getHoveredElementParents().includes('foo'))
+                    .toBe(false);
+            });
+
+            test('should mark parents on different layer for hoveredFloatChild', () => {
+                expect(mouseHandler.getFloatHoveredElementParents().includes('foo'))
+                    .toBe(true);
+            });
+
+            test('should not mark parents on different layers as hoveredFLoatChild', () => {
+                expect(mouseHandler.getFloatHoveredElementParents().includes('bob'))
+                    .toBe(false);
+            });
+
+            test('should empty hoverCandidates array', () => {
+                expect(mouseHandler.getHoverCandidates().length).toBe(0);
+            });
+
+            test('should empty parentsOfCandidates', () => {
+                expect(mouseHandler.getParentsOfCandidates().size).toBe(0);
+            });
+
+            test('should reset watcher.action if not drag', () => {
+                expect(mouseWatcher.action).toBe(MouseAction.NONE);
+            });
+        });
+
+        describe('given unfinished buildStack', () => {
+            beforeEach(() => {
+                mouseHandler.onBeginElement(createElement());
+            });
+
+            test('should error', () => {
+                expect(mouseHandler.onLayersSorted).toThrow();
+            });
         });
     });
 
-    describe('given several candidates', () => {
+    describe('given current mouse action is drag', () => {
         let elements: UiElement[];
 
-        beforeEach(() => {
-            mouseWatcher.posX = 50;
-            mouseWatcher.posY = 50;
-            
-            const layers: Layer[] = [
-                { key: 'foo', zIndex: 0 },
-                { key: 'bar', zIndex: 6 },
-                { key: 'baz', zIndex: 3 },
-            ];
+        describe('given an element was hovered last frame', () => {
+            beforeEach(() => {
+                mouseWatcher.posX = 50;
+                mouseWatcher.posY = 50;
 
-            elements = [
-                createElement({ key: 'foo', layer: layers[0] }),
-                createElement({ key: 'bob', layer: layers[1] }),
-                createElement({ key: 'bar', layer: layers[1] }),
-                createElement({ key: 'baz', layer: layers[2] }),
-                createElement({ key: 'bing', layer: layers[2] }),
-            ];
-
-            let parent: UiElement | undefined;
-            for (const element of elements) {
-                if (parent) {
-                    parent.children.push(element);
-                    element.parent = parent;
-                }
-                parent = element;
-            }
-
-            for (const element of elements) {
-                mouseHandler.onBeginElement(element);
-            }
-
-            for (const _ of elements) {
+                elements = [ createElement() ];
+                mouseHandler.onBeginElement(elements[0]);
                 mouseHandler.onEndElement();
-            }
+                mouseHandler.onLayersSorted();
 
-            mouseWatcher.action = MouseAction.CLICK;
-            mouseWatcher.dragX = 52;
-            mouseWatcher.dragY = -93;
+                mouseWatcher.action = MouseAction.DRAG;
+                mouseWatcher.posX = 250;
+                mouseWatcher.posY = 250;
+                mouseWatcher.dragX = 200;
+                mouseWatcher.dragY = 200;
 
-            mouseHandler.onLayersSorted();
-        });
+                mouseHandler.onBeginElement(elements[0]);
+                mouseHandler.onEndElement();
+                mouseHandler.onLayersSorted();
+            });
 
-        test('should select candidate on layer with highest zIndex', () => {
-            expect(mouseHandler.getHoveredElementKey()).toBe('bar');
-        });
+            test('previous element should still be hovered', () => {
+                expect(mouseHandler.getHoveredElementKey()).toBe(elements[0].key);
+            });
 
-        test('should mark parents on same layer for hoveredChild', () => {
-            expect(mouseHandler.getHoveredElementParents().includes('bob'))
-                .toBe(true);
-        });
-
-        test('should not mark parents on different layers for hoveredChild', () => {
-            expect(mouseHandler.getHoveredElementParents().includes('foo'))
-                .toBe(false);
-        });
-
-        test('should mark parents on different layer for hoveredFloatChild', () => {
-            expect(mouseHandler.getFloatHoveredElementParents().includes('foo'))
-                .toBe(true);
-        });
-
-        test('should not mark parents on different layers as hoveredFLoatChild', () => {
-            expect(mouseHandler.getFloatHoveredElementParents().includes('bob'))
-                .toBe(false);
-        });
-
-        test('should empty hoverCandidates array', () => {
-            expect(mouseHandler.getHoverCandidates().length).toBe(0);
-        });
-
-        test('should empty parentsOfCandidates', () => {
-            expect(mouseHandler.getParentsOfCandidates().size).toBe(0);
-        });
-
-        test('should reset watcher.action if not drag', () => {
-            expect(mouseWatcher.action).toBe(MouseAction.NONE);
-        });
-
-        test('should not reset watcher.action if drag', () => {
-            mouseWatcher.action = MouseAction.DRAG;
-            mouseHandler.onLayersSorted();
-            expect(mouseWatcher.action).toBe(MouseAction.DRAG);
-        });
-
-        test('should reset watcher.dragX and dragY', () => {
-            expect(mouseWatcher.dragX).toBe(0);
-            expect(mouseWatcher.dragY).toBe(0);
-        });
-    });
-
-    describe('given unfinished buildStack', () => {
-        beforeEach(() => {
-            mouseHandler.onBeginElement(createElement());
-        });
-
-        test('should error', () => {
-            expect(mouseHandler.onLayersSorted).toThrow();
+            test('should reset watcher.dragX and dragY', () => {
+                expect(mouseWatcher.dragX).toBe(0);
+                expect(mouseWatcher.dragY).toBe(0);
+            });
         });
     });
 });
