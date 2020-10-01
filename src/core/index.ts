@@ -5,6 +5,7 @@ import { ElementBuilderImpl } from './systems/ElementBuilder';
 import { LayerBuilderImpl } from './systems/LayerBuilder';
 import { DrawHandlerImpl } from './systems/DrawHandler';
 import { RendererImpl } from './systems/Renderer';
+import { MouseHandlerImpl, createMouseWatcher } from './systems/MouseHandler';
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
 
@@ -33,6 +34,7 @@ export function createContext(canvas: HTMLCanvasElement) {
         new LayerBuilderImpl(),
         new DrawHandlerImpl(),
         new RendererImpl(canvasContext),
+        new MouseHandlerImpl(createMouseWatcher(canvas)),
     );
 }
 

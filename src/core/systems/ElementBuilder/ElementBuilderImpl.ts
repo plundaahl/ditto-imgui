@@ -33,7 +33,7 @@ export class ElementBuilderImpl implements ElementBuilder {
         element.layer = layer;
         element.key = key;
 
-        if (parent && parent.layer === layer) {
+        if (parent) {
             element.parent = parent;
             parent.children.push(element);
         }

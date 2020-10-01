@@ -98,6 +98,10 @@ export class LayerBuilderImpl implements LayerBuilder {
         layerOrder.length -= nLayersNotSeen;
         this.moveToFrontRequests.clear();
 
+        for (let i = 0; i < layerOrder.length; i++) {
+            layerOrder[i].zIndex = i;
+        }
+
         this.state = LayerBuilderState.RENDER_MODE;
     }
 

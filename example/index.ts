@@ -12,33 +12,96 @@ run(main);
 function main() {
     resetCanvas(context);
 
-    gui.beginLayer('otherlayer');
-    {
-        const bounds = gui.currentElement.bounds;
-        bounds.x = 100;
-        bounds.y = 100;
-        bounds.w = 100;
-        bounds.h = 100;
-    }
-
-    gui.beginElement('childelement');
-
-    {
-        const bounds = gui.currentElement.bounds;
-        bounds.x = 100;
-        bounds.y = 100;
-        bounds.w = 100;
-        bounds.h = 100;
-    }
-
-
-    gui.drawContext.setFillStyle('#FF0000');
-    gui.drawContext.fillRect(100, 100, 100, 100);
-
-    gui.endElement();
-    gui.endLayer();
+    beginPanel('main', 50, 50, 100, 100);
+    beginPanel('subpanel', 75, 75, 100, 100);
+    beginPanel('subsubpanel', 90, 90, 120, 120);
+    hoverableElement('foo', 10, 10, 100, 50);
+    hoverableElement('bar', 10, 60, 100, 50);
+    endPanel();
+    endPanel();
+    endPanel();
 
     gui.render();
+}
+
+function hoverableElement(key: string, x: number, y: number, w: number, h: number) {
+    const parentBounds = gui.currentElement.bounds;
+
+    gui.beginElement(key);
+    const bounds = gui.currentElement.bounds;
+    bounds.x = parentBounds.x + x;
+    bounds.y = parentBounds.y + y;
+    bounds.w = w;
+    bounds.h = h;
+
+    if (gui.mouse.hoversElement()) {
+        if (gui.mouse.isM1Down()) {
+            gui.drawContext.setFillStyle('#FF0000');
+        } else if (gui.mouse.isM2Down()) {
+            gui.drawContext.setFillStyle('#0000FF');
+        } else {
+            gui.drawContext.setFillStyle('#FFAAAA');
+        }
+    } else {
+        gui.drawContext.setFillStyle('#EEEEEE');
+    }
+
+    gui.drawContext.fillRect(bounds.x, bounds.y, w, h);
+    gui.drawContext.setStrokeStyle('#000000');
+    gui.drawContext.strokeRect(bounds.x, bounds.y, w, h);
+
+    gui.endElement();
+}
+
+
+var panelState: { [key: string]: { x: number, y: number } };
+
+function beginPanel(key: string, x: number, y: number, w: number, h: number) {
+    gui.beginLayer(key);
+
+    const qualifiedKey = gui.currentElement.key;
+    panelState = panelState || {};
+    if (!panelState[qualifiedKey]) {
+        panelState[qualifiedKey] = { x, y };
+    }
+    const state = panelState[qualifiedKey];
+
+    if (gui.mouse.hoversElement()) {
+        if (gui.mouse.isDragged()) {
+            state.x += gui.mouse.dragX;
+            state.y += gui.mouse.dragY;
+        }
+    }
+
+    if (gui.mouse.hoversElement() || gui.mouse.hoversChild()) {
+        if (gui.mouse.isM1Down() || gui.mouse.isM2Down()) {
+            gui.currentLayer.bringToFront();
+        }
+    }
+
+    const bounds = gui.currentElement.bounds;
+    bounds.x = state.x;
+    bounds.y = state.y;
+    bounds.w = w;
+    bounds.h = h;
+
+    gui.drawContext.setFillStyle('#DDDDDD');
+    gui.drawContext.fillRect(state.x, state.y, w, h);
+
+    if (gui.mouse.hoversElement()) {
+        gui.drawContext.setStrokeStyle('#FF0000');
+    } else if (gui.mouse.hoversChild()) {
+        gui.drawContext.setStrokeStyle('#00FF00');
+    } else if (gui.mouse.hoversFloatingChild()) {
+        gui.drawContext.setStrokeStyle('#0000FF');
+    } else {
+        gui.drawContext.setStrokeStyle('#000000');
+    }
+    gui.drawContext.strokeRect(state.x, state.y, w, h);
+}
+
+function endPanel() {
+    gui.endLayer();
 }
 
 function setupCanvas() {

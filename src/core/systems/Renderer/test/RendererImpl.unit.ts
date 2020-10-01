@@ -25,6 +25,40 @@ beforeEach(() => {
     instance = new InspectableRendererImpl(context);
 });
 
+describe('renderElement', () => {
+    let renderElementSpy = jest.fn();
+    let element: UiElement;
+
+    beforeEach(() => {
+        element = createElement(
+            createElement(),
+            createElement(),
+            createElement(),
+            createElement(),
+            createElement(),
+        );
+
+        element.children[1].layer = { key: 'anotherlayer', zIndex: 4 };
+        element.children[3].layer = { key: 'differentlayer', zIndex: 7 };
+
+        instance.onRenderElement(renderElementSpy);
+        jest.clearAllMocks();
+
+        instance.renderElement(element);
+    });
+
+    test('should not render any children on different layer', () => {
+        expect(renderElementSpy).not.toHaveBeenCalledWith(element.children[1]);
+        expect(renderElementSpy).not.toHaveBeenCalledWith(element.children[3]);
+    });
+
+    test('should render all children on same layer', () => {
+        expect(renderElementSpy).toHaveBeenCalledWith(element.children[0]);
+        expect(renderElementSpy).toHaveBeenCalledWith(element.children[2]);
+        expect(renderElementSpy).toHaveBeenCalledWith(element.children[4]);
+    });
+});
+
 describe('render', () => {
     test('should render layers in order', () => {
         const layers: Layer[] = [

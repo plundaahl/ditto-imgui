@@ -210,6 +210,13 @@ describe('getOrderedLayers', () => {
             expect(layerKeys[2]).toBe('foo');
             expect(layerKeys[3]).toBe('baz');
         });
+
+        test('layers zIndex should be set to their position in the array', () => {
+            const layers = instance.getOrderedLayers();
+            for (let i = 0; i < layers.length; i++) {
+                expect(layers[i].zIndex).toBe(i);
+            }
+        });
     });
 });
 

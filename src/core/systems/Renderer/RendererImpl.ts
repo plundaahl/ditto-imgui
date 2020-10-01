@@ -21,11 +21,11 @@ export class RendererImpl implements Renderer {
 
     protected renderElement(element: UiElement) {
         const { context } = this;
-        const { bounds } = element;
+        const { bounds: { x, y, w, h } } = element;
 
         context.save();
         context.beginPath();
-        context.rect(bounds.x, bounds.y, bounds.w, bounds.h);
+        context.rect(x, y, w, h);
         context.clip();
 
         for (const command of element.drawBuffer) {
@@ -37,7 +37,9 @@ export class RendererImpl implements Renderer {
         }
 
         for (const child of element.children) {
-            this.renderElement(child);
+            if (Object.is(child.layer, element.layer)) {
+                this.renderElement(child);
+            }
         }
 
         context.restore();

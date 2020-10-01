@@ -66,7 +66,7 @@ describe('beginElement', () => {
             expect(element.layer).toBe(layer);
         });
 
-        describe('given parent layer is current layer', () => {
+        describe('given parent exists', () => {
             const childKey = `${key}/childkey`;
             let parent: UiElement;
             let child: UiElement | undefined;
@@ -85,35 +85,6 @@ describe('beginElement', () => {
             test("should add child to parent's children array", () => {
                 if (!child) { throw new Error('child is undefined'); }
                 expect(parent.children.includes(child)).toBe(true);
-            });
-        });
-
-        describe('given parent layer is different layer', () => {
-            const childKey = `${key}/childkey`;
-            let childLayer: Layer;
-            let parent: UiElement;
-            let child: UiElement | undefined;
-
-            beforeEach(() => {
-                parent = element;
-                childLayer = {
-                    key: 'adifferentlayer',
-                    zIndex: -1,
-                };
-
-                instance.setCurrentLayer(childLayer);
-                instance.beginElement(childKey);
-                child = instance.getCurrentElement();
-            });
-
-            test('should have parent property set to undefined', () => {
-                if (!child) { throw new Error('child is undefined'); }
-                expect(child.parent).toBeUndefined();
-            });
-
-            test("parent's children property should not contain child", () => {
-                if (!child) { throw new Error('child is undefined'); }
-                expect(parent.children.includes(child)).toBe(false);
             });
         });
     });

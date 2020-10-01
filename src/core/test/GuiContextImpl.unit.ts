@@ -9,7 +9,8 @@ import { ElementBuilder, ElementBuilderImpl } from '../systems/ElementBuilder';
 import { ElementFactoryImpl } from '../factories/ElementFactory';
 import { ObjectPool } from '../lib/ObjectPool';
 import { createFakeCanvasContext } from './createFakeCanvasContext';
-import {Layer, UiElement} from '../types';
+import { Layer, UiElement } from '../types';
+import { MouseHandler, MouseHandlerImpl, MouseAction } from '../systems/MouseHandler';
 
 
 let keyBuilder: KeyBuilder;
@@ -18,12 +19,23 @@ let drawHandler: DrawHandler;
 let layerBuilder: LayerBuilder;
 let elementBuilder: ElementBuilder;
 let guiContext: GuiContext;
+let mouseHandler: MouseHandler;
 
 beforeEach(() => {
     keyBuilder = spy(new KeyBuilderImpl());
     renderer = spy(new RendererImpl(createFakeCanvasContext()));
     drawHandler = spy(new DrawHandlerImpl());
     layerBuilder = spy(new LayerBuilderImpl());
+    mouseHandler = spy(new MouseHandlerImpl({
+        posX: 50,
+        posY: 50,
+        dragX: 0,
+        dragY: 0,
+        isOverCanvas: true,
+        m1Down: false,
+        m2Down: false,
+        action: MouseAction.NONE,
+    }));
 
     const elementFactory = new ElementFactoryImpl({ zIndex: -1, key: '__default' });
     elementBuilder = spy(new ElementBuilderImpl(
@@ -39,6 +51,7 @@ beforeEach(() => {
         layerBuilder,
         drawHandler,
         renderer,
+        mouseHandler,
     );
 });
 
@@ -79,6 +92,11 @@ describe('beginLayer', () => {
         const currentElement = elementBuilder.getCurrentElement();
         expect(drawHandler.setCurrentElement).toHaveBeenCalledWith(currentElement);
     });
+
+    test('should pass root element into mouseHandler.onBeginElement', () => {
+        const currentElement = elementBuilder.getCurrentElement();
+        expect(mouseHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+    });
 });
 
 describe('endLayer', () => {
@@ -109,6 +127,10 @@ describe('endLayer', () => {
             expect(layerBuilder.endLayer).toHaveBeenCalled();
         });
 
+        test('should call keyBuilder.pop', () => {
+            expect(keyBuilder.pop).toHaveBeenCalled();
+        });
+
         test('should set current layer to previous layer before call', () => {
             expect(layerBuilder.getCurrentLayer()).toBe(prevLayer);
         });
@@ -121,6 +143,10 @@ describe('endLayer', () => {
         test('should pass current element into drawHandle.setCurrentElement', () => {
             const curElement = elementBuilder.getCurrentElement();
             expect(drawHandler.setCurrentElement).toHaveBeenCalledWith(curElement);
+        });
+
+        test('should call mouseHandler.onEndElement', () => {
+            expect(mouseHandler.onEndElement).toHaveBeenCalled();
         });
     });
 });
@@ -153,6 +179,11 @@ describe('beginElement', () => {
         test('should pass created element into drawHandler.setCurrentElement', () => {
             const curElement = elementBuilder.getCurrentElement();
             expect(drawHandler.setCurrentElement).toHaveBeenCalledWith(curElement);
+        });
+
+        test('should pass root element into mouseHandler.onBeginElement', () => {
+            const currentElement = elementBuilder.getCurrentElement();
+            expect(mouseHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
         });
     });
 });
@@ -192,6 +223,10 @@ describe('endElement', () => {
         test('should pass current element into drawHandler.setCurrentElement', () => {
             const currentElement = elementBuilder.getCurrentElement();
             expect(drawHandler.setCurrentElement).toHaveBeenCalledWith(currentElement);
+        });
+
+        test('should call mouseHandler.onEndElement', () => {
+            expect(mouseHandler.onEndElement).toHaveBeenCalled();
         });
     });
 });
@@ -255,6 +290,10 @@ describe('render', () => {
 
         test('should call layerBuilder.onPreRender', () => {
             expect(layerBuilder.onPreRender).toHaveBeenCalled();
+        });
+
+        test('should call mouseHandler.onLayersSorted', () => {
+            expect(mouseHandler.onLayersSorted).toHaveBeenCalled();
         });
 
         test('should call renderer.render', () => {
