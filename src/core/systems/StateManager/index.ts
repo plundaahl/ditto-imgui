@@ -1,1 +1,4 @@
-export { StateManager, StateManagerImpl } from './StateManager'
+export { StateManager, StateAPI } from './StateManager'
+export { StateManagerImpl } from './StateManagerImpl';
+export { StateHandle } from './StateHandle';
+

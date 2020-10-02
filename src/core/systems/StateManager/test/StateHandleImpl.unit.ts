@@ -1,9 +1,5 @@
-import {
-    StateHandleImpl,
-    StateHandle,
-    RegisterRecordFn,
-    GetRecordFn,
-} from '../StateHandle';
+import { StateHandle } from '../StateHandle';
+import { StateHandleImpl, RegisterRecordFn, GetRecordFn } from '../StateHandleImpl';
 
 interface TestRecord {
     field: string,
@@ -29,28 +25,28 @@ beforeEach(() => {
     );
 });
 
-describe('registerRecord()', () => {
+describe('initDefaultState()', () => {
     it('Should call doRegisterRecord()', () => {
-        instance.registerRecord({ field: 'hi' });
+        instance.initDefaultState({ field: 'hi' });
         expect(doRegisterRecord).toHaveBeenCalled();
     });
 
     it('Should pass its key and the record into doRegisterRecord()', () => {
         const defaultState = { field: 'hi' };
-        instance.registerRecord(defaultState);
+        instance.initDefaultState(defaultState);
         expect(doRegisterRecord).toHaveBeenCalledWith(key, defaultState);
     });
 });
 
-describe('getRecord()', () => {
+describe('getState()', () => {
     it('Should pass key into doGetRecord()', () => {
-        instance.getRecord();
+        instance.getState();
         expect(doGetRecord).toHaveBeenCalled();
         expect(doGetRecord).toHaveBeenCalledWith(key);
     });
 
     it('Should return result of doGetRecord()', () => {
-        const result = instance.getRecord();
+        const result = instance.getState();
         expect(result).toBe(record);
     });
 });
