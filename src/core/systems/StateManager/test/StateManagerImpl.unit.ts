@@ -72,7 +72,7 @@ describe('initDefaultState()', () => {
 
         expect((instance.getCurrentStateNode() as any)[key]).toBe(undefined);
 
-        instance.doInitDefaultState<ExampleRecord>(key, defaultState);
+        instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
 
         const record = (instance.getCurrentStateNode() as any)[key];
 
@@ -84,7 +84,7 @@ describe('initDefaultState()', () => {
         const key = 'justakey';
         const defaultState = { field: 1234 };
 
-        instance.doInitDefaultState<ExampleRecord>(key, defaultState);
+        instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
 
         const record = (instance.getCurrentStateNode() as any)[key];
         expect(record).not.toBe(defaultState);
@@ -94,26 +94,21 @@ describe('initDefaultState()', () => {
         const key = 'justakey';
         const defaultState = { field: 1234 };
 
-        instance.doInitDefaultState<ExampleRecord>(key, defaultState);
+        instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
         const record = (instance.getCurrentStateNode() as any)[key];
 
-        instance.doInitDefaultState<ExampleRecord>(key, defaultState);
+        instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
         expect((instance.getCurrentStateNode() as any)[key]).toBe(record);
     });
 });
 
 describe('getState()', () => {
-    test('Errors if current node does not contain record', () => {
-        expect(() => instance.doGetState('notarealkey')).toThrowError();
-    });
-
     test('Returns the registered record for the current node', () => {
         const key = 'justakey';
         const defaultState = { field: 1234 };
 
-        instance.doInitDefaultState<ExampleRecord>(key, defaultState);
-        const record = (instance.getCurrentStateNode() as any)[key];
+        const record = instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
 
-        expect(instance.doGetState(key)).toBe(record);
+        expect(instance.doDeclareAndGetState<ExampleRecord>(key, defaultState)).toBe(record);
     });
 });

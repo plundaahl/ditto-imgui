@@ -6,6 +6,7 @@ import { DrawHandler, DrawAPI } from './systems/DrawHandler';
 import { LayerBuilder } from './systems/LayerBuilder';
 import { ElementBuilder } from './systems/ElementBuilder';
 import { MouseAPI, MouseHandler } from './systems/MouseHandler';
+import { StateAPI, StateManager } from './systems/StateManager';
 
 export class GuiContextImpl implements GuiContext {
 
@@ -16,6 +17,7 @@ export class GuiContextImpl implements GuiContext {
         private readonly drawHandler: DrawHandler,
         private readonly renderer: Renderer,
         private readonly mouseHandler: MouseHandler,
+        private readonly stateManager: StateManager,
     ) {
 
         this.beginLayer = this.beginLayer.bind(this);
@@ -29,8 +31,8 @@ export class GuiContextImpl implements GuiContext {
         };
 
         this.drawContext = drawHandler;
-
         this.mouse = mouseHandler;
+        this.state = stateManager;
     }
 
     readonly currentLayer: {
@@ -46,14 +48,15 @@ export class GuiContextImpl implements GuiContext {
     }
 
     readonly drawContext: DrawAPI;
-
     readonly mouse: MouseAPI;
+    readonly state: StateAPI;
 
     beginLayer(key: string): void {
         const { keyBuilder, layerBuilder, elementBuilder } = this;
 
         keyBuilder.push(key);
         const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
+        this.stateManager.onBeginKey(qualifiedKey);
 
         layerBuilder.beginLayer(qualifiedKey);
         const layer = layerBuilder.getCurrentLayer() as Layer;
@@ -72,6 +75,7 @@ export class GuiContextImpl implements GuiContext {
         elementBuilder.endElement();
         layerBuilder.endLayer();
         this.keyBuilder.pop();
+        this.stateManager.onEndKey();
 
         elementBuilder.setCurrentLayer(layerBuilder.getCurrentLayer());
         this.drawHandler.setCurrentElement(elementBuilder.getCurrentElement());
@@ -83,6 +87,7 @@ export class GuiContextImpl implements GuiContext {
 
         keyBuilder.push(key);
         const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
+        this.stateManager.onBeginKey(qualifiedKey);
 
         elementBuilder.beginElement(qualifiedKey);
         const curElement = elementBuilder.getCurrentElement();
@@ -100,6 +105,7 @@ export class GuiContextImpl implements GuiContext {
 
         elementBuilder.endElement();
         this.keyBuilder.pop();
+        this.stateManager.onEndKey();
         this.drawHandler.setCurrentElement(elementBuilder.getCurrentElement());
         this.mouseHandler.onEndElement();
     }

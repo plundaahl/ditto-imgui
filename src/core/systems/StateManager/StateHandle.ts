@@ -1,5 +1,4 @@
 export interface StateHandle<T extends {}> {
-    initDefaultState(defaultState: T): void;
-    getState(): T;
+    declareAndGetState(defaultState: T): T;
 }
 

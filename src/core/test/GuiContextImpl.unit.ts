@@ -11,7 +11,7 @@ import { ObjectPool } from '../lib/ObjectPool';
 import { createFakeCanvasContext } from './createFakeCanvasContext';
 import { Layer, UiElement } from '../types';
 import { MouseHandler, MouseHandlerImpl, MouseAction } from '../systems/MouseHandler';
-
+import { StateManager, StateManagerImpl } from '../systems/StateManager';
 
 let keyBuilder: KeyBuilder;
 let renderer: Renderer;
@@ -20,12 +20,14 @@ let layerBuilder: LayerBuilder;
 let elementBuilder: ElementBuilder;
 let guiContext: GuiContext;
 let mouseHandler: MouseHandler;
+let stateManager: StateManager;
 
 beforeEach(() => {
     keyBuilder = spy(new KeyBuilderImpl());
     renderer = spy(new RendererImpl(createFakeCanvasContext()));
     drawHandler = spy(new DrawHandlerImpl());
     layerBuilder = spy(new LayerBuilderImpl());
+    stateManager = spy(new StateManagerImpl());
     mouseHandler = spy(new MouseHandlerImpl({
         posX: 50,
         posY: 50,
@@ -52,6 +54,7 @@ beforeEach(() => {
         drawHandler,
         renderer,
         mouseHandler,
+        stateManager,
     );
 });
 
@@ -78,6 +81,10 @@ describe('beginLayer', () => {
 
     test('should pass qualifiedKey into elementBuilder.beginLayer', () => {
         expect(elementBuilder.beginElement).toHaveBeenCalledWith(qualifiedKey);
+    });
+
+    test('should pass qualifiedKey into stateManager.onBeginKey', () => {
+        expect(stateManager.onBeginKey).toHaveBeenCalledWith(qualifiedKey);
     });
 
     test('should link new layer and its root element', () => {
@@ -131,6 +138,10 @@ describe('endLayer', () => {
             expect(keyBuilder.pop).toHaveBeenCalled();
         });
 
+        test('should call stateManager.onEndKey', () => {
+            expect(stateManager.onEndKey).toHaveBeenCalled();
+        });
+
         test('should set current layer to previous layer before call', () => {
             expect(layerBuilder.getCurrentLayer()).toBe(prevLayer);
         });
@@ -176,6 +187,11 @@ describe('beginElement', () => {
             expect(elementBuilder.beginElement).toHaveBeenCalledWith(qualifiedKey);
         });
 
+        test('should pass qualified key into elementBuilder.beginElement', () => {
+            const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
+            expect(stateManager.onBeginKey).toHaveBeenCalledWith(qualifiedKey);
+        });
+
         test('should pass created element into drawHandler.setCurrentElement', () => {
             const curElement = elementBuilder.getCurrentElement();
             expect(drawHandler.setCurrentElement).toHaveBeenCalledWith(curElement);
@@ -218,6 +234,10 @@ describe('endElement', () => {
 
         test('should call keyBuilder.pop', () => {
             expect(keyBuilder.pop).toHaveBeenCalled();
+        });
+
+        test('should call stateManager.onEndKey', () => {
+            expect(stateManager.onEndKey).toHaveBeenCalled();
         });
 
         test('should pass current element into drawHandler.setCurrentElement', () => {

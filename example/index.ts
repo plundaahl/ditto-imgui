@@ -7,8 +7,6 @@ const gui = getContext();
 
 (window as any).gui = gui;
 
-run(main);
-
 function main() {
     resetCanvas(context);
 
@@ -54,17 +52,12 @@ function hoverableElement(key: string, x: number, y: number, w: number, h: numbe
 }
 
 
-var panelState: { [key: string]: { x: number, y: number } };
+const panelStateHandle = gui.state.createHandle<{ x: number, y: number }>('panel');
 
 function beginPanel(key: string, x: number, y: number, w: number, h: number) {
     gui.beginLayer(key);
 
-    const qualifiedKey = gui.currentElement.key;
-    panelState = panelState || {};
-    if (!panelState[qualifiedKey]) {
-        panelState[qualifiedKey] = { x, y };
-    }
-    const state = panelState[qualifiedKey];
+    const state = panelStateHandle.declareAndGetState({ x, y });
 
     if (gui.mouse.hoversElement()) {
         if (gui.mouse.isM1Dragged()) {
@@ -126,3 +119,4 @@ function resetCanvas(context: CanvasRenderingContext2D, zoom: number = 1) {
     context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+run(main);

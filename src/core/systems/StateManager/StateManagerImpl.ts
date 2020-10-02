@@ -14,8 +14,9 @@ export class StateManagerImpl implements StateManager {
     protected stateStack: StateNode[] = [];
 
     constructor() {
-        this.initDefaultState = this.initDefaultState.bind(this);
-        this.getState = this.getState.bind(this);
+        this.onBeginKey = this.onBeginKey.bind(this);
+        this.onEndKey = this.onEndKey.bind(this);
+        this.declareAndGetState = this.declareAndGetState.bind(this);
         this.stateStack.push(this.stateStore);
     }
 
@@ -50,29 +51,19 @@ export class StateManagerImpl implements StateManager {
 
         return new StateHandleImpl<T>(
             handleKey,
-            this.initDefaultState,
-            this.getState,
+            this.declareAndGetState,
         );
     }
 
-    protected initDefaultState<T extends {}>(
+    protected declareAndGetState<T extends {}>(
         key: string,
         defaultState: T,
-    ): void {
+    ): T {
         const node = (this.currentStateNode as any);
         if (!node[key]) {
             node[key] = JSON.parse(JSON.stringify(defaultState));
         }
-    }
-
-    protected getState<T extends {}>(
-        key: string,
-    ): T {
-        const record = (this.currentStateNode as any)[key];
-        if (!record) {
-            throw new Error(`No record registered for key ${key}`);
-        }
-        return record;
+        return node[key];
     }
 }
 

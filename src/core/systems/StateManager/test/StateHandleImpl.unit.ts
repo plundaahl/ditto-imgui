@@ -1,52 +1,36 @@
 import { StateHandle } from '../StateHandle';
-import { StateHandleImpl, RegisterRecordFn, GetRecordFn } from '../StateHandleImpl';
+import { StateHandleImpl, DeclareAndGetStateFn } from '../StateHandleImpl';
 
 interface TestRecord {
     field: string,
 }
 
 let instance: StateHandle<TestRecord>;
-let doRegisterRecord: RegisterRecordFn<TestRecord>;
-let doGetRecord: GetRecordFn<TestRecord>;
+let doDeclareAndGetState: DeclareAndGetStateFn<TestRecord>;
 let record: TestRecord;
 let key: string = 'someKey';
 
 beforeEach(() => {
     record = { field: '' };
-    doRegisterRecord = jest.fn();
-    doGetRecord = jest.fn();
+    doDeclareAndGetState = jest.fn();
     instance = new StateHandleImpl(
         key,
-        doRegisterRecord,
-        (key: string) => {
-            doGetRecord(key);
+        (key: string, defaultState: TestRecord) => {
+            doDeclareAndGetState(key, defaultState);
             return record;
         },
     );
 });
 
-describe('initDefaultState()', () => {
-    it('Should call doRegisterRecord()', () => {
-        instance.initDefaultState({ field: 'hi' });
-        expect(doRegisterRecord).toHaveBeenCalled();
-    });
-
-    it('Should pass its key and the record into doRegisterRecord()', () => {
+describe('declareAndGetState', () => {
+    it('Should pass its key and the record into doDeclareAndGetState', () => {
         const defaultState = { field: 'hi' };
-        instance.initDefaultState(defaultState);
-        expect(doRegisterRecord).toHaveBeenCalledWith(key, defaultState);
-    });
-});
-
-describe('getState()', () => {
-    it('Should pass key into doGetRecord()', () => {
-        instance.getState();
-        expect(doGetRecord).toHaveBeenCalled();
-        expect(doGetRecord).toHaveBeenCalledWith(key);
+        instance.declareAndGetState(defaultState);
+        expect(doDeclareAndGetState).toHaveBeenCalledWith(key, defaultState);
     });
 
-    it('Should return result of doGetRecord()', () => {
-        const result = instance.getState();
+    it('Should return result of doDeclareAndGetState', () => {
+        const result = instance.declareAndGetState(record);
         expect(result).toBe(record);
     });
 });
