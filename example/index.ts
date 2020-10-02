@@ -67,7 +67,7 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
     const state = panelState[qualifiedKey];
 
     if (gui.mouse.hoversElement()) {
-        if (gui.mouse.isDragged()) {
+        if (gui.mouse.isM1Dragged()) {
             state.x += gui.mouse.dragX;
             state.y += gui.mouse.dragY;
         }

@@ -53,7 +53,7 @@ export class MouseHandlerImpl implements MouseHandler {
             throw new Error('Build stack not finished');
         }
 
-        if (mouseWatcher.action !== MouseAction.DRAG) {
+        if (mouseWatcher.action !== MouseAction.M1_DRAG) {
             mouseWatcher.action = MouseAction.NONE;
 
             let hoveredElem: UiElement = this.hoverCandidates[0];
@@ -111,20 +111,20 @@ export class MouseHandlerImpl implements MouseHandler {
         return this.mouseWatcher.m2Down;
     }
 
-    isClicked(): boolean {
-        return this.mouseWatcher.action === MouseAction.CLICK;
+    isM1Clicked(): boolean {
+        return this.mouseWatcher.action === MouseAction.M1_CLICK;
     }
 
-    isAuxClicked(): boolean {
+    isM2Clicked(): boolean {
         return this.mouseWatcher.action === MouseAction.M2_CLICK;
     }
 
-    isDoubleClicked(): boolean {
-        return this.mouseWatcher.action === MouseAction.DOUBLE_CLICK;
+    isM1DoubleClicked(): boolean {
+        return this.mouseWatcher.action === MouseAction.M1_DOUBLECLICK;
     }
 
-    isDragged(): boolean {
-        return this.mouseWatcher.action === MouseAction.DRAG;
+    isM1Dragged(): boolean {
+        return this.mouseWatcher.action === MouseAction.M1_DRAG;
     }
 
     private isElementUnderMouse(element: UiElement): boolean {

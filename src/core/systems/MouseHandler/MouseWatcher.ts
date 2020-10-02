@@ -1,9 +1,9 @@
 export enum MouseAction {
     NONE,
-    CLICK,
-    DOUBLE_CLICK,
+    M1_CLICK,
+    M1_DOUBLECLICK,
+    M1_DRAG,
     M2_CLICK,
-    DRAG,
 }
 
 export interface MouseWatcher {

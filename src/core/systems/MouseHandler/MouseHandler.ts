@@ -8,10 +8,10 @@ export interface MouseAPI {
     hoversFloatingChild(): boolean;
     isM1Down(): boolean;
     isM2Down(): boolean;
-    isClicked(): boolean;
-    isAuxClicked(): boolean;
-    isDoubleClicked(): boolean;
-    isDragged(): boolean;
+    isM1Clicked(): boolean;
+    isM1DoubleClicked(): boolean;
+    isM1Dragged(): boolean;
+    isM2Clicked(): boolean;
 }
 
 export interface MouseHandler extends MouseAPI {

@@ -125,7 +125,7 @@ describe('onEndElement', () => {
 describe('onLayersSorted', () => {
     describe('given current mouse action is not drag', () => {
         beforeEach(() => {
-            mouseWatcher.action = MouseAction.CLICK;
+            mouseWatcher.action = MouseAction.M1_CLICK;
         });
 
         describe('given no candidates', () => {
@@ -178,7 +178,7 @@ describe('onLayersSorted', () => {
                     mouseHandler.onEndElement();
                 }
 
-                mouseWatcher.action = MouseAction.CLICK;
+                mouseWatcher.action = MouseAction.M1_CLICK;
                 mouseWatcher.dragX = 52;
                 mouseWatcher.dragY = -93;
 
@@ -246,7 +246,7 @@ describe('onLayersSorted', () => {
                 mouseHandler.onEndElement();
                 mouseHandler.onLayersSorted();
 
-                mouseWatcher.action = MouseAction.DRAG;
+                mouseWatcher.action = MouseAction.M1_DRAG;
                 mouseWatcher.posX = 250;
                 mouseWatcher.posY = 250;
                 mouseWatcher.dragX = 200;
@@ -550,74 +550,74 @@ describe('isM2Down', () => {
     });
 });
 
-describe('isClicked', () => {
+describe('isM1Clicked', () => {
     describe('given watcher.action is set to click', () => {
-        beforeEach(() => mouseWatcher.action = MouseAction.CLICK);
+        beforeEach(() => mouseWatcher.action = MouseAction.M1_CLICK);
 
         test('returns true', () => {
-            expect(mouseHandler.isClicked()).toBe(true);
+            expect(mouseHandler.isM1Clicked()).toBe(true);
         });
     });
 
     describe('given watcher.action is not set to click', () => {
-        beforeEach(() => mouseWatcher.action = MouseAction.DOUBLE_CLICK);
+        beforeEach(() => mouseWatcher.action = MouseAction.M1_DOUBLECLICK);
 
         test('returns true', () => {
-            expect(mouseHandler.isClicked()).toBe(false);
+            expect(mouseHandler.isM1Clicked()).toBe(false);
         });
     });
 });
 
-describe('isDoubleClicked', () => {
+describe('isM1DoubleClicked', () => {
     describe('given watcher.action is set to double-click', () => {
-        beforeEach(() => mouseWatcher.action = MouseAction.DOUBLE_CLICK);
+        beforeEach(() => mouseWatcher.action = MouseAction.M1_DOUBLECLICK);
 
         test('returns true', () => {
-            expect(mouseHandler.isDoubleClicked()).toBe(true);
+            expect(mouseHandler.isM1DoubleClicked()).toBe(true);
         });
     });
 
     describe('given watcher.action is not set to double-click', () => {
-        beforeEach(() => mouseWatcher.action = MouseAction.DRAG);
+        beforeEach(() => mouseWatcher.action = MouseAction.M1_DRAG);
 
         test('returns true', () => {
-            expect(mouseHandler.isDoubleClicked()).toBe(false);
+            expect(mouseHandler.isM1DoubleClicked()).toBe(false);
         });
     });
 });
 
-describe('isAuxClicked', () => {
+describe('isM2Clicked', () => {
     describe('given watcher.action is set to m2-click', () => {
         beforeEach(() => mouseWatcher.action = MouseAction.M2_CLICK);
 
         test('returns true', () => {
-            expect(mouseHandler.isAuxClicked()).toBe(true);
+            expect(mouseHandler.isM2Clicked()).toBe(true);
         });
     });
 
     describe('given watcher.action is not set to m2-click', () => {
-        beforeEach(() => mouseWatcher.action = MouseAction.DRAG);
+        beforeEach(() => mouseWatcher.action = MouseAction.M1_DRAG);
 
         test('returns true', () => {
-            expect(mouseHandler.isAuxClicked()).toBe(false);
+            expect(mouseHandler.isM2Clicked()).toBe(false);
         });
     });
 });
 
-describe('isDragged', () => {
+describe('isM1Dragged', () => {
     describe('given watcher.action is set to drag', () => {
-        beforeEach(() => mouseWatcher.action = MouseAction.DRAG);
+        beforeEach(() => mouseWatcher.action = MouseAction.M1_DRAG);
 
         test('returns true', () => {
-            expect(mouseHandler.isDragged()).toBe(true);
+            expect(mouseHandler.isM1Dragged()).toBe(true);
         });
     });
 
     describe('given watcher.action is not set to drag', () => {
-        beforeEach(() => mouseWatcher.action = MouseAction.CLICK);
+        beforeEach(() => mouseWatcher.action = MouseAction.M1_CLICK);
 
         test('returns true', () => {
-            expect(mouseHandler.isDragged()).toBe(false);
+            expect(mouseHandler.isM1Dragged()).toBe(false);
         });
     });
 });

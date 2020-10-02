@@ -23,7 +23,7 @@ export function createMouseWatcher(
         watcher.posY = e.y;
 
         if (watcher.m1Down) {
-            watcher.action = MouseAction.DRAG;
+            watcher.action = MouseAction.M1_DRAG;
             watcher.dragX = e.movementX;
             watcher.dragY = e.movementY;
         }
@@ -41,12 +41,12 @@ export function createMouseWatcher(
 
     canvas.addEventListener('click', (e) => {
         e.preventDefault();
-        watcher.action = MouseAction.CLICK;
+        watcher.action = MouseAction.M1_CLICK;
     });
 
     canvas.addEventListener('dblclick', (e) => {
         e.preventDefault();
-        watcher.action = MouseAction.DOUBLE_CLICK;
+        watcher.action = MouseAction.M1_DOUBLECLICK;
     });
 
     canvas.oncontextmenu = () => false;
@@ -60,7 +60,7 @@ export function createMouseWatcher(
         watcher.m1Down = (e.buttons & M1) !== 0;
         watcher.m2Down = (e.buttons & M2) !== 0;
 
-        if (watcher.action === MouseAction.DRAG) {
+        if (watcher.action === MouseAction.M1_DRAG) {
             watcher.action = MouseAction.NONE;
         }
     };
