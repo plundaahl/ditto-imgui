@@ -7,30 +7,34 @@ const gui = getContext();
 
 (window as any).gui = gui;
 
+let nButtons: number = 0;
+
 function main() {
     resetCanvas(context);
 
-    beginPanel('main', 50, 50, 100, 100);
-    beginPanel('subpanel', 75, 75, 100, 100);
-    beginPanel('subsubpanel', 90, 90, 120, 120);
-    hoverableElement('foo', 10, 10, 100, 50);
-    hoverableElement('bar', 10, 60, 100, 50);
+    beginPanel('Control Panel', 50, 50, 100, 100);
+    if (button('Increment')) {
+        nButtons++;
+    }
+    if (button('Decrement')) {
+        nButtons = Math.max(nButtons - 1, 0);
+    }
     endPanel();
-    endPanel();
+
+    beginPanel('Display Panel', 250, 50, 100, 500);
+    for (let i = 0; i < nButtons; i++) {
+        button(`Button ${i}`);
+    }
     endPanel();
 
     gui.render();
 }
 
-function hoverableElement(key: string, x: number, y: number, w: number, h: number) {
-    const parentBounds = gui.currentElement.bounds;
-
+function button(key: string) {
     gui.beginElement(key);
-    const bounds = gui.currentElement.bounds;
-    bounds.x = parentBounds.x + x;
-    bounds.y = parentBounds.y + y;
-    bounds.w = w;
-    bounds.h = h;
+    const { bounds } = gui.currentElement;
+
+    bounds.h = 30;
 
     if (gui.mouse.hoversElement()) {
         if (gui.mouse.isM1Down()) {
@@ -44,11 +48,20 @@ function hoverableElement(key: string, x: number, y: number, w: number, h: numbe
         gui.drawContext.setFillStyle('#EEEEEE');
     }
 
-    gui.drawContext.fillRect(bounds.x, bounds.y, w, h);
+    const { x, y, w, h } = bounds;
+
+    gui.drawContext.fillRect(x, y, w, h);
     gui.drawContext.setStrokeStyle('#000000');
-    gui.drawContext.strokeRect(bounds.x, bounds.y, w, h);
+    gui.drawContext.strokeRect(x, y, w, h);
+
+    gui.drawContext.setFillStyle('#000000');
+    gui.drawContext.drawText(key, x + 10, y + 10);
+
+    let isClicked = gui.mouse.hoversElement() && gui.mouse.isM1Clicked();
 
     gui.endElement();
+
+    return isClicked;
 }
 
 
@@ -81,15 +94,7 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
     gui.drawContext.setFillStyle('#DDDDDD');
     gui.drawContext.fillRect(state.x, state.y, w, h);
 
-    if (gui.mouse.hoversElement()) {
-        gui.drawContext.setStrokeStyle('#FF0000');
-    } else if (gui.mouse.hoversChild()) {
-        gui.drawContext.setStrokeStyle('#00FF00');
-    } else if (gui.mouse.hoversFloatingChild()) {
-        gui.drawContext.setStrokeStyle('#0000FF');
-    } else {
-        gui.drawContext.setStrokeStyle('#000000');
-    }
+    gui.drawContext.setStrokeStyle('#000000');
     gui.drawContext.strokeRect(state.x, state.y, w, h);
 }
 

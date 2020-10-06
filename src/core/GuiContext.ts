@@ -2,6 +2,7 @@ import { UiElement } from "./types";
 import { DrawAPI } from './systems/DrawHandler';
 import { MouseAPI } from './systems/MouseHandler';
 import { StateAPI } from './systems/StateManager';
+import { LayoutAPI } from './systems/LayoutHandler';
 
 export interface GuiContext {
     beginLayer(key: string): void;
@@ -20,5 +21,6 @@ export interface GuiContext {
     readonly drawContext: DrawAPI;
     readonly mouse: MouseAPI;
     readonly state: StateAPI;
+    readonly layout: LayoutAPI;
 }
 

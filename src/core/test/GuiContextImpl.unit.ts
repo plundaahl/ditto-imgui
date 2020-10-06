@@ -12,6 +12,7 @@ import { createFakeCanvasContext } from './createFakeCanvasContext';
 import { Layer, UiElement } from '../types';
 import { MouseHandler, MouseHandlerImpl, MouseAction } from '../systems/MouseHandler';
 import { StateManager, StateManagerImpl } from '../systems/StateManager';
+import { LayoutHandler, LayoutHandlerImpl } from '../systems/LayoutHandler';
 
 let keyBuilder: KeyBuilder;
 let renderer: Renderer;
@@ -21,6 +22,7 @@ let elementBuilder: ElementBuilder;
 let guiContext: GuiContext;
 let mouseHandler: MouseHandler;
 let stateManager: StateManager;
+let layoutHandler: LayoutHandler;
 
 beforeEach(() => {
     keyBuilder = spy(new KeyBuilderImpl());
@@ -28,6 +30,7 @@ beforeEach(() => {
     drawHandler = spy(new DrawHandlerImpl());
     layerBuilder = spy(new LayerBuilderImpl());
     stateManager = spy(new StateManagerImpl());
+    layoutHandler = spy(new LayoutHandlerImpl(jest.fn()));
     mouseHandler = spy(new MouseHandlerImpl({
         posX: 50,
         posY: 50,
@@ -55,6 +58,7 @@ beforeEach(() => {
         renderer,
         mouseHandler,
         stateManager,
+        layoutHandler,
     );
 });
 
@@ -103,6 +107,11 @@ describe('beginLayer', () => {
     test('should pass root element into mouseHandler.onBeginElement', () => {
         const currentElement = elementBuilder.getCurrentElement();
         expect(mouseHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+    });
+
+    test('should pass root element into layoutHandler.onBeginElement', () => {
+        const currentElement = elementBuilder.getCurrentElement();
+        expect(layoutHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
     });
 });
 
@@ -159,6 +168,10 @@ describe('endLayer', () => {
         test('should call mouseHandler.onEndElement', () => {
             expect(mouseHandler.onEndElement).toHaveBeenCalled();
         });
+
+        test('should call layoutHandler.onEndElement', () => {
+            expect(layoutHandler.onEndElement).toHaveBeenCalled();
+        });
     });
 });
 
@@ -197,9 +210,14 @@ describe('beginElement', () => {
             expect(drawHandler.setCurrentElement).toHaveBeenCalledWith(curElement);
         });
 
-        test('should pass root element into mouseHandler.onBeginElement', () => {
+        test('should pass created element into mouseHandler.onBeginElement', () => {
             const currentElement = elementBuilder.getCurrentElement();
             expect(mouseHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+        });
+
+        test('should pass created element into layoutHandler.onBeginElement', () => {
+            const currentElement = elementBuilder.getCurrentElement();
+            expect(layoutHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
         });
     });
 });
@@ -247,6 +265,10 @@ describe('endElement', () => {
 
         test('should call mouseHandler.onEndElement', () => {
             expect(mouseHandler.onEndElement).toHaveBeenCalled();
+        });
+
+        test('should call layoutHandler.onEndElement', () => {
+            expect(layoutHandler.onEndElement).toHaveBeenCalled();
         });
     });
 });
@@ -326,6 +348,10 @@ describe('render', () => {
 
         test('should call elementBuilder.onPostRender', () => {
             expect(elementBuilder.onPostRender).toHaveBeenCalled();
+        });
+
+        test('should call layoutHandler.onPostRender', () => {
+            expect(layoutHandler.onPostRender).toHaveBeenCalled();
         });
     });
 

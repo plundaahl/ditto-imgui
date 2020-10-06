@@ -7,8 +7,10 @@ import { DrawHandlerImpl } from './systems/DrawHandler';
 import { RendererImpl } from './systems/Renderer';
 import { MouseHandlerImpl, createMouseWatcher } from './systems/MouseHandler';
 import { StateManagerImpl } from './systems/StateManager';
+import { LayoutHandlerImpl } from './systems/LayoutHandler';
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
+import { basicVerticalLayoutFn } from './defaults/layout';
 
 let guiContextSingleton: GuiContext;
 
@@ -37,6 +39,7 @@ export function createContext(canvas: HTMLCanvasElement) {
         new RendererImpl(canvasContext),
         new MouseHandlerImpl(createMouseWatcher(canvas)),
         new StateManagerImpl(),
+        new LayoutHandlerImpl(basicVerticalLayoutFn),
     );
 }
 
