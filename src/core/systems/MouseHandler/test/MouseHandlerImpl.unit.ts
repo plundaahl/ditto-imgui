@@ -231,6 +231,66 @@ describe('onLayersSorted', () => {
                 expect(mouseHandler.onLayersSorted).toThrow();
             });
         });
+
+        describe('given a candidate is clipped by ancestor', () => {
+            let elements: UiElement[];
+
+            beforeEach(() => {
+                mouseWatcher.posX = 50;
+                mouseWatcher.posY = 50;
+
+                elements = [
+                    createElement({
+                        key: 'foo',
+                        bounds: { x: 70, y: 80, w: 40, h: 40},
+                    }),
+                    createElement({ key: 'bar' }),
+                    createElement({ key: 'baz' }),
+                ];
+
+                let parent: UiElement | undefined;
+                for (const element of elements) {
+                    if (parent) {
+                        parent.children.push(element);
+                        element.parent = parent;
+                    }
+                    parent = element;
+                }
+
+                for (const element of elements) {
+                    mouseHandler.onBeginElement(element);
+                }
+
+                for (const _ of elements) {
+                    mouseHandler.onEndElement();
+                }
+
+                mouseWatcher.action = MouseAction.M1_CLICK;
+            });
+
+            describe('and that ancestor is on same layer', () => {
+                beforeEach(() => mouseHandler.onLayersSorted());
+
+                test('that element should not be selected', () => {
+                    expect(mouseHandler.getHoveredElementKey()).toBe(undefined);
+                });
+            });
+
+            describe('and that ancestor is on different layer', () => {
+                beforeEach(() => {
+                    elements[0].layer = {
+                        key: 'otherlayer',
+                        zIndex: -5,
+                        rootElement: elements[0],
+                    };
+                    mouseHandler.onLayersSorted();
+                });
+
+                test('that element should be selected', () => {
+                    expect(mouseHandler.getHoveredElementKey()).toBe('baz');
+                });
+            });
+        });
     });
 
     describe('given current mouse action is drag', () => {

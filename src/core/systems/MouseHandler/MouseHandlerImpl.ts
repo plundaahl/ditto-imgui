@@ -56,13 +56,30 @@ export class MouseHandlerImpl implements MouseHandler {
         if (mouseWatcher.action !== MouseAction.M1_DRAG) {
             mouseWatcher.action = MouseAction.NONE;
 
-            let hoveredElem: UiElement = this.hoverCandidates[0];
-            if (hoveredElem) {
-                for (const candidate of this.hoverCandidates) {
-                    if (candidate.layer.zIndex > hoveredElem.layer.zIndex) {
-                        hoveredElem = candidate;
+            let hoveredElem: UiElement | undefined;
+            for (const candidate of this.hoverCandidates) {
+
+                let isMouseOutsideBounds: boolean = false;
+                for (
+                    let e: UiElement | undefined = candidate;
+                    e && e.layer === candidate.layer;
+                    e = e.parent
+                ) {
+                    if (!this.isElementUnderMouse(e)) {
+                        isMouseOutsideBounds = true;
+                        break;
                     }
                 }
+
+                if (isMouseOutsideBounds) {
+                    continue;
+                }
+
+                if (hoveredElem && candidate.layer.zIndex < hoveredElem.layer.zIndex) {
+                    continue;
+                }
+
+                hoveredElem = candidate;
             }
 
             this.hoveredElement = hoveredElem ? hoveredElem.key : undefined;
@@ -71,7 +88,7 @@ export class MouseHandlerImpl implements MouseHandler {
             this.floatParentsOfHoveredElement.length = 0;
             this.parentsOfHoveredElement.length = 0;
             for (let parent = hoveredElemParent; parent; parent = parent.parent) {
-                if (Object.is(parent.layer, hoveredElem.layer)) {
+                if (Object.is(parent.layer, hoveredElem?.layer)) {
                     this.parentsOfHoveredElement.push(parent.key);
                 } else {
                     this.floatParentsOfHoveredElement.push(parent.key);
