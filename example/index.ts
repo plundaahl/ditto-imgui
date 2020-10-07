@@ -7,24 +7,27 @@ const gui = getContext();
 
 (window as any).gui = gui;
 
-let nButtons: number = 0;
+let dummyIds: number[] = [];
+let nextId: number = 0;
 
 function main() {
     resetCanvas(context);
 
     beginPanel('Control Panel', 50, 50, 100, 100);
     if (button('Increment')) {
-        nButtons++;
-    }
-    if (button('Decrement')) {
-        nButtons = Math.max(nButtons - 1, 0);
+        dummyIds.push(nextId++);
     }
     endPanel();
 
-    beginPanel('Display Panel', 250, 50, 100, 500);
-    for (let i = 0; i < nButtons; i++) {
-        button(`Button ${i}`);
+    beginPanel('Display Panel', 250, 50, 100, 200);
+    beginScrollRegion('DisplayScroll');
+    for (let i = 0; i < dummyIds.length; i++) {
+        const id = dummyIds[i];
+        if (button(`Button ${id}`)) {
+            dummyIds = dummyIds.filter(element => element !== id);
+        }
     }
+    endScrollRegion();
     endPanel();
 
     gui.render();
@@ -96,10 +99,110 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
 
     gui.drawContext.setStrokeStyle('#000000');
     gui.drawContext.strokeRect(state.x, state.y, w, h);
+
+    gui.drawContext.beginPath();
+    gui.drawContext.rect(state.x + 1, state.y + 1, w - 2, h - 2);
+    gui.drawContext.clip();
 }
 
 function endPanel() {
     gui.endLayer();
+}
+
+
+type ScrollState = {
+    offsetY: number,
+    parentH: number,
+    drawY: boolean,
+};
+const defaultScrollState: ScrollState = {
+    offsetY: 0,
+    parentH: 0,
+    drawY: false,
+};
+const scrollStateHandle = gui.state.createHandle<ScrollState>('scrollregion');
+const SCROLLBAR_WIDTH = 15;
+function beginScrollRegion(key: string) {
+    const parentBounds = gui.currentElement.bounds;
+
+    gui.beginElement(key); // CONTAINER
+    gui.currentElement.bounds.x = parentBounds.x;
+    gui.currentElement.bounds.y = parentBounds.y;
+    gui.currentElement.bounds.w = parentBounds.w;
+    gui.currentElement.bounds.h = parentBounds.h;
+
+    gui.beginElement('content'); // CONTENT
+    const state = scrollStateHandle.declareAndGetState(defaultScrollState);
+    state.parentH = parentBounds.h;
+
+    gui.currentElement.bounds.x = parentBounds.x;
+    gui.currentElement.bounds.y = parentBounds.y - state.offsetY;
+    gui.currentElement.bounds.w = parentBounds.w;
+    if (state.drawY) {
+        gui.currentElement.bounds.w -= SCROLLBAR_WIDTH;
+    }
+    gui.currentElement.bounds.h = 999999;
+}
+
+function endScrollRegion() {
+    const state = scrollStateHandle.declareAndGetState(defaultScrollState);
+    const { parentH, offsetY } = state;
+
+    let childrenHeight: number = gui.currentElement.children[0]?.bounds.y || 0;
+    const offsetPosY = gui.currentElement.bounds.y;
+
+    for (const child of gui.currentElement.children) {
+        if (child.layer === gui.currentElement.layer) {
+            childrenHeight = Math.max(
+                child.bounds.h + child.bounds.y - offsetPosY,
+                childrenHeight,
+            );
+        }
+    }
+
+    childrenHeight = Math.max(childrenHeight, parentH);
+
+    gui.currentElement.bounds.y += offsetY;
+    gui.currentElement.bounds.h = parentH;
+    gui.endElement(); // CONTENT
+
+    const percentOfContentOnScreenY = parentH / childrenHeight;
+    const offscreenContentHeight = childrenHeight - parentH;
+    const percentScrolledY = offscreenContentHeight
+        ? offsetY / offscreenContentHeight
+        : 0;
+    const scrollbarHeight = parentH * percentOfContentOnScreenY;
+    const scrollbarOffsetY = (parentH - scrollbarHeight) * percentScrolledY;
+    const parentBounds = gui.currentElement.bounds;
+
+    if (state.drawY) {
+        gui.beginElement('scrollY');
+        gui.currentElement.bounds.x = parentBounds.x + parentBounds.w - SCROLLBAR_WIDTH;
+        gui.currentElement.bounds.y = parentBounds.y + scrollbarOffsetY;
+        gui.currentElement.bounds.w = SCROLLBAR_WIDTH;
+        gui.currentElement.bounds.h = scrollbarHeight;
+
+        const { x, y, w, h } = gui.currentElement.bounds;
+        gui.drawContext.setFillStyle('#EEEEEE');
+        gui.drawContext.setStrokeStyle('#000000');
+        gui.drawContext.fillRect(x, y, w, h);
+        gui.drawContext.strokeRect(x, y, w, h);
+
+        if (gui.mouse.hoversElement() && gui.mouse.isM1Dragged()) {
+            if (percentOfContentOnScreenY < 1) {
+                const deltaPercentY = (gui.mouse.dragY / (parentH - scrollbarHeight));
+                const deltaOffsetY = deltaPercentY * (childrenHeight - parentH);
+
+                state.offsetY += deltaOffsetY;
+                state.offsetY = Math.max(0, state.offsetY);
+                state.offsetY = Math.min(childrenHeight - parentH, state.offsetY);
+            }
+        }
+        gui.endElement();
+    }
+
+    state.drawY = percentOfContentOnScreenY < 1;
+    gui.endElement(); // CONTAINER
 }
 
 function setupCanvas() {
