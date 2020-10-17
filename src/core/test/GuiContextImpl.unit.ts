@@ -13,6 +13,7 @@ import { Layer, UiElement } from '../types';
 import { MouseHandler, MouseHandlerImpl, MouseAction } from '../systems/MouseHandler';
 import { StateManager, StateManagerImpl } from '../systems/StateManager';
 import { LayoutHandler, LayoutHandlerImpl } from '../systems/LayoutHandler';
+import { FocusManager, FocusManagerImpl } from '../systems/FocusManager';
 
 let keyBuilder: KeyBuilder;
 let renderer: Renderer;
@@ -23,6 +24,7 @@ let guiContext: GuiContext;
 let mouseHandler: MouseHandler;
 let stateManager: StateManager;
 let layoutHandler: LayoutHandler;
+let focusManager: FocusManager;
 
 beforeEach(() => {
     keyBuilder = spy(new KeyBuilderImpl());
@@ -31,6 +33,7 @@ beforeEach(() => {
     layerBuilder = spy(new LayerBuilderImpl());
     stateManager = spy(new StateManagerImpl());
     layoutHandler = spy(new LayoutHandlerImpl(jest.fn()));
+    focusManager = spy(new FocusManagerImpl());
     mouseHandler = spy(new MouseHandlerImpl({
         posX: 50,
         posY: 50,
@@ -59,6 +62,7 @@ beforeEach(() => {
         mouseHandler,
         stateManager,
         layoutHandler,
+        focusManager,
     );
 });
 
@@ -112,6 +116,11 @@ describe('beginLayer', () => {
     test('should pass root element into layoutHandler.onBeginElement', () => {
         const currentElement = elementBuilder.getCurrentElement();
         expect(layoutHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+    });
+
+    test('should pass root element into focusManager.onBeginElement', () => {
+        const currentElement = elementBuilder.getCurrentElement();
+        expect(focusManager.onBeginElement).toHaveBeenCalledWith(currentElement);
     });
 });
 
@@ -172,6 +181,10 @@ describe('endLayer', () => {
         test('should call layoutHandler.onEndElement', () => {
             expect(layoutHandler.onEndElement).toHaveBeenCalled();
         });
+
+        test('should call focusManager.onEndElement', () => {
+            expect(focusManager.onEndElement).toHaveBeenCalled();
+        });
     });
 });
 
@@ -218,6 +231,11 @@ describe('beginElement', () => {
         test('should pass created element into layoutHandler.onBeginElement', () => {
             const currentElement = elementBuilder.getCurrentElement();
             expect(layoutHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+        });
+
+        test('should pass created element into focusManager.onBeginElement', () => {
+            const currentElement = elementBuilder.getCurrentElement();
+            expect(focusManager.onBeginElement).toHaveBeenCalledWith(currentElement);
         });
     });
 });
@@ -269,6 +287,10 @@ describe('endElement', () => {
 
         test('should call layoutHandler.onEndElement', () => {
             expect(layoutHandler.onEndElement).toHaveBeenCalled();
+        });
+
+        test('should call focusManager.onEndElement', () => {
+            expect(focusManager.onEndElement).toHaveBeenCalled();
         });
     });
 });
@@ -352,6 +374,10 @@ describe('render', () => {
 
         test('should call layoutHandler.onPostRender', () => {
             expect(layoutHandler.onPostRender).toHaveBeenCalled();
+        });
+
+        test('should call focusManager.onPostRender', () => {
+            expect(focusManager.onPostRender).toHaveBeenCalled();
         });
     });
 

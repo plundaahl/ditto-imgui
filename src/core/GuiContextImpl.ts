@@ -8,6 +8,7 @@ import { ElementBuilder } from './systems/ElementBuilder';
 import { MouseAPI, MouseHandler } from './systems/MouseHandler';
 import { StateAPI, StateManager } from './systems/StateManager';
 import { LayoutAPI, LayoutHandler } from './systems/LayoutHandler';
+import { FocusAPI, FocusManager } from './systems/FocusManager';
 
 export class GuiContextImpl implements GuiContext {
 
@@ -20,6 +21,7 @@ export class GuiContextImpl implements GuiContext {
         private readonly mouseHandler: MouseHandler,
         private readonly stateManager: StateManager,
         private readonly layoutHandler: LayoutHandler,
+        private readonly focusManager: FocusManager,
     ) {
 
         this.beginLayer = this.beginLayer.bind(this);
@@ -36,6 +38,7 @@ export class GuiContextImpl implements GuiContext {
         this.mouse = mouseHandler;
         this.state = stateManager;
         this.layout = layoutHandler;
+        this.focus = focusManager;
     }
 
     readonly currentLayer: {
@@ -54,6 +57,7 @@ export class GuiContextImpl implements GuiContext {
     readonly mouse: MouseAPI;
     readonly state: StateAPI;
     readonly layout: LayoutAPI;
+    readonly focus: FocusAPI;
 
     beginLayer(key: string): void {
         const { keyBuilder, layerBuilder, elementBuilder } = this;
@@ -73,6 +77,7 @@ export class GuiContextImpl implements GuiContext {
         this.drawHandler.setCurrentElement(rootElement);
         this.mouseHandler.onBeginElement(rootElement);
         this.layoutHandler.onBeginElement(rootElement);
+        this.focusManager.onBeginElement(rootElement);
     }
 
     endLayer(): void {
@@ -86,6 +91,7 @@ export class GuiContextImpl implements GuiContext {
         this.drawHandler.setCurrentElement(elementBuilder.getCurrentElement());
         this.mouseHandler.onEndElement();
         this.layoutHandler.onEndElement();
+        this.focusManager.onEndElement();
     }
 
     beginElement(key: string): void {
@@ -101,6 +107,7 @@ export class GuiContextImpl implements GuiContext {
         this.drawHandler.setCurrentElement(curElement);
         this.mouseHandler.onBeginElement(curElement as UiElement);
         this.layoutHandler.onBeginElement(curElement as UiElement);
+        this.focusManager.onBeginElement(curElement as UiElement);
     }
 
     endElement(): void {
@@ -116,6 +123,7 @@ export class GuiContextImpl implements GuiContext {
         this.drawHandler.setCurrentElement(elementBuilder.getCurrentElement());
         this.mouseHandler.onEndElement();
         this.layoutHandler.onEndElement();
+        this.focusManager.onEndElement();
     }
 
     render(): void {
@@ -127,6 +135,7 @@ export class GuiContextImpl implements GuiContext {
         this.layerBuilder.onPostRender();
         this.elementBuilder.onPostRender();
         this.layoutHandler.onPostRender();
+        this.focusManager.onPostRender();
     }
 }
 

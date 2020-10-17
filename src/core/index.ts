@@ -8,6 +8,7 @@ import { RendererImpl } from './systems/Renderer';
 import { MouseHandlerImpl, createMouseWatcher } from './systems/MouseHandler';
 import { StateManagerImpl } from './systems/StateManager';
 import { LayoutHandlerImpl } from './systems/LayoutHandler';
+import { FocusManagerImpl } from './systems/FocusManager';
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
 import { basicVerticalLayoutFn } from './defaults/layout';
@@ -40,6 +41,7 @@ export function createContext(canvas: HTMLCanvasElement) {
         new MouseHandlerImpl(createMouseWatcher(canvas)),
         new StateManagerImpl(),
         new LayoutHandlerImpl(basicVerticalLayoutFn),
+        new FocusManagerImpl(),
     );
 }
 

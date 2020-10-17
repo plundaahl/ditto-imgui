@@ -14,6 +14,7 @@ export function button(buttonText: string) {
     init();
 
     gui.beginElement(buttonText);
+    gui.focus.setFocusable();
 
     gui.currentElement.bounds.h = 30;
 
@@ -24,11 +25,14 @@ export function button(buttonText: string) {
         gui.drawContext.setFillStyle('#FF0000');
     } else if (gui.mouse.hoversElement()) {
         gui.drawContext.setFillStyle('#FFAAAA');
+    } else if (gui.focus.isFocused()) {
+        gui.drawContext.setFillStyle('#AAFFAA');
     } else {
         gui.drawContext.setFillStyle('#EEEEEE');
     }
     gui.drawContext.setStrokeStyle('#000000');
     gui.drawContext.fillRect(x, y, w, h);
+
     gui.drawContext.strokeRect(x, y, w, h);
 
     gui.drawContext.setFillStyle('#000000');
