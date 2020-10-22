@@ -19,11 +19,11 @@ export function button(buttonText: string) {
     gui.currentElement.bounds.h = 30;
 
     const { x, y, w, h } = gui.currentElement.bounds;
-    const isClicked = gui.mouse.hoversElement() && gui.mouse.isM1Clicked();
+    const isTriggered = gui.action.isElementTriggered();
 
-    if (isClicked) {
+    if (isTriggered) {
         gui.drawContext.setFillStyle('#FF0000');
-    } else if (gui.mouse.hoversElement()) {
+    } else if (gui.action.isElementHighlighted()) {
         gui.drawContext.setFillStyle('#FFAAAA');
     } else if (gui.focus.isFocused()) {
         gui.drawContext.setFillStyle('#AAFFAA');
@@ -39,6 +39,5 @@ export function button(buttonText: string) {
     gui.drawContext.drawText(buttonText, x + 10, y + 10);
 
     gui.endElement();
-    return isClicked;
+    return isTriggered;
 }
-

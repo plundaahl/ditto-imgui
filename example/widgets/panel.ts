@@ -25,17 +25,15 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
 
     const state = panelStateHandle.declareAndGetState({ x, y });
 
-    if (gui.mouse.hoversElement()) {
-        if (gui.mouse.isM1Dragged()) {
-            state.x += gui.mouse.dragX;
-            state.y += gui.mouse.dragY;
+    if (gui.action.isElementHighlighted()) {
+        if (gui.action.isElementDragged()) {
+            state.x += gui.action.getDragX();
+            state.y += gui.action.getDragY();
         }
     }
 
-    if (gui.mouse.hoversElement() || gui.mouse.hoversChild()) {
-        if (gui.mouse.isM1Down() || gui.mouse.isM2Down()) {
-            gui.currentLayer.bringToFront();
-        }
+    if (gui.action.isElementInteracted() || gui.action.isChildInteracted()) {
+        gui.currentLayer.bringToFront();
     }
 
     const bounds = gui.currentElement.bounds;

@@ -4,6 +4,7 @@ import { MouseAPI } from './systems/MouseHandler';
 import { StateAPI } from './systems/StateManager';
 import { LayoutAPI } from './systems/LayoutHandler';
 import { FocusAPI } from './systems/FocusManager';
+import { ActionAPI } from './systems/ActionPluginManager';
 
 export interface GuiContext {
     beginLayer(key: string): void;
@@ -24,5 +25,6 @@ export interface GuiContext {
     readonly state: StateAPI;
     readonly layout: LayoutAPI;
     readonly focus: FocusAPI;
+    readonly action: ActionAPI;
 }
 

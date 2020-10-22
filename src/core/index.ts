@@ -9,6 +9,10 @@ import { MouseHandlerImpl, createMouseWatcher } from './systems/MouseHandler';
 import { StateManagerImpl } from './systems/StateManager';
 import { LayoutHandlerImpl } from './systems/LayoutHandler';
 import { FocusManagerImpl } from './systems/FocusManager';
+import {
+    ActionPluginManagerImpl,
+    MouseActionPlugin,
+} from './systems/ActionPluginManager';
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
 import { basicVerticalLayoutFn } from './defaults/layout';
@@ -31,18 +35,25 @@ export function createContext(canvas: HTMLCanvasElement) {
         elementFactory.createElement,
         elementFactory.resetElement,
     );
+    
+    if (!guiContextSingleton) {
+        guiContextSingleton = new GuiContextImpl(
+            new KeyBuilderImpl(),
+            new ElementBuilderImpl(elementPool),
+            new LayerBuilderImpl(),
+            new DrawHandlerImpl(),
+            new RendererImpl(canvasContext),
+            new MouseHandlerImpl(createMouseWatcher(canvas)),
+            new StateManagerImpl(),
+            new LayoutHandlerImpl(basicVerticalLayoutFn),
+            new FocusManagerImpl(),
+            new ActionPluginManagerImpl(),
+        );
 
-    guiContextSingleton = guiContextSingleton || new GuiContextImpl(
-        new KeyBuilderImpl(),
-        new ElementBuilderImpl(elementPool),
-        new LayerBuilderImpl(),
-        new DrawHandlerImpl(),
-        new RendererImpl(canvasContext),
-        new MouseHandlerImpl(createMouseWatcher(canvas)),
-        new StateManagerImpl(),
-        new LayoutHandlerImpl(basicVerticalLayoutFn),
-        new FocusManagerImpl(),
-    );
+        guiContextSingleton.action.registerPlugin(new MouseActionPlugin(guiContextSingleton.mouse));
+    }
+
+    return guiContextSingleton;
 }
 
 export function getContext(): GuiContext {

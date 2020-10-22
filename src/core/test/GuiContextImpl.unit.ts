@@ -14,6 +14,7 @@ import { MouseHandler, MouseHandlerImpl, MouseAction } from '../systems/MouseHan
 import { StateManager, StateManagerImpl } from '../systems/StateManager';
 import { LayoutHandler, LayoutHandlerImpl } from '../systems/LayoutHandler';
 import { FocusManager, FocusManagerImpl } from '../systems/FocusManager';
+import { ActionPluginManager, ActionPluginManagerImpl } from '../systems/ActionPluginManager';
 
 let keyBuilder: KeyBuilder;
 let renderer: Renderer;
@@ -25,6 +26,7 @@ let mouseHandler: MouseHandler;
 let stateManager: StateManager;
 let layoutHandler: LayoutHandler;
 let focusManager: FocusManager;
+let actionSystem: ActionPluginManager;
 
 beforeEach(() => {
     keyBuilder = spy(new KeyBuilderImpl());
@@ -34,6 +36,7 @@ beforeEach(() => {
     stateManager = spy(new StateManagerImpl());
     layoutHandler = spy(new LayoutHandlerImpl(jest.fn()));
     focusManager = spy(new FocusManagerImpl());
+    actionSystem = spy(new ActionPluginManagerImpl());
     mouseHandler = spy(new MouseHandlerImpl({
         posX: 50,
         posY: 50,
@@ -63,6 +66,7 @@ beforeEach(() => {
         stateManager,
         layoutHandler,
         focusManager,
+        actionSystem,
     );
 });
 

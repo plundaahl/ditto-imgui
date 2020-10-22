@@ -9,6 +9,7 @@ import { MouseAPI, MouseHandler } from './systems/MouseHandler';
 import { StateAPI, StateManager } from './systems/StateManager';
 import { LayoutAPI, LayoutHandler } from './systems/LayoutHandler';
 import { FocusAPI, FocusManager } from './systems/FocusManager';
+import { ActionAPI, ActionPluginManager } from './systems/ActionPluginManager';
 
 export class GuiContextImpl implements GuiContext {
 
@@ -22,6 +23,7 @@ export class GuiContextImpl implements GuiContext {
         private readonly stateManager: StateManager,
         private readonly layoutHandler: LayoutHandler,
         private readonly focusManager: FocusManager,
+        actionPluginManager: ActionPluginManager,
     ) {
 
         this.beginLayer = this.beginLayer.bind(this);
@@ -39,6 +41,7 @@ export class GuiContextImpl implements GuiContext {
         this.state = stateManager;
         this.layout = layoutHandler;
         this.focus = focusManager;
+        this.action = actionPluginManager;
     }
 
     readonly currentLayer: {
@@ -58,6 +61,7 @@ export class GuiContextImpl implements GuiContext {
     readonly state: StateAPI;
     readonly layout: LayoutAPI;
     readonly focus: FocusAPI;
+    readonly action: ActionAPI;
 
     beginLayer(key: string): void {
         const { keyBuilder, layerBuilder, elementBuilder } = this;
