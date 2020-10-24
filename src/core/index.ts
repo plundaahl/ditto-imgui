@@ -1,26 +1,27 @@
-import { GuiContext } from './GuiContext';
-import { GuiContextImpl } from './GuiContextImpl';
-import { KeyBuilderImpl } from './systems/KeyBuilder';
-import { ElementBuilderImpl } from './systems/ElementBuilder';
-import { LayerBuilderImpl } from './systems/LayerBuilder';
-import { DrawHandlerImpl } from './systems/DrawHandler';
-import { RendererImpl } from './systems/Renderer';
-import { MouseHandlerImpl, createMouseWatcher } from './systems/MouseHandler';
-import { StateManagerImpl } from './systems/StateManager';
-import { LayoutHandlerImpl } from './systems/LayoutHandler';
-import { FocusManagerImpl } from './systems/FocusManager';
+import { DittoContext } from './DittoContext';
+import { DittoContextImpl } from './DittoContextImpl';
 import {
-    ActionPluginManagerImpl,
-    MouseActionPlugin,
-} from './systems/ActionPluginManager';
+    ControllerManagerImpl,
+    MouseController,
+} from './ControllerManager';
+import { ServiceManagerImpl } from './ServiceManager/ServiceManagerImpl';
+import { KeyServiceImpl } from './ServiceManager/services/KeyService';
+import { ElementServiceImpl } from './ServiceManager/services/ElementService';
+import { LayerServiceImpl } from './ServiceManager/services/LayerService';
+import { DrawServiceImpl } from './ServiceManager/services/DrawService';
+import { RenderServiceImpl } from './ServiceManager/services/RenderService';
+import { MouseServiceImpl, createMouseWatcher } from './ServiceManager/services/MouseService';
+import { StateServiceImpl } from './ServiceManager/services/StateService';
+import { LayoutServiceImpl } from './ServiceManager/services/LayoutService';
+import { FocusServiceImpl } from './ServiceManager/services/FocusService';
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
 import { basicVerticalLayoutFn } from './defaults/layout';
 
-let guiContextSingleton: GuiContext;
+let dittoContextSingleton: DittoContext;
 
 export function createContext(canvas: HTMLCanvasElement) {
-    if (guiContextSingleton) {
+    if (dittoContextSingleton) {
         return;
     }
 
@@ -36,28 +37,32 @@ export function createContext(canvas: HTMLCanvasElement) {
         elementFactory.resetElement,
     );
     
-    if (!guiContextSingleton) {
-        guiContextSingleton = new GuiContextImpl(
-            new KeyBuilderImpl(),
-            new ElementBuilderImpl(elementPool),
-            new LayerBuilderImpl(),
-            new DrawHandlerImpl(),
-            new RendererImpl(canvasContext),
-            new MouseHandlerImpl(createMouseWatcher(canvas)),
-            new StateManagerImpl(),
-            new LayoutHandlerImpl(basicVerticalLayoutFn),
-            new FocusManagerImpl(),
-            new ActionPluginManagerImpl(),
+    if (!dittoContextSingleton) {
+        const serviceManager = new ServiceManagerImpl(
+            new KeyServiceImpl(),
+            new ElementServiceImpl(elementPool),
+            new LayerServiceImpl(),
+            new DrawServiceImpl(),
+            new RenderServiceImpl(canvasContext),
+            new MouseServiceImpl(createMouseWatcher(canvas)),
+            new StateServiceImpl(),
+            new LayoutServiceImpl(basicVerticalLayoutFn),
+            new FocusServiceImpl(),
         );
 
-        guiContextSingleton.action.registerPlugin(new MouseActionPlugin(guiContextSingleton.mouse));
+        dittoContextSingleton = new DittoContextImpl(
+            serviceManager,
+            new ControllerManagerImpl(
+                new MouseController(serviceManager.mouse),
+            ),
+        );
     }
 
-    return guiContextSingleton;
+    return dittoContextSingleton;
 }
 
-export function getContext(): GuiContext {
-    return guiContextSingleton;
+export function getContext(): DittoContext {
+    return dittoContextSingleton;
 }
 
-export { GuiContext } from './GuiContext';
+export { DittoContext } from './DittoContext';

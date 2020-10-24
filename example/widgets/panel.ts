@@ -1,12 +1,12 @@
-import { getContext, GuiContext } from '../../src/core';
-import { StateHandle } from '../../src/core/systems/StateManager';
+import { getContext, DittoContext } from '../../src/core';
+import { StateHandle } from '../../src/core/ServiceManager/services/StateService';
 
 interface PanelState {
     x: number,
     y: number,
 }
 
-let gui: GuiContext;
+let gui: DittoContext;
 let panelStateHandle: StateHandle<PanelState>;
 
 function init() {
@@ -33,24 +33,24 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
     }
 
     if (gui.action.isElementInteracted() || gui.action.isChildInteracted()) {
-        gui.currentLayer.bringToFront();
+        gui.layer.bringToFront();
     }
 
-    const bounds = gui.currentElement.bounds;
+    const bounds = gui.element.bounds;
     bounds.x = state.x;
     bounds.y = state.y;
     bounds.w = w;
     bounds.h = h;
 
-    gui.drawContext.setFillStyle('#DDDDDD');
-    gui.drawContext.fillRect(state.x, state.y, w, h);
+    gui.draw.setFillStyle('#DDDDDD');
+    gui.draw.fillRect(state.x, state.y, w, h);
 
-    gui.drawContext.setStrokeStyle('#000000');
-    gui.drawContext.strokeRect(state.x, state.y, w, h);
+    gui.draw.setStrokeStyle('#000000');
+    gui.draw.strokeRect(state.x, state.y, w, h);
 
-    gui.drawContext.beginPath();
-    gui.drawContext.rect(state.x + 1, state.y + 1, w - 2, h - 2);
-    gui.drawContext.clip();
+    gui.draw.beginPath();
+    gui.draw.rect(state.x + 1, state.y + 1, w - 2, h - 2);
+    gui.draw.clip();
 }
 
 function endPanel() {

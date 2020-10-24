@@ -7,35 +7,28 @@ const { canvas, context } = setupCanvas();
 DittoImGUI.createContext(canvas);
 
 const gui = DittoImGUI.getContext();
+let nextId: number = 6;
 let dummyIds: number[] = [0, 1, 2, 3, 4, 5];
-let action: 'NEXT' | 'PREV' | undefined;
 
 function main() {
     resetCanvas(context);
 
-    if (action === 'NEXT') {
-        gui.focus.incrementFocus();
-    } else if (action === 'PREV') {
-        gui.focus.decrementFocus();
-    }
-    action = undefined;
-
     panel.begin('Control Panel', 50, 50, 100, 100);
-    if (button('Next')) {
-        action = 'NEXT';
-    }
-    if (button('Prev')) {
-        action = 'PREV';
+    if (button('add')) {
+        dummyIds.push(nextId++);
     }
     panel.end();
 
     panel.begin('Display Panel', 250, 50, 100, 300);
+    scrollRegion.begin('somekey');
     for (let i = 0; i < dummyIds.length; i++) {
         const id = dummyIds[i];
-        button(`Element ${id}`);
+        if (button(`Element ${id}`)) {
+            dummyIds = dummyIds.filter(e => e !== id);
+        }
     }
+    scrollRegion.end();
     panel.end();
-
     gui.render();
 }
 

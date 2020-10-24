@@ -1,6 +1,6 @@
-import { getContext, GuiContext } from '../../src/core';
+import { getContext, DittoContext } from '../../src/core';
 
-let gui: GuiContext;
+let gui: DittoContext;
 
 function init() {
     if (gui) {
@@ -16,27 +16,27 @@ export function button(buttonText: string) {
     gui.beginElement(buttonText);
     gui.focus.setFocusable();
 
-    gui.currentElement.bounds.h = 30;
+    gui.element.bounds.h = 30;
 
-    const { x, y, w, h } = gui.currentElement.bounds;
+    const { x, y, w, h } = gui.element.bounds;
     const isTriggered = gui.action.isElementTriggered();
 
     if (isTriggered) {
-        gui.drawContext.setFillStyle('#FF0000');
+        gui.draw.setFillStyle('#FF0000');
     } else if (gui.action.isElementHighlighted()) {
-        gui.drawContext.setFillStyle('#FFAAAA');
+        gui.draw.setFillStyle('#FFAAAA');
     } else if (gui.focus.isFocused()) {
-        gui.drawContext.setFillStyle('#AAFFAA');
+        gui.draw.setFillStyle('#AAFFAA');
     } else {
-        gui.drawContext.setFillStyle('#EEEEEE');
+        gui.draw.setFillStyle('#EEEEEE');
     }
-    gui.drawContext.setStrokeStyle('#000000');
-    gui.drawContext.fillRect(x, y, w, h);
+    gui.draw.setStrokeStyle('#000000');
+    gui.draw.fillRect(x, y, w, h);
 
-    gui.drawContext.strokeRect(x, y, w, h);
+    gui.draw.strokeRect(x, y, w, h);
 
-    gui.drawContext.setFillStyle('#000000');
-    gui.drawContext.drawText(buttonText, x + 10, y + 10);
+    gui.draw.setFillStyle('#000000');
+    gui.draw.drawText(buttonText, x + 10, y + 10);
 
     gui.endElement();
     return isTriggered;
