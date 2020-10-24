@@ -1,6 +1,8 @@
+import { UiElement } from '../../../../../types';
 import { PrevFocusAction } from '../PrevFocusAction';
+import { createDummyElement } from './helpers';
 
-let setFocus: (element: string) => void;
+let setFocus: (element: UiElement) => void;
 let instance: PrevFocusAction;
 
 beforeEach(() => {
@@ -10,8 +12,8 @@ beforeEach(() => {
 
 describe('onSetFocusable', () => {
     let focusedElement: string | undefined;
-    let curElement: string | undefined;
-    let prevElement: string | undefined;
+    let curElement: UiElement | undefined;
+    let prevElement: UiElement | undefined;
 
     afterEach(() => {
         focusedElement = undefined;
@@ -22,11 +24,11 @@ describe('onSetFocusable', () => {
     describe('given focusedElement is curElement', () => {
         beforeEach(() => {
             focusedElement = 'foo';
-            curElement = focusedElement;
+            curElement = createDummyElement({ key: focusedElement });
         });
 
         describe('and given prevElement is not undefined', () => {
-            beforeEach(() => prevElement = 'bar');
+            beforeEach(() => prevElement = createDummyElement({ key: 'bar' }));
 
             test('should pass prevElement into setFocus', () => {
                 instance.onSetFocusable(focusedElement, prevElement, curElement);
@@ -45,7 +47,7 @@ describe('onSetFocusable', () => {
     describe('given focusedElement is not curElement', () => {
         beforeEach(() => {
             focusedElement = 'foo';
-            curElement = 'bar';
+            curElement = createDummyElement({ key: 'bar' });
         });
 
         describe('given prevElement is undefined', () => {
@@ -56,7 +58,7 @@ describe('onSetFocusable', () => {
         });
 
         describe('given prevElement is not undefined', () => {
-            beforeEach(() => prevElement = 'baz');
+            beforeEach(() => prevElement = createDummyElement({ key: 'baz' }));
 
             test('should not call setFocus', () => {
                 instance.onSetFocusable(focusedElement, prevElement, curElement);
@@ -68,13 +70,13 @@ describe('onSetFocusable', () => {
 
 describe('onPreRender', () => {
     let focusedElement: string | undefined;
-    let firstElement: string | undefined;
-    let lastElement: string | undefined;
+    let firstElement: UiElement | undefined;
+    let lastElement: UiElement | undefined;
     
     beforeEach(() => {
         focusedElement = undefined;
-        firstElement = 'first';
-        lastElement = 'last';
+        firstElement = createDummyElement({ key: 'first' });
+        lastElement = createDummyElement({ key: 'last' });
     });
 
     describe('given all parameters are undefined', () => {
@@ -109,14 +111,22 @@ describe('onPreRender', () => {
             focusedElement, firstElement, lastElement,
         ) => {
             test('should do nothing', () => {
-                instance.onPreRender(focusedElement, firstElement, lastElement);
+                instance.onPreRender(
+                    focusedElement,
+                    firstElement
+                        ? createDummyElement({ key: firstElement })
+                        : undefined,
+                    lastElement
+                        ? createDummyElement({ key: lastElement })
+                        : undefined,
+                );
                 expect(setFocus).not.toHaveBeenCalled();
             });
         });
     });
 
     describe('given firstElement is focusedElement', () => {
-        beforeEach(() => focusedElement = firstElement);
+        beforeEach(() => focusedElement = firstElement && firstElement.key);
 
         test('should pass lastElement into setFocus', () => {
             instance.onPreRender(focusedElement, firstElement, lastElement);

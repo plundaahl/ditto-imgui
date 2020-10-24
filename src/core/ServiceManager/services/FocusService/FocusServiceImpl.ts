@@ -7,14 +7,18 @@ export class FocusServiceImpl implements FocusService {
     private readonly nextFocusAction: FocusAction;
     private readonly prevFocusAction: FocusAction;
 
-    protected readonly focusableElements: string[] = [];
+    protected readonly focusableElements: UiElement[] = [];
     protected readonly elementStack: UiElement[] = [];
 
-    protected action: FocusAction | undefined;
-    protected prevFocusableElement: string | undefined;
-    protected curFocusableElement: string | undefined;
     protected focusedElement: string | undefined;
-    protected nextElementToFocus: string | undefined;
+    private readonly focusedParents: string[] = [];
+    private readonly focusedFloatParents: string[] = [];
+
+    protected nextElementToFocus: UiElement | undefined;
+
+    protected action: FocusAction | undefined;
+    protected prevFocusableElement: UiElement | undefined;
+    protected curFocusableElement: UiElement | undefined;
 
     constructor() {
         this.onPreRender = this.onPreRender.bind(this);
@@ -44,16 +48,16 @@ export class FocusServiceImpl implements FocusService {
     }
 
     focusElement(): void {
-        const curElementKey = this.currentElement && this.currentElement.key;
-        if (!curElementKey) {
+        const curElement = this.currentElement;
+        if (!curElement) {
             throw new Error('No element currently active');
         }
 
-        if (!this.focusableElements.includes(curElementKey)) {
+        if (!this.focusableElements.includes(curElement)) {
             throw new Error('Current element is not focusable. Please call setFocusable() first');
         }
 
-        this.doFocusOnElement(curElementKey);
+        this.doFocusOnElement(curElement);
     }
 
     setFocusable(): void {
@@ -61,9 +65,9 @@ export class FocusServiceImpl implements FocusService {
             throw new Error('No element currently pushed');
         }
 
-        this.focusableElements.push(this.currentElement.key);
+        this.focusableElements.push(this.currentElement);
         this.prevFocusableElement = this.curFocusableElement;
-        this.curFocusableElement = this.currentElement.key;
+        this.curFocusableElement = this.currentElement;
 
         if (this.action) {
             this.action.onSetFocusable(
@@ -74,7 +78,7 @@ export class FocusServiceImpl implements FocusService {
         }
     }
 
-    private doFocusOnElement(element: string) {
+    private doFocusOnElement(element: UiElement) {
         this.nextElementToFocus = element;
         delete this.action;
     }
@@ -84,19 +88,26 @@ export class FocusServiceImpl implements FocusService {
             throw new Error('No element currently active');
         }
         
-        const { key } = this.currentElement;
-        if (!this.focusableElements.includes(key)) {
+        if (!this.focusableElements.includes(this.currentElement)) {
             throw new Error('Current element is not focusable. Call setFocusable first.');
         }
-        return key === this.focusedElement;
+        return this.currentElement.key === this.focusedElement;
     }
 
     isChildFocused(): boolean {
-        throw new Error('not yet implemented');
+        const { currentElement } = this;
+        if (!currentElement) {
+            return false;
+        }
+        return this.focusedParents.includes(currentElement.key);
     }
 
     isFloatingChildFocused(): boolean {
-        throw new Error('not yet implemented');
+        const { currentElement } = this;
+        if (!currentElement) {
+            return false;
+        }
+        return this.focusedFloatParents.includes(currentElement.key);
     }
 
     onBeginElement(element: UiElement): void {
@@ -116,7 +127,20 @@ export class FocusServiceImpl implements FocusService {
             throw new Error('Do not call onPreRender while elements are on stack');
         }
 
-        this.focusedElement = this.nextElementToFocus;
+        const focusedElement = this.nextElementToFocus;
+        this.focusedParents.length = 0;
+        this.focusedFloatParents.length = 0;
+        if (focusedElement) {
+            for (let e = focusedElement.parent; e; e = e.parent) {
+                if (e.layer.key === focusedElement.layer.key) {
+                    this.focusedParents.push(e.key);
+                } else {
+                    this.focusedFloatParents.push(e.key);
+                }
+            }
+        }
+
+        this.focusedElement = focusedElement && focusedElement.key;
         delete this.prevFocusableElement;
         delete this.curFocusableElement;
 

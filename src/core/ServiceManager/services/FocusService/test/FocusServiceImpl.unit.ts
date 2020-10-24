@@ -193,7 +193,8 @@ describe('setFocusable', () => {
 
         test("Should add current element key to focusableElements", () => {
             instance.setFocusable();
-            expect(instance.getFocusableElements().includes(key)).toBe(true);
+            const focusableKeys = instance.getFocusableElements().map(e => e.key);
+            expect(focusableKeys.includes(key)).toBe(true);
         });
 
         describe('given an action has been triggered', () => {
@@ -238,6 +239,144 @@ describe('isElementFocused', () => {
             test('should not error', () => {
                 expect(instance.isElementFocused).not.toThrow();
             });
+        });
+    });
+});
+
+describe('isChildFocused and isFloatingChildFocused', () => {
+    describe('given child is not focused', () => {
+        beforeEach(() => {
+            const parent = createElement({ key: 'foo'});
+            const child = createElement({
+                key: 'bar',
+                parent: parent,
+            });
+            parent.children.push(child);
+
+            instance.onBeginElement(parent);
+            instance.setFocusable();
+            instance.onBeginElement(child);
+            instance.setFocusable();
+            instance.onEndElement();
+            instance.onEndElement();
+
+            instance.onPreRender();
+        });
+
+        test('isChildFocused should return false', () => {
+            instance.onBeginElement(createElement({ key: 'foo'}));
+            instance.setFocusable();
+            expect(instance.isChildFocused()).toBe(false);
+        });
+
+        test('isFloatingChildFocused should return false', () => {
+            instance.onBeginElement(createElement({ key: 'foo'}));
+            instance.setFocusable();
+            expect(instance.isFloatingChildFocused()).toBe(false);
+        });
+    });
+
+    describe('given element is focused', () => {
+        beforeEach(() => {
+            const parent = createElement({ key: 'foo'});
+            const child = createElement({
+                key: 'bar',
+                parent: parent,
+            });
+            parent.children.push(child);
+
+            instance.onBeginElement(parent);
+            instance.setFocusable();
+            instance.focusElement();
+            instance.onBeginElement(child);
+            instance.setFocusable();
+            instance.onEndElement();
+            instance.onEndElement();
+
+            instance.onPreRender();
+        });
+
+        test('isChildFocused should return false', () => {
+            instance.onBeginElement(createElement({ key: 'foo'}));
+            instance.setFocusable();
+            expect(instance.isChildFocused()).toBe(false);
+        });
+
+        test('isFloatingChildFocused should return false', () => {
+            instance.onBeginElement(createElement({ key: 'foo'}));
+            instance.setFocusable();
+            expect(instance.isFloatingChildFocused()).toBe(false);
+        });
+    });
+
+    describe('given child is focused', () => {
+        beforeEach(() => {
+            const parent = createElement({ key: 'foo'});
+            const child = createElement({
+                key: 'bar',
+                parent: parent,
+            });
+            parent.children.push(child);
+
+            instance.onBeginElement(parent);
+            instance.setFocusable();
+            instance.onBeginElement(child);
+            instance.setFocusable();
+
+            instance.focusElement();
+
+            instance.onEndElement();
+            instance.onEndElement();
+
+            instance.onPreRender();
+        });
+
+        test('isChildFocused should return true', () => {
+            instance.onBeginElement(createElement({ key: 'foo'}));
+            instance.setFocusable();
+            expect(instance.isChildFocused()).toBe(true);
+        });
+
+        test('isFloatingChildFocused should return false', () => {
+            instance.onBeginElement(createElement({ key: 'foo'}));
+            instance.setFocusable();
+            expect(instance.isFloatingChildFocused()).toBe(false);
+        });
+    });
+
+    describe('given child is focused, but on different layer', () => {
+        beforeEach(() => {
+            const parent = createElement({ key: 'foo'});
+            const child = createElement({
+                key: 'bar',
+                parent: parent,
+                layer: createLayer({ key: 'other' }),
+            });
+            parent.children.push(child);
+
+            instance.onBeginElement(parent);
+            instance.setFocusable();
+            
+            instance.onBeginElement(child);
+            instance.setFocusable();
+            instance.focusElement();
+            instance.onEndElement();
+
+            instance.onEndElement();
+
+            instance.onPreRender();
+        });
+
+        test('isChildFocused should return false', () => {
+            instance.onBeginElement(createElement({ key: 'foo'}));
+            instance.setFocusable();
+            expect(instance.isChildFocused()).toBe(false);
+        });
+
+        test('isFloatingChildFocused should return true', () => {
+            instance.onBeginElement(createElement({ key: 'foo'}));
+            instance.setFocusable();
+            expect(instance.isFloatingChildFocused()).toBe(true);
         });
     });
 });

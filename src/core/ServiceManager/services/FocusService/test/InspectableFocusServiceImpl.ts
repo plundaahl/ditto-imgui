@@ -7,7 +7,7 @@ export class InspectableFocusServiceImpl extends FocusServiceImpl {
         return this.elementStack;
     }
 
-    getPrevFocusableElement(): string | undefined {
+    getPrevFocusableElement(): UiElement | undefined {
         return this.prevFocusableElement;
     }
 
@@ -15,7 +15,7 @@ export class InspectableFocusServiceImpl extends FocusServiceImpl {
         return this.currentElement;
     }
 
-    getFocusableElements(): string[] {
+    getFocusableElements(): UiElement[] {
         return [ ...this.focusableElements ];
     }
 
@@ -23,7 +23,7 @@ export class InspectableFocusServiceImpl extends FocusServiceImpl {
         return this.focusedElement;
     }
 
-    getNextElementToFocusOn(): string | undefined {
+    getNextElementToFocusOn(): UiElement | undefined {
         return this.nextElementToFocus;
     }
 

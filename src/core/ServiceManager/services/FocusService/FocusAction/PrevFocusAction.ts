@@ -1,39 +1,40 @@
+import { UiElement } from '../../../../types';
 import { FocusAction } from './FocusAction';
 
 export class PrevFocusAction implements FocusAction {
 
     constructor(
-        private readonly setFocus: (element: string) => void,
+        private readonly setFocus: (element: UiElement) => void,
     ) {}
 
     onSetFocusable(
         focusedElement: string | undefined,
-        prevElement: string | undefined,
-        curElement: string | undefined,
+        prevElement: UiElement | undefined,
+        curElement: UiElement | undefined,
     ): void {
         if (!prevElement || !curElement) {
             return;
         }
 
-        if (focusedElement === curElement) {
+        if (focusedElement === curElement.key) {
             this.setFocus(prevElement);
         }
     }
 
     onPreRender(
         focusedElement: string | undefined,
-        firstElement: string | undefined,
-        lastElement: string | undefined,
+        firstElement: UiElement | undefined,
+        lastElement: UiElement | undefined,
     ): void {
-        if (!focusedElement) {
-            focusedElement = firstElement;
+        if (!focusedElement && firstElement) {
+            focusedElement = firstElement.key;
         }
 
         if (!firstElement || !lastElement) {
             return;
         }
 
-        if (focusedElement === firstElement) {
+        if (focusedElement === firstElement.key) {
             this.setFocus(lastElement);
         }
     }
