@@ -1,7 +1,9 @@
 import { UiElement } from '../../../types';
 
 interface FocusShared {
-    isFocused(): boolean;
+    isElementFocused(): boolean;
+    isChildFocused(): boolean;
+    isFloatingChildFocused(): boolean;
     focusElement(): void;
 }
 
@@ -17,7 +19,7 @@ export interface FocusCPI extends FocusShared {
 export interface FocusService extends FocusAPI, FocusCPI {
     onBeginElement(element: UiElement): void;
     onEndElement(): void;
-    onPostRender(): void;
+    onPreRender(): void;
     onWillRenderElement(element: UiElement, context: CanvasRenderingContext2D): void;
 }
 

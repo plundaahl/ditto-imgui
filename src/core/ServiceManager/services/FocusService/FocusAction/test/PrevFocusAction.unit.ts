@@ -66,7 +66,7 @@ describe('onSetFocusable', () => {
     });
 });
 
-describe('onPostRender', () => {
+describe('onPreRender', () => {
     let focusedElement: string | undefined;
     let firstElement: string | undefined;
     let lastElement: string | undefined;
@@ -85,14 +85,14 @@ describe('onPostRender', () => {
         });
 
         test('should do nothing', () => {
-            instance.onPostRender(focusedElement, firstElement, lastElement);
+            instance.onPreRender(focusedElement, firstElement, lastElement);
             expect(setFocus).not.toHaveBeenCalled();
         });
     });
 
     describe('given focusedElement is undefined', () => {
         test('should focus on last element', () => {
-            instance.onPostRender(focusedElement, firstElement, lastElement);
+            instance.onPreRender(focusedElement, firstElement, lastElement);
             expect(setFocus).toHaveBeenCalledWith(lastElement);
         });
     });
@@ -109,7 +109,7 @@ describe('onPostRender', () => {
             focusedElement, firstElement, lastElement,
         ) => {
             test('should do nothing', () => {
-                instance.onPostRender(focusedElement, firstElement, lastElement);
+                instance.onPreRender(focusedElement, firstElement, lastElement);
                 expect(setFocus).not.toHaveBeenCalled();
             });
         });
@@ -119,7 +119,7 @@ describe('onPostRender', () => {
         beforeEach(() => focusedElement = firstElement);
 
         test('should pass lastElement into setFocus', () => {
-            instance.onPostRender(focusedElement, firstElement, lastElement);
+            instance.onPreRender(focusedElement, firstElement, lastElement);
             expect(setFocus).toHaveBeenCalledWith(lastElement);
         });
     });

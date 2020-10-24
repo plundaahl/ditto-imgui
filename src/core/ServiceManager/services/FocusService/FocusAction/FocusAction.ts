@@ -5,7 +5,7 @@ export interface FocusAction {
         curElement: string | undefined,
     ): void;
 
-    onPostRender(
+    onPreRender(
         focusedElement: string | undefined,
         firstElement: string | undefined,
         lastElement: string | undefined,

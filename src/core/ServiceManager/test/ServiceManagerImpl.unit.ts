@@ -377,7 +377,7 @@ describe('render', () => {
         });
 
         test('should call focusManager.onPostRender', () => {
-            expect(focusManager.onPostRender).toHaveBeenCalled();
+            expect(focusManager.onPreRender).toHaveBeenCalled();
         });
     });
 

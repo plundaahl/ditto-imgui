@@ -126,13 +126,13 @@ export class ServiceManagerImpl implements ServiceManager {
     render(): void {
         this.layerBuilder.onPreRender();
         this.mouseHandler.onLayersSorted();
+        this.focusManager.onPreRender();
 
         this.renderer.render(this.layerBuilder.getOrderedLayers());
 
         this.layerBuilder.onPostRender();
         this.elementBuilder.onPostRender();
         this.layoutHandler.onPostRender();
-        this.focusManager.onPostRender();
     }
 }
 

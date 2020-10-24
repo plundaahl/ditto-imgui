@@ -29,14 +29,14 @@ describe('onEndElement', () => {
     });
 });
 
-describe('onPostRender', () => {
+describe('onPreRender', () => {
     describe('given an element is active', () => {
         beforeEach(() => {
             instance.onBeginElement(createElement({ key: 'doesnotmatter' }));
         });
 
         test('should error', () => {
-            expect(instance.onPostRender).toThrow();
+            expect(instance.onPreRender).toThrow();
         });
     });
 
@@ -47,7 +47,7 @@ describe('onPostRender', () => {
             instance.setFocusable();
             instance.focusElement(); // sets the current element's focus
             instance.onEndElement();
-            instance.onPostRender();
+            instance.onPreRender();
 
             // current frame
             instance.onBeginElement(createElement({ key: 'foo' }));
@@ -65,17 +65,17 @@ describe('onPostRender', () => {
         });
 
         test('should not error', () => {
-            expect(instance.onPostRender).not.toThrow();
+            expect(instance.onPreRender).not.toThrow();
         });
 
         test('should empty focusableElements', () => {
-            instance.onPostRender();
+            instance.onPreRender();
             expect(instance.getFocusableElements.length).toBe(0);
         });
 
         describe('given no new focus events have been triggered', () => {
             test('then previously-focused element should be focused', () => {
-                instance.onPostRender();
+                instance.onPreRender();
                 expect(instance.getCurrentlyFocusedElement()).toBe('foo');
             });
         });
@@ -89,7 +89,7 @@ describe('onPostRender', () => {
             });
 
             test('should update currently-focused element', () => {
-                instance.onPostRender();
+                instance.onPreRender();
                 expect(instance.getCurrentlyFocusedElement()).toBe('bizzle');
             });
         });
@@ -98,15 +98,15 @@ describe('onPostRender', () => {
             beforeEach(() => instance.incrementFocus());
             
             test('should unset action', () => {
-                instance.onPostRender();
+                instance.onPreRender();
                 expect(instance.getAction()).toBe(undefined);
             });
 
-            test("should call the action's onPostRender() function", () => {
+            test("should call the action's onPreRender() function", () => {
                 const action = instance.getAction() as FocusAction;
-                action.onPostRender = jest.fn(action.onPostRender);
-                instance.onPostRender();
-                expect(action.onPostRender).toHaveBeenCalled();
+                action.onPreRender = jest.fn(action.onPreRender);
+                instance.onPreRender();
+                expect(action.onPreRender).toHaveBeenCalled();
             });
         });
     });
@@ -144,10 +144,10 @@ describe('focusElement', () => {
             test('should focus on that element next frame', () => {
                 instance.focusElement();
                 instance.onEndElement();
-                instance.onPostRender();
+                instance.onPreRender();
                 instance.onBeginElement(element);
                 instance.setFocusable();
-                expect(instance.isFocused()).toBe(true);
+                expect(instance.isElementFocused()).toBe(true);
             });
         });
     });
@@ -210,10 +210,10 @@ describe('setFocusable', () => {
     });
 });
 
-describe('isFocused', () => {
+describe('isElementFocused', () => {
     describe('given no element is active', () => {
         test('should error', () => {
-            expect(instance.isFocused).toThrow();
+            expect(instance.isElementFocused).toThrow();
         });
     });
 
@@ -228,7 +228,7 @@ describe('isFocused', () => {
 
         describe('and element is not focusable', () => {
             test('should error', () => {
-                expect(instance.isFocused).toThrow();
+                expect(instance.isElementFocused).toThrow();
             });
         });
         
@@ -236,7 +236,7 @@ describe('isFocused', () => {
             beforeEach(() => instance.setFocusable());
 
             test('should not error', () => {
-                expect(instance.isFocused).not.toThrow();
+                expect(instance.isElementFocused).not.toThrow();
             });
         });
     });

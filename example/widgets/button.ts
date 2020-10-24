@@ -25,7 +25,7 @@ export function button(buttonText: string) {
         gui.draw.setFillStyle('#FF0000');
     } else if (gui.action.isElementHighlighted()) {
         gui.draw.setFillStyle('#FFAAAA');
-    } else if (gui.focus.isFocused()) {
+    } else if (gui.focus.isElementFocused()) {
         gui.draw.setFillStyle('#AAFFAA');
     } else {
         gui.draw.setFillStyle('#EEEEEE');

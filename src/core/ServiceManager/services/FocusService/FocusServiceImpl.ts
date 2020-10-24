@@ -17,14 +17,13 @@ export class FocusServiceImpl implements FocusService {
     protected nextElementToFocus: string | undefined;
 
     constructor() {
-        this.onPostRender = this.onPostRender.bind(this);
+        this.onPreRender = this.onPreRender.bind(this);
         this.onWillRenderElement = this.onWillRenderElement.bind(this);
         this.onEndElement = this.onEndElement.bind(this);
         this.onBeginElement = this.onBeginElement.bind(this);
-        this.isFocused = this.isFocused.bind(this);
+        this.isElementFocused = this.isElementFocused.bind(this);
         this.setFocusable = this.setFocusable.bind(this);
-        this.focusElement = this.focusElement.bind(this);
-        this.incrementFocus = this.incrementFocus.bind(this);
+        this.focusElement = this.focusElement.bind(this); this.incrementFocus = this.incrementFocus.bind(this);
         this.decrementFocus = this.decrementFocus.bind(this);
         this.doFocusOnElement = this.doFocusOnElement.bind(this);
 
@@ -80,7 +79,7 @@ export class FocusServiceImpl implements FocusService {
         delete this.action;
     }
 
-    isFocused(): boolean {
+    isElementFocused(): boolean {
         if (!this.currentElement) {
             throw new Error('No element currently active');
         }
@@ -90,6 +89,14 @@ export class FocusServiceImpl implements FocusService {
             throw new Error('Current element is not focusable. Call setFocusable first.');
         }
         return key === this.focusedElement;
+    }
+
+    isChildFocused(): boolean {
+        throw new Error('not yet implemented');
+    }
+
+    isFloatingChildFocused(): boolean {
+        throw new Error('not yet implemented');
     }
 
     onBeginElement(element: UiElement): void {
@@ -104,9 +111,9 @@ export class FocusServiceImpl implements FocusService {
         throw new Error('Method not implemented.');
     }
 
-    onPostRender(): void {
+    onPreRender(): void {
         if (this.currentElement) {
-            throw new Error('Do not call onPostRender while elements are on stack');
+            throw new Error('Do not call onPreRender while elements are on stack');
         }
 
         this.focusedElement = this.nextElementToFocus;
@@ -114,7 +121,7 @@ export class FocusServiceImpl implements FocusService {
         delete this.curFocusableElement;
 
         if (this.action) {
-            this.action.onPostRender(
+            this.action.onPreRender(
                 this.focusedElement,
                 this.focusableElements[0],
                 this.focusableElements[this.focusableElements.length - 1],

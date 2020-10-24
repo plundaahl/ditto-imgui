@@ -20,7 +20,7 @@ export class PrevFocusAction implements FocusAction {
         }
     }
 
-    onPostRender(
+    onPreRender(
         focusedElement: string | undefined,
         firstElement: string | undefined,
         lastElement: string | undefined,
