@@ -16,6 +16,7 @@ export class FocusServiceImpl implements FocusService {
 
     protected nextElementToFocus: UiElement | undefined;
     private elementWasSeen: boolean = false;
+    private focusChanged: boolean = false;
 
     protected action: FocusAction | undefined;
     protected prevFocusableElement: UiElement | undefined;
@@ -120,6 +121,10 @@ export class FocusServiceImpl implements FocusService {
         return this.focusedFloatParents.includes(currentElement.key);
     }
 
+    didFocusChange(): boolean {
+        return this.focusChanged;
+    }
+
     onBeginElement(element: UiElement): void {
         this.elementStack.push(element);
     }
@@ -137,10 +142,24 @@ export class FocusServiceImpl implements FocusService {
             throw new Error('Do not call onPreRender while elements are on stack');
         }
 
+        this.calcDidFocusChange();
         this.updateFocusedElement();
         this.unsetFocusedElementIfNotSeen();
         this.runActionOnPreRender();
         this.resetFocusableElements();
+    }
+
+    private calcDidFocusChange() {
+        const { focusedElement, elementWasSeen } = this;
+        const nextKey = this.nextElementToFocus && this.nextElementToFocus.key;
+
+        if (focusedElement && !elementWasSeen) {
+            this.focusChanged = true;
+        } else if (focusedElement !== nextKey) {
+            this.focusChanged = true;
+        } else {
+            this.focusChanged = false;
+        }
     }
 
     private unsetFocusedElementIfNotSeen() {

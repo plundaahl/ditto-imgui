@@ -429,6 +429,81 @@ describe('isChildFocused and isFloatingChildFocused', () => {
     });
 });
 
+describe('didFocusChange', () => {
+    describe('given an element was focused last frame', () => {
+        beforeEach(() => {
+            instance.onBeginElement(createElement({ key: 'foo' }));
+            instance.setFocusable();
+            instance.focusElement();
+            instance.onEndElement(); 
+            instance.onPreRender();
+        });
+
+        describe('and the same element is focused this frame', () => {
+            beforeEach(() => {
+                instance.onBeginElement(createElement({ key: 'foo' }));
+                instance.setFocusable();
+                instance.focusElement();
+                instance.onEndElement(); 
+                instance.onPreRender();
+            });
+
+            test('should return false', () => {
+                expect(instance.didFocusChange()).toBe(false);
+            });
+        });
+
+        describe('and the a different element is focused this frame', () => {
+            beforeEach(() => {
+                instance.onBeginElement(createElement({ key: 'bar' }));
+                instance.setFocusable();
+                instance.focusElement();
+                instance.onEndElement(); 
+                instance.onPreRender();
+            });
+
+            test('should return true', () => {
+                expect(instance.didFocusChange()).toBe(true);
+            });
+        });
+
+        describe('and the element is not focused this frame', () => {
+            beforeEach(() => {
+                instance.onBeginElement(createElement({ key: 'bar' }));
+                instance.setFocusable();
+                instance.onEndElement(); 
+                instance.onPreRender();
+            });
+
+            test('should return true', () => {
+                expect(instance.didFocusChange()).toBe(true);
+            });
+        });
+    });
+
+    describe('given an element was not focused last frame', () => {
+        describe('and an element is focused this frame', () => {
+            beforeEach(() => {
+                instance.onBeginElement(createElement({ key: 'foo' }));
+                instance.setFocusable();
+                instance.focusElement();
+                instance.onEndElement(); 
+                instance.onPreRender();
+            });
+
+            test('should return true', () => {
+                expect(instance.didFocusChange()).toBe(true);
+            });
+        });
+
+        describe('and no element is focused this frame', () => {
+            test('should return true', () => {
+                expect(instance.didFocusChange()).toBe(false);
+            });
+        });
+    });
+});
+
 function createLayer(layer: Partial<Layer> = {}): Layer {
     return {
         key: 'foo',
