@@ -110,6 +110,54 @@ describe('onPreRender', () => {
             });
         });
     });
+
+    describe('given an element was focused', () => {
+        beforeEach(() => {
+            instance.onBeginElement(createElement({ key: 'foo' }));
+            instance.setFocusable();
+            instance.onEndElement();
+
+            instance.onBeginElement(createElement({ key: 'bar' }));
+            instance.setFocusable();
+            instance.focusElement();
+            instance.onEndElement();
+
+            instance.onPreRender();
+        });
+
+        describe('and that element is not rendered this frame', () => {
+            beforeEach(() => {
+                instance.onBeginElement(createElement({ key: 'foo' }));
+                instance.setFocusable();
+                instance.onEndElement();
+
+                instance.onPreRender();
+            });
+
+            test('focused element should be set to undefined', () => {
+                expect(instance.getCurrentlyFocusedElement()).toBe(undefined);
+            });
+        });
+
+        describe('and that element is rendered this frame', () => {
+            beforeEach(() => {
+                instance.onBeginElement(createElement({ key: 'foo' }));
+                instance.setFocusable();
+                instance.onEndElement();
+
+                instance.onBeginElement(createElement({ key: 'bar' }));
+                instance.setFocusable();
+                instance.focusElement();
+                instance.onEndElement();
+
+                instance.onPreRender();
+            });
+
+            test('focused element should be set to undefined', () => {
+                expect(instance.getCurrentlyFocusedElement()).toBe('bar');
+            });
+        });
+    });
 });
 
 describe('focusElement', () => {
