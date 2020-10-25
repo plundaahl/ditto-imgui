@@ -5,11 +5,13 @@ import { StateAPI, StateCPI } from './services/StateService';
 import { LayoutAPI, LayoutCPI } from './services/LayoutService';
 import { FocusAPI, FocusCPI } from './services/FocusService';
 import { LayerAPI } from './services/LayerService';
+import { KeyboardAPI, KeyboardCPI, KeyboardService } from './services/KeyboardService';
 
 export interface ServiceCPI {
     readonly element: Readonly<UiElement>;
     readonly mouse: MouseCPI;
     readonly focus: FocusCPI;
+    readonly keyboard: KeyboardCPI;
 }
 
 export interface ServiceAPI {
@@ -25,6 +27,7 @@ export interface ServiceAPI {
     readonly state: StateAPI;
     readonly layout: LayoutAPI;
     readonly focus: FocusAPI;
+    readonly keyboard: KeyboardAPI;
 }
 
 export interface ServiceManager extends ServiceCPI, ServiceAPI {
@@ -34,5 +37,6 @@ export interface ServiceManager extends ServiceCPI, ServiceAPI {
     readonly state: StateAPI & StateCPI;
     readonly layout: LayoutAPI & LayoutCPI;
     readonly focus: FocusAPI & FocusCPI;
+    readonly keyboard: KeyboardService;
 }
 

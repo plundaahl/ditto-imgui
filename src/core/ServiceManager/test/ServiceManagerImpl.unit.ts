@@ -14,6 +14,7 @@ import { MouseService, MouseServiceImpl, MouseAction } from '../services/MouseSe
 import { StateService, StateServiceImpl } from '../services/StateService';
 import { LayoutService, LayoutServiceImpl } from '../services/LayoutService';
 import { FocusService, FocusServiceImpl } from '../services/FocusService';
+import { createKeyboardEntryObjectPool, KeyboardService, KeyboardServiceImpl } from '../services/KeyboardService';
 
 let keyBuilder: KeyService;
 let renderer: RenderService;
@@ -25,6 +26,7 @@ let mouseHandler: MouseService;
 let stateManager: StateService;
 let layoutHandler: LayoutService;
 let focusManager: FocusService;
+let keyboardService: KeyboardService;
 
 beforeEach(() => {
     keyBuilder = spy(new KeyServiceImpl());
@@ -44,6 +46,10 @@ beforeEach(() => {
         m2Down: false,
         action: MouseAction.NONE,
     }));
+    keyboardService = spy(new KeyboardServiceImpl(
+        createKeyboardEntryObjectPool(),
+        { addEventListener: jest.fn() },
+    ));
 
     const elementFactory = new ElementFactoryImpl({ zIndex: -1, key: '__default' });
     elementService = spy(new ElementServiceImpl(
@@ -63,6 +69,7 @@ beforeEach(() => {
         stateManager,
         layoutHandler,
         focusManager,
+        keyboardService,
     );
 });
 
@@ -378,6 +385,10 @@ describe('render', () => {
 
         test('should call focusManager.onPostRender', () => {
             expect(focusManager.onPreRender).toHaveBeenCalled();
+        });
+
+        test('should call keyboardService.onPreRender', () => {
+            expect(keyboardService.onPreRender).toHaveBeenCalled();
         });
     });
 

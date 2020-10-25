@@ -21,10 +21,12 @@ export function button(buttonText: string) {
     const { x, y, w, h } = gui.element.bounds;
     const isTriggered = gui.action.isElementTriggered();
 
+    if (gui.action.isElementReadied()) {
+        gui.focus.focusElement();
+    }
+
     if (isTriggered) {
         gui.draw.setFillStyle('#FF0000');
-    } else if (gui.action.isElementHighlighted()) {
-        gui.draw.setFillStyle('#FFAAAA');
     } else if (gui.focus.isElementFocused()) {
         gui.draw.setFillStyle('#AAFFAA');
     } else {

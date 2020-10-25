@@ -13,13 +13,22 @@ let dummyIds: number[] = [0, 1, 2, 3, 4, 5];
 function main() {
     resetCanvas(context);
 
-    panel.begin('Control Panel', 50, 50, 100, 100);
+    panel.begin('Control Panel', 50, 50, 500, 100);
     if (button('add')) {
         dummyIds.push(nextId++);
     }
+    {
+        gui.beginElement('m1disp');
+        gui.element.bounds.h = 50;
+        const { x, y } = gui.element.bounds;
+        gui.draw.setFillStyle('#000000');
+        const item = (gui as any).focus.action;
+        gui.draw.drawText(`${item}`, x, y);
+        gui.endElement();
+    }
     panel.end();
 
-    panel.begin('Display Panel', 250, 50, 100, 300);
+    panel.begin('Display Panel', 250, 200, 100, 300);
     scrollRegion.begin('somekey');
     for (let i = 0; i < dummyIds.length; i++) {
         const id = dummyIds[i];

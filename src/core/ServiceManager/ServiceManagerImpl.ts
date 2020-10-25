@@ -9,6 +9,7 @@ import { MouseService } from './services/MouseService';
 import { StateService } from './services/StateService';
 import { LayoutService } from './services/LayoutService';
 import { FocusService } from './services/FocusService';
+import { KeyboardService } from './services/KeyboardService';
 
 export class ServiceManagerImpl implements ServiceManager {
 
@@ -22,6 +23,7 @@ export class ServiceManagerImpl implements ServiceManager {
         private readonly stateManager: StateService,
         private readonly layoutHandler: LayoutService,
         private readonly focusManager: FocusService,
+        private readonly keyboardService: KeyboardService,
     ) {
 
         this.beginLayer = this.beginLayer.bind(this);
@@ -36,6 +38,7 @@ export class ServiceManagerImpl implements ServiceManager {
         this.state = stateManager;
         this.layout = layoutHandler;
         this.focus = focusManager;
+        this.keyboard = keyboardService;
     }
 
     readonly layer: {
@@ -55,6 +58,7 @@ export class ServiceManagerImpl implements ServiceManager {
     readonly state: StateService;
     readonly layout: LayoutService;
     readonly focus: FocusService;
+    readonly keyboard: KeyboardService;
 
     beginLayer(key: string): void {
         const { keyBuilder, layerBuilder, elementBuilder } = this;
@@ -127,6 +131,7 @@ export class ServiceManagerImpl implements ServiceManager {
         this.layerBuilder.onPreRender();
         this.mouseHandler.onLayersSorted();
         this.focusManager.onPreRender();
+        this.keyboardService.onPreRender();
 
         this.renderer.render(this.layerBuilder.getOrderedLayers());
 

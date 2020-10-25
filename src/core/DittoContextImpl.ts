@@ -8,6 +8,7 @@ import { LayoutAPI } from './ServiceManager/services/LayoutService';
 import { MouseAPI } from './ServiceManager/services/MouseService';
 import { StateAPI } from './ServiceManager/services/StateService';
 import { UiElement } from './types';
+import { KeyboardAPI } from './ServiceManager/services/KeyboardService';
 
 export class DittoContextImpl implements DittoContext {
     constructor(
@@ -26,6 +27,7 @@ export class DittoContextImpl implements DittoContext {
         this.state = serviceManager.state;
         this.layout = serviceManager.layout;
         this.focus = serviceManager.focus;
+        this.keyboard = serviceManager.keyboard;
         this.action = controllerManager;
     }
 
@@ -60,4 +62,5 @@ export class DittoContextImpl implements DittoContext {
     state: StateAPI;
     layout: LayoutAPI;
     focus: FocusAPI;
+    keyboard: KeyboardAPI;
 }

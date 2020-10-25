@@ -14,6 +14,7 @@ import { MouseServiceImpl, createMouseWatcher } from './ServiceManager/services/
 import { StateServiceImpl } from './ServiceManager/services/StateService';
 import { LayoutServiceImpl } from './ServiceManager/services/LayoutService';
 import { FocusServiceImpl } from './ServiceManager/services/FocusService';
+import { KeyboardServiceImpl, createKeyboardEntryObjectPool } from './ServiceManager/services/KeyboardService';
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
 import { basicVerticalLayoutFn } from './defaults/layout';
@@ -36,29 +37,32 @@ export function createContext(canvas: HTMLCanvasElement) {
         elementFactory.createElement,
         elementFactory.resetElement,
     );
+
+    const mouseWatcher = createMouseWatcher(canvas);
+    (window as any).mouseWatcher = mouseWatcher;
     
-    if (!dittoContextSingleton) {
-        const serviceManager = new ServiceManagerImpl(
-            new KeyServiceImpl(),
-            new ElementServiceImpl(elementPool),
-            new LayerServiceImpl(),
-            new DrawServiceImpl(),
-            new RenderServiceImpl(canvasContext),
-            new MouseServiceImpl(createMouseWatcher(canvas)),
-            new StateServiceImpl(),
-            new LayoutServiceImpl(basicVerticalLayoutFn),
-            new FocusServiceImpl(),
-        );
+    const serviceManager = new ServiceManagerImpl(
+        new KeyServiceImpl(),
+        new ElementServiceImpl(elementPool),
+        new LayerServiceImpl(),
+        new DrawServiceImpl(),
+        new RenderServiceImpl(canvasContext),
+        new MouseServiceImpl(mouseWatcher),
+        new StateServiceImpl(),
+        new LayoutServiceImpl(basicVerticalLayoutFn),
+        new FocusServiceImpl(),
+        new KeyboardServiceImpl(
+            createKeyboardEntryObjectPool(),
+            document,
+        ),
+    );
 
-        dittoContextSingleton = new DittoContextImpl(
-            serviceManager,
-            new ControllerManagerImpl(
-                new MouseController(serviceManager.mouse),
-            ),
-        );
-    }
-
-    return dittoContextSingleton;
+    dittoContextSingleton = new DittoContextImpl(
+        serviceManager,
+        new ControllerManagerImpl(
+            new MouseController(serviceManager.mouse),
+        ),
+    );
 }
 
 export function getContext(): DittoContext {

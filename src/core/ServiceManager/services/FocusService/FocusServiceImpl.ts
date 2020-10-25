@@ -71,13 +71,14 @@ export class FocusServiceImpl implements FocusService {
             throw new Error('No element currently pushed');
         }
 
-        if (this.focusedElement === this.currentElement.key) {
-            this.elementWasSeen = true;
-        }
-
         this.focusableElements.push(this.currentElement);
         this.prevFocusableElement = this.curFocusableElement;
         this.curFocusableElement = this.currentElement;
+
+        if (this.focusedElement === this.currentElement.key) {
+            this.elementWasSeen = true;
+            this.nextElementToFocus = this.nextElementToFocus || this.currentElement;
+        }
 
         if (this.action) {
             this.action.onSetFocusable(
@@ -95,14 +96,17 @@ export class FocusServiceImpl implements FocusService {
     }
 
     isElementFocused(): boolean {
-        if (!this.currentElement) {
+        const { currentElement, focusedElement } = this;
+
+        if (!currentElement) {
             throw new Error('No element currently active');
         }
         
-        if (!this.focusableElements.includes(this.currentElement)) {
+        if (!this.focusableElements.includes(currentElement)) {
             throw new Error('Current element is not focusable. Call setFocusable first.');
         }
-        return this.currentElement.key === this.focusedElement;
+
+        return Boolean(focusedElement && (currentElement.key === focusedElement));
     }
 
     isChildFocused(): boolean {
@@ -142,23 +146,21 @@ export class FocusServiceImpl implements FocusService {
             throw new Error('Do not call onPreRender while elements are on stack');
         }
 
-        this.calcDidFocusChange();
-        this.updateFocusedElement();
-        this.unsetFocusedElementIfNotSeen();
         this.runActionOnPreRender();
+        this.calcDidFocusChange();
+        this.unsetFocusedElementIfNotSeen();
+        this.updateFocusedElement();
         this.resetFocusableElements();
     }
 
-    private calcDidFocusChange() {
-        const { focusedElement, elementWasSeen } = this;
-        const nextKey = this.nextElementToFocus && this.nextElementToFocus.key;
-
-        if (focusedElement && !elementWasSeen) {
-            this.focusChanged = true;
-        } else if (focusedElement !== nextKey) {
-            this.focusChanged = true;
-        } else {
-            this.focusChanged = false;
+    private runActionOnPreRender() {
+        if (this.action) {
+            this.action.onPreRender(
+                this.focusedElement,
+                this.focusableElements[0],
+                this.focusableElements[this.focusableElements.length - 1],
+            );
+            delete this.action;
         }
     }
 
@@ -167,6 +169,15 @@ export class FocusServiceImpl implements FocusService {
             this.focusedElement = undefined;
         }
         this.elementWasSeen = false;
+    }
+
+    private calcDidFocusChange() {
+        const { focusedElement, elementWasSeen } = this;
+        const nextKey = this.nextElementToFocus
+            ? this.nextElementToFocus.key
+            : focusedElement;
+
+        this.focusChanged = (focusedElement && !elementWasSeen) || (focusedElement !== nextKey);
     }
 
     private updateFocusedElement() {
@@ -185,21 +196,11 @@ export class FocusServiceImpl implements FocusService {
             }
         }
 
-        this.focusedElement = focusedElement && focusedElement.key;
-    }
-
-    private runActionOnPreRender() {
-        if (this.action) {
-            this.action.onPreRender(
-                this.focusedElement,
-                this.focusableElements[0],
-                this.focusableElements[this.focusableElements.length - 1],
-            );
-            delete this.action;
-        }
+        this.focusedElement = focusedElement ? focusedElement.key : undefined;
     }
 
     private resetFocusableElements() {
+        delete this.nextElementToFocus;
         delete this.prevFocusableElement;
         delete this.curFocusableElement;
         this.focusableElements.length = 0;

@@ -453,7 +453,7 @@ describe('didFocusChange', () => {
             });
         });
 
-        describe('and the a different element is focused this frame', () => {
+        describe('and a different element is focused this frame', () => {
             beforeEach(() => {
                 instance.onBeginElement(createElement({ key: 'bar' }));
                 instance.setFocusable();
