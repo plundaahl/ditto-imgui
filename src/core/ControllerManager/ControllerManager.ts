@@ -1,4 +1,4 @@
-interface ActionProvider {
+interface ControllerShared {
     isElementHighlighted(): boolean;
     isElementReadied(): boolean;
     isElementTriggered(): boolean;
@@ -12,6 +12,12 @@ interface ActionProvider {
     getDragY(): number;
 }
 
-export interface ControllerAPI extends ActionProvider {}
-export interface ControllerManager extends ControllerAPI { }
-export interface Controller extends ActionProvider { }
+export interface ControllerAPI extends ControllerShared {}
+
+export interface ControllerManager extends ControllerAPI {
+    onPostRender(): void;
+}
+
+export interface Controller extends ControllerShared {
+    onPostRender?(): void;
+}

@@ -39,12 +39,7 @@ export class KeyboardServiceImpl implements KeyboardService {
     }
 
     isKeyUp(key: KeyboardKey): boolean {
-        for (const entry of this.keysDown) {
-            if (entry.key === key) {
-                return false;
-            }
-        }
-        return true;
+        return !this.isKeyDown(key);
     }
 
     isKeyEntered(key: KeyboardKey): boolean {

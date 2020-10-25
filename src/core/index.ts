@@ -4,6 +4,10 @@ import {
     ControllerManagerImpl,
     MouseController,
 } from './ControllerManager';
+import {
+    KeyboardController,
+    KeyMap,
+} from './ControllerManager/controllers/KeyboardController';
 import { ServiceManagerImpl } from './ServiceManager/ServiceManagerImpl';
 import { KeyServiceImpl } from './ServiceManager/services/KeyService';
 import { ElementServiceImpl } from './ServiceManager/services/ElementService';
@@ -25,6 +29,17 @@ export function createContext(canvas: HTMLCanvasElement) {
     if (dittoContextSingleton) {
         return;
     }
+
+    const keymap: KeyMap = {
+        trigger: [ 'Enter' ],
+        toggle: [ 'Space' ],
+        query: [ 'ContextMenu' ],
+        cancel: [ 'Escape' ],
+        moveLeft: [ 'ArrowLeft' ],
+        moveRight: [ 'ArrowRight' ],
+        moveUp: [ 'ArrowUp' ],
+        moveDown: [ 'ArrowDown' ],
+    };
 
     const canvasContext = canvas.getContext('2d');
     if (canvasContext === null) {
@@ -61,6 +76,11 @@ export function createContext(canvas: HTMLCanvasElement) {
         serviceManager,
         new ControllerManagerImpl(
             new MouseController(serviceManager.mouse),
+            new KeyboardController(
+                serviceManager.keyboard,
+                serviceManager.focus,
+                keymap,
+            ),
         ),
     );
 }

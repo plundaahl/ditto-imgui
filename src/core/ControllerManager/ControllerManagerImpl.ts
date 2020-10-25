@@ -113,4 +113,10 @@ export class ControllerManagerImpl implements ControllerManager {
             ? provider.getDragY()
             : 0;
     }
+
+    onPostRender(): void {
+        for (const controller of this.controllers) {
+            controller.onPostRender && controller.onPostRender();
+        }
+    }
 }

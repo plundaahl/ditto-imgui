@@ -81,3 +81,16 @@ describe.each([
         });
     });
 });
+
+describe('onPostRender', () => {
+    beforeEach(() => {
+        providerA.onPostRender = jest.fn();
+        providerB.onPostRender = jest.fn();
+    });
+
+    test('Should call onPostRender on each controller', () => {
+        instance.onPostRender();
+        expect(providerA.onPostRender).toHaveBeenCalled();
+        expect(providerB.onPostRender).toHaveBeenCalled();
+    });
+});
