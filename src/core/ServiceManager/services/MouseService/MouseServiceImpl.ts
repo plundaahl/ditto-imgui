@@ -15,7 +15,7 @@ export class MouseServiceImpl implements MouseService {
     ) {
         this.onBeginElement = this.onBeginElement.bind(this);
         this.onEndElement = this.onEndElement.bind(this);
-        this.onLayersSorted = this.onLayersSorted.bind(this);
+        this.onPreRender = this.onPreRender.bind(this);
         this.hoversElement = this.hoversElement.bind(this);
         this.hoversChild = this.hoversChild.bind(this);
         this.hoversFloatingChild = this.hoversFloatingChild.bind(this);
@@ -47,7 +47,7 @@ export class MouseServiceImpl implements MouseService {
         }
     }
 
-    onLayersSorted(): void {
+    onPreRender(): void {
         const { mouseWatcher } = this;
         if (this.buildStack.length > 0) {
             throw new Error('Build stack not finished');

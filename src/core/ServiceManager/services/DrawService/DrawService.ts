@@ -1,4 +1,5 @@
 import { UiElement } from '../../../types';
+import { Hookable } from '../../../HookRunner';
 
 import {
     LineCapOpts,
@@ -36,7 +37,8 @@ export interface DrawAPI {
 
 export interface DrawCPI {}
 
-export interface DrawService extends DrawAPI, DrawCPI {
-    setCurrentElement(element?: UiElement): void;
+export interface DrawService extends DrawAPI, DrawCPI, Hookable {
+    onBeginElement(element: UiElement): void;
+    onEndElement(): void;
 }
 

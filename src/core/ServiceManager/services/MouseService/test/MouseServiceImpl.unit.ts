@@ -122,7 +122,7 @@ describe('onEndElement', () => {
     });
 });
 
-describe('onLayersSorted', () => {
+describe('onPreRender', () => {
     describe('given current mouse action is not drag', () => {
         beforeEach(() => {
             mouseWatcher.action = MouseAction.M1_CLICK;
@@ -132,7 +132,7 @@ describe('onLayersSorted', () => {
             beforeEach(() => {
                 mouseWatcher.posX = 50;
                 mouseWatcher.posY = 50;
-                mouseHandler.onLayersSorted();
+                mouseHandler.onPreRender();
             });
 
             test('should set current hovered element to undefined', () => {
@@ -182,7 +182,7 @@ describe('onLayersSorted', () => {
                 mouseWatcher.dragX = 52;
                 mouseWatcher.dragY = -93;
 
-                mouseHandler.onLayersSorted();
+                mouseHandler.onPreRender();
             });
 
             test('should select candidate on layer with highest zIndex', () => {
@@ -228,7 +228,7 @@ describe('onLayersSorted', () => {
             });
 
             test('should error', () => {
-                expect(mouseHandler.onLayersSorted).toThrow();
+                expect(mouseHandler.onPreRender).toThrow();
             });
         });
 
@@ -269,7 +269,7 @@ describe('onLayersSorted', () => {
             });
 
             describe('and that ancestor is on same layer', () => {
-                beforeEach(() => mouseHandler.onLayersSorted());
+                beforeEach(() => mouseHandler.onPreRender());
 
                 test('that element should not be selected', () => {
                     expect(mouseHandler.getHoveredElementKey()).toBe(undefined);
@@ -283,7 +283,7 @@ describe('onLayersSorted', () => {
                         zIndex: -5,
                         rootElement: elements[0],
                     };
-                    mouseHandler.onLayersSorted();
+                    mouseHandler.onPreRender();
                 });
 
                 test('that element should be selected', () => {
@@ -304,7 +304,7 @@ describe('onLayersSorted', () => {
                 elements = [ createElement() ];
                 mouseHandler.onBeginElement(elements[0]);
                 mouseHandler.onEndElement();
-                mouseHandler.onLayersSorted();
+                mouseHandler.onPreRender();
 
                 mouseWatcher.action = MouseAction.M1_DRAG;
                 mouseWatcher.posX = 250;
@@ -314,7 +314,7 @@ describe('onLayersSorted', () => {
 
                 mouseHandler.onBeginElement(elements[0]);
                 mouseHandler.onEndElement();
-                mouseHandler.onLayersSorted();
+                mouseHandler.onPreRender();
             });
 
             test('previous element should still be hovered', () => {
@@ -332,7 +332,7 @@ describe('onLayersSorted', () => {
 describe('hoversElement', () => {
     describe('given no element was hovered last frame', () => {
         beforeEach(() => {
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement());
         });
 
@@ -345,7 +345,7 @@ describe('hoversElement', () => {
         beforeEach(() => {
             mouseHandler.onBeginElement(createElement({ key: 'otherelement' }));
             mouseHandler.onEndElement();
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement());
         });
 
@@ -358,7 +358,7 @@ describe('hoversElement', () => {
         beforeEach(() => {
             mouseHandler.onBeginElement(createElement({ key: 'sameelement' }));
             mouseHandler.onEndElement();
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement({ key: 'sameelement' }));
         });
 
@@ -371,7 +371,7 @@ describe('hoversElement', () => {
 describe('hoversChild', () => {
     describe('given no element was hovered last frame', () => {
         beforeEach(() => {
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement());
         });
 
@@ -384,7 +384,7 @@ describe('hoversChild', () => {
         beforeEach(() => {
             mouseHandler.onBeginElement(createElement({ key: 'sameelement' }));
             mouseHandler.onEndElement();
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement({ key: 'sameelement' }));
         });
 
@@ -421,7 +421,7 @@ describe('hoversChild', () => {
                 mouseHandler.onEndElement();
             }
 
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement({ key: 'foo' }));
         });
 
@@ -461,7 +461,7 @@ describe('hoversChild', () => {
                 mouseHandler.onEndElement();
             }
 
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement({ key: 'foo' }));
         });
 
@@ -474,7 +474,7 @@ describe('hoversChild', () => {
 describe('hoversFloatingChild', () => {
     describe('given no element was hovered last frame', () => {
         beforeEach(() => {
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement());
         });
 
@@ -487,7 +487,7 @@ describe('hoversFloatingChild', () => {
         beforeEach(() => {
             mouseHandler.onBeginElement(createElement({ key: 'sameelement' }));
             mouseHandler.onEndElement();
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement({ key: 'sameelement' }));
         });
 
@@ -524,7 +524,7 @@ describe('hoversFloatingChild', () => {
                 mouseHandler.onEndElement();
             }
 
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement({ key: 'foo' }));
         });
 
@@ -564,7 +564,7 @@ describe('hoversFloatingChild', () => {
                 mouseHandler.onEndElement();
             }
 
-            mouseHandler.onLayersSorted();
+            mouseHandler.onPreRender();
             mouseHandler.onBeginElement(createElement({ key: 'foo' }));
         });
 

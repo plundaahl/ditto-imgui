@@ -1,5 +1,6 @@
 import { DittoContext } from './DittoContext';
 import { DittoContextImpl } from './DittoContextImpl';
+import { HookRunnerImpl } from './HookRunner';
 import {
     ControllerManagerImpl,
     MouseController,
@@ -42,6 +43,7 @@ export function createContext(canvas: HTMLCanvasElement) {
     (window as any).mouseWatcher = mouseWatcher;
     
     const serviceManager = new ServiceManagerImpl(
+        new HookRunnerImpl(),
         new KeyServiceImpl(),
         new ElementServiceImpl(elementPool),
         new LayerServiceImpl(),

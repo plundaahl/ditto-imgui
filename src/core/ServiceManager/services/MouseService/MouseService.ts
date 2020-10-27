@@ -20,6 +20,6 @@ export interface MouseCPI extends MouseAPI {
 export interface MouseService extends MouseAPI, MouseCPI {
     onBeginElement(element: UiElement): void;
     onEndElement(): void;
-    onLayersSorted(): void;
+    onPreRender(): void;
 }
 

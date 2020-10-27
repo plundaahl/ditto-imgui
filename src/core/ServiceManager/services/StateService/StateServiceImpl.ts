@@ -1,3 +1,4 @@
+import { UiElement } from '../../../types';
 import { StateHandle } from './StateHandle';
 import { StateHandleImpl } from './StateHandleImpl';
 import { StateService } from './StateService';
@@ -14,8 +15,8 @@ export class StateServiceImpl implements StateService {
     protected stateStack: StateNode[] = [];
 
     constructor() {
-        this.onBeginKey = this.onBeginKey.bind(this);
-        this.onEndKey = this.onEndKey.bind(this);
+        this.onBeginElement = this.onBeginElement.bind(this);
+        this.onEndElement = this.onEndElement.bind(this);
         this.declareAndGetState = this.declareAndGetState.bind(this);
         this.stateStack.push(this.stateStore);
     }
@@ -24,7 +25,8 @@ export class StateServiceImpl implements StateService {
         return this.stateStack[this.stateStack.length - 1];
     }
 
-    onBeginKey(key: string): void {
+    onBeginElement(element: UiElement): void {
+        const { key } = element;
         const currentChildren = this.currentStateNode._children;
 
         if (!currentChildren[key]) {
@@ -34,7 +36,7 @@ export class StateServiceImpl implements StateService {
         this.stateStack.push(currentChildren[key]);
     }
 
-    onEndKey(): void {
+    onEndElement(): void {
         if (this.stateStack.length === 1) {
             throw new Error(`Attempting to pop from empty keyStack`);
         }

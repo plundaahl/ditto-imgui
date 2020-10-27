@@ -1,4 +1,5 @@
 import { UiElement, Layer } from '../types';
+import { HookRunner } from '../HookRunner';
 import { ServiceManager } from './ServiceManager';
 import { KeyService } from './services/KeyService';
 import { RenderService } from './services/RenderService';
@@ -14,16 +15,17 @@ import { KeyboardService } from './services/KeyboardService';
 export class ServiceManagerImpl implements ServiceManager {
 
     constructor(
+        private readonly hookRunner: HookRunner,
         private readonly keyBuilder: KeyService,
         private readonly elementBuilder: ElementService,
         private readonly layerBuilder: LayerService,
-        private readonly drawHandler: DrawService,
+        drawHandler: DrawService,
         private readonly renderer: RenderService,
-        private readonly mouseHandler: MouseService,
-        private readonly stateManager: StateService,
-        private readonly layoutHandler: LayoutService,
-        private readonly focusManager: FocusService,
-        private readonly keyboardService: KeyboardService,
+        mouseHandler: MouseService,
+        stateManager: StateService,
+        layoutHandler: LayoutService,
+        focusManager: FocusService,
+        keyboardService: KeyboardService,
     ) {
 
         this.beginLayer = this.beginLayer.bind(this);
@@ -39,6 +41,13 @@ export class ServiceManagerImpl implements ServiceManager {
         this.layout = layoutHandler;
         this.focus = focusManager;
         this.keyboard = keyboardService;
+
+        hookRunner.registerHookable(stateManager);
+        hookRunner.registerHookable(drawHandler);
+        hookRunner.registerHookable(mouseHandler);
+        hookRunner.registerHookable(layoutHandler);
+        hookRunner.registerHookable(focusManager);
+        hookRunner.registerHookable(keyboardService);
     }
 
     readonly layer: {
@@ -65,7 +74,6 @@ export class ServiceManagerImpl implements ServiceManager {
 
         keyBuilder.push(key);
         const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
-        this.stateManager.onBeginKey(qualifiedKey);
 
         layerBuilder.beginLayer(qualifiedKey);
         const layer = layerBuilder.getCurrentLayer() as Layer;
@@ -75,10 +83,9 @@ export class ServiceManagerImpl implements ServiceManager {
         const rootElement = elementBuilder.getCurrentElement() as UiElement;
 
         layer.rootElement = rootElement;
-        this.drawHandler.setCurrentElement(rootElement);
-        this.mouseHandler.onBeginElement(rootElement);
-        this.layoutHandler.onBeginElement(rootElement);
-        this.focusManager.onBeginElement(rootElement);
+
+        this.hookRunner.runOnBeginLayerHook(layer);
+        this.hookRunner.runOnBeginElementHook(rootElement);
     }
 
     endLayer(): void {
@@ -86,13 +93,11 @@ export class ServiceManagerImpl implements ServiceManager {
         elementBuilder.endElement();
         layerBuilder.endLayer();
         this.keyBuilder.pop();
-        this.stateManager.onEndKey();
 
         elementBuilder.setCurrentLayer(layerBuilder.getCurrentLayer());
-        this.drawHandler.setCurrentElement(elementBuilder.getCurrentElement());
-        this.mouseHandler.onEndElement();
-        this.layoutHandler.onEndElement();
-        this.focusManager.onEndElement();
+
+        this.hookRunner.runOnEndElementHook();
+        this.hookRunner.runOnEndLayerHook();
     }
 
     beginElement(key: string): void {
@@ -100,15 +105,11 @@ export class ServiceManagerImpl implements ServiceManager {
 
         keyBuilder.push(key);
         const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
-        this.stateManager.onBeginKey(qualifiedKey);
 
         elementBuilder.beginElement(qualifiedKey);
         const curElement = elementBuilder.getCurrentElement();
 
-        this.drawHandler.setCurrentElement(curElement);
-        this.mouseHandler.onBeginElement(curElement as UiElement);
-        this.layoutHandler.onBeginElement(curElement as UiElement);
-        this.focusManager.onBeginElement(curElement as UiElement);
+        this.hookRunner.runOnBeginElementHook(curElement as UiElement);
     }
 
     endElement(): void {
@@ -120,24 +121,19 @@ export class ServiceManagerImpl implements ServiceManager {
 
         elementBuilder.endElement();
         this.keyBuilder.pop();
-        this.stateManager.onEndKey();
-        this.drawHandler.setCurrentElement(elementBuilder.getCurrentElement());
-        this.mouseHandler.onEndElement();
-        this.layoutHandler.onEndElement();
-        this.focusManager.onEndElement();
+
+        this.hookRunner.runOnEndElementHook();
     }
 
     render(): void {
         this.layerBuilder.onPreRender();
-        this.mouseHandler.onLayersSorted();
-        this.focusManager.onPreRender();
-        this.keyboardService.onPreRender();
 
+        this.hookRunner.runOnPreRenderHook();
         this.renderer.render(this.layerBuilder.getOrderedLayers());
 
         this.layerBuilder.onPostRender();
         this.elementBuilder.onPostRender();
-        this.layoutHandler.onPostRender();
+        this.hookRunner.runOnPostRenderHook();
     }
 }
 

@@ -1,6 +1,7 @@
 import { notUndefined } from './notUndefined';
 import { ServiceManager } from '../ServiceManager';
 import { ServiceManagerImpl } from '../ServiceManagerImpl';
+import { HookRunner, HookRunnerImpl } from '../../HookRunner';
 import { KeyService, KeyServiceImpl } from '../services/KeyService';
 import { RenderService, RenderServiceImpl } from '../services/RenderService';
 import { DrawService, DrawServiceImpl } from '../services/DrawService';
@@ -16,6 +17,7 @@ import { LayoutService, LayoutServiceImpl } from '../services/LayoutService';
 import { FocusService, FocusServiceImpl } from '../services/FocusService';
 import { createKeyboardEntryObjectPool, KeyboardService, KeyboardServiceImpl } from '../services/KeyboardService';
 
+let hookRunner: HookRunner;
 let keyBuilder: KeyService;
 let renderer: RenderService;
 let drawService: DrawService;
@@ -29,6 +31,7 @@ let focusManager: FocusService;
 let keyboardService: KeyboardService;
 
 beforeEach(() => {
+    hookRunner = spy(new HookRunnerImpl());
     keyBuilder = spy(new KeyServiceImpl());
     renderer = spy(new RenderServiceImpl(createFakeCanvasContext()));
     drawService = spy(new DrawServiceImpl());
@@ -60,6 +63,7 @@ beforeEach(() => {
     ));
 
     serviceManager = new ServiceManagerImpl(
+        hookRunner,
         keyBuilder,
         elementService,
         layerBuilder,
@@ -71,6 +75,32 @@ beforeEach(() => {
         focusManager,
         keyboardService,
     );
+});
+
+describe('constructor', () => {
+    test('should register mouseHandler with hookRunner', () => {
+        expect(hookRunner.registerHookable).toHaveBeenCalledWith(mouseHandler);
+    });
+
+    test('should register stateService with hookRunner', () => {
+        expect(hookRunner.registerHookable).toHaveBeenCalledWith(stateManager);
+    });
+
+    test('should register drawService with hookRunner', () => {
+        expect(hookRunner.registerHookable).toHaveBeenCalledWith(drawService);
+    });
+
+    test('should register layoutHandler with hookRunner', () => {
+        expect(hookRunner.registerHookable).toHaveBeenCalledWith(layoutHandler);
+    });
+
+    test('should register focusManager with hookRunner', () => {
+        expect(hookRunner.registerHookable).toHaveBeenCalledWith(focusManager);
+    });
+
+    test('should register keyboardService with hookRunner', () => {
+        expect(hookRunner.registerHookable).toHaveBeenCalledWith(keyboardService);
+    });
 });
 
 describe('beginLayer', () => {
@@ -98,8 +128,16 @@ describe('beginLayer', () => {
         expect(elementService.beginElement).toHaveBeenCalledWith(qualifiedKey);
     });
 
+    test('should call hookRunner.runOnBeginLayer hook', () => {
+        expect(hookRunner.runOnBeginLayerHook).toHaveBeenCalled();
+    });
+
+    test('should call hookRunner.runOnBeginElement hook', () => {
+        expect(hookRunner.runOnBeginElementHook).toHaveBeenCalled();
+    });
+
     test('should pass qualifiedKey into stateManager.onBeginKey', () => {
-        expect(stateManager.onBeginKey).toHaveBeenCalledWith(qualifiedKey);
+        expect(stateManager.onBeginElement).toHaveBeenCalled();
     });
 
     test('should link new layer and its root element', () => {
@@ -110,9 +148,9 @@ describe('beginLayer', () => {
         expect(currentLayer.rootElement).toBe(currentElement);
     });
 
-    test('should pass root element into drawHandler.setCurrentElement', () => {
+    test('should pass root element into drawHandler.onBeginElement', () => {
         const currentElement = elementService.getCurrentElement();
-        expect(drawService.setCurrentElement).toHaveBeenCalledWith(currentElement);
+        expect(drawService.onBeginElement).toHaveBeenCalledWith(currentElement);
     });
 
     test('should pass root element into mouseHandler.onBeginElement', () => {
@@ -164,7 +202,7 @@ describe('endLayer', () => {
         });
 
         test('should call stateManager.onEndKey', () => {
-            expect(stateManager.onEndKey).toHaveBeenCalled();
+            expect(stateManager.onEndElement).toHaveBeenCalled();
         });
 
         test('should set current layer to previous layer before call', () => {
@@ -176,9 +214,16 @@ describe('endLayer', () => {
             expect(elementService.setCurrentLayer).toHaveBeenCalledWith(curLayer);
         });
 
-        test('should pass current element into drawHandle.setCurrentElement', () => {
-            const curElement = elementService.getCurrentElement();
-            expect(drawService.setCurrentElement).toHaveBeenCalledWith(curElement);
+        test('should call drawService.onEndElement', () => {
+            expect(drawService.onEndElement).toHaveBeenCalled();
+        });
+
+        test('should call hookRunner.runOnEndElementHook', () => {
+            expect(hookRunner.runOnEndElementHook).toHaveBeenCalled();
+        });
+
+        test('should call hookRunner.runOnEndLayerHook', () => {
+            expect(hookRunner.runOnEndLayerHook).toHaveBeenCalled();
         });
 
         test('should call mouseHandler.onEndElement', () => {
@@ -221,13 +266,12 @@ describe('beginElement', () => {
         });
 
         test('should pass qualified key into elementBuilder.beginElement', () => {
-            const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
-            expect(stateManager.onBeginKey).toHaveBeenCalledWith(qualifiedKey);
+            expect(stateManager.onBeginElement).toHaveBeenCalled();
         });
 
-        test('should pass created element into drawHandler.setCurrentElement', () => {
+        test('should pass created element into drawHandler.onBeginElement', () => {
             const curElement = elementService.getCurrentElement();
-            expect(drawService.setCurrentElement).toHaveBeenCalledWith(curElement);
+            expect(drawService.onBeginElement).toHaveBeenCalledWith(curElement);
         });
 
         test('should pass created element into mouseHandler.onBeginElement', () => {
@@ -243,6 +287,10 @@ describe('beginElement', () => {
         test('should pass created element into focusManager.onBeginElement', () => {
             const currentElement = elementService.getCurrentElement();
             expect(focusManager.onBeginElement).toHaveBeenCalledWith(currentElement);
+        });
+
+        test('should call hookRunner.runOnBeginElement', () => {
+            expect(hookRunner.runOnBeginElementHook).toHaveBeenCalled();
         });
     });
 });
@@ -280,12 +328,11 @@ describe('endElement', () => {
         });
 
         test('should call stateManager.onEndKey', () => {
-            expect(stateManager.onEndKey).toHaveBeenCalled();
+            expect(stateManager.onEndElement).toHaveBeenCalled();
         });
 
-        test('should pass current element into drawHandler.setCurrentElement', () => {
-            const currentElement = elementService.getCurrentElement();
-            expect(drawService.setCurrentElement).toHaveBeenCalledWith(currentElement);
+        test('should call drawService.onEndElement', () => {
+            expect(drawService.onEndElement).toHaveBeenCalled();
         });
 
         test('should call mouseHandler.onEndElement', () => {
@@ -298,6 +345,10 @@ describe('endElement', () => {
 
         test('should call focusManager.onEndElement', () => {
             expect(focusManager.onEndElement).toHaveBeenCalled();
+        });
+
+        test('should call hookRunner.runOnEndElement', () => {
+            expect(hookRunner.runOnEndElementHook).toHaveBeenCalled();
         });
     });
 });
@@ -363,8 +414,8 @@ describe('render', () => {
             expect(layerBuilder.onPreRender).toHaveBeenCalled();
         });
 
-        test('should call mouseHandler.onLayersSorted', () => {
-            expect(mouseHandler.onLayersSorted).toHaveBeenCalled();
+        test('should call mouseHandler.onPreRender', () => {
+            expect(mouseHandler.onPreRender).toHaveBeenCalled();
         });
 
         test('should call renderer.render', () => {
@@ -389,6 +440,14 @@ describe('render', () => {
 
         test('should call keyboardService.onPreRender', () => {
             expect(keyboardService.onPreRender).toHaveBeenCalled();
+        });
+
+        test('should call hookRunner.runOnPreRenderHook', () => {
+            expect(hookRunner.runOnPreRenderHook).toHaveBeenCalled();
+        });
+
+        test('should call hookRunner.runOnPostRenderHook', () => {
+            expect(hookRunner.runOnPostRenderHook).toHaveBeenCalled();
         });
     });
 

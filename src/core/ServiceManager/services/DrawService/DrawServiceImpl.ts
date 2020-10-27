@@ -18,17 +18,26 @@ import {
 
 export class DrawServiceImpl implements DrawService {
     private readonly utilityContext: CanvasRenderingContext2D;
+    private readonly elementStack: UiElement[] = [];
     private currentElement?: UiElement;
 
     constructor(
         createCanvasContext: () => CanvasRenderingContext2D = createOffscreenCanvasContext,
     ) {
         this.utilityContext = createCanvasContext();
-        this.setCurrentElement = this.setCurrentElement.bind(this);
+        this.onBeginElement = this.onBeginElement.bind(this);
+        this.onEndElement = this.onEndElement.bind(this);
     }
 
-    setCurrentElement(element: UiElement | undefined) {
+    onBeginElement(element: UiElement): void {
+        this.elementStack.push(element);
         this.currentElement = element;
+    }
+
+    onEndElement(): void {
+        const { elementStack } = this;
+        elementStack.pop();
+        this.currentElement = elementStack[elementStack.length - 1];
     }
 
     clearRect(x: number, y: number, w: number, h: number): void {

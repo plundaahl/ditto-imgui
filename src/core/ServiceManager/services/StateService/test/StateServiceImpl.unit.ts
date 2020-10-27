@@ -1,3 +1,4 @@
+import { createDummyElement } from '../../../../test/helpers';
 import { InspectableStateService } from './InspectableStateService';
 
 interface ExampleRecord {
@@ -19,12 +20,12 @@ describe('get currentStateNode', () => {
     });
 });
 
-describe('onBeginKey()', () => {
+describe('onBeginElement()', () => {
     test('If stateStore does not contain node for key, adds it', () => {
         const key = 'childKey';
         const parentState = instance.getCurrentStateNode();
 
-        instance.onBeginKey(key);
+        instance.onBeginElement(createDummyElement({ key }));
 
         expect(parentState._children[key]).not.toBe(undefined);
     });
@@ -33,7 +34,7 @@ describe('onBeginKey()', () => {
         const key = 'childKey';
         const parentState = instance.getCurrentStateNode();
 
-        instance.onBeginKey(key);
+        instance.onBeginElement(createDummyElement({ key }));
         const childState = parentState._children[key];
         expect(instance.getCurrentStateNode()).toBe(childState);
     });
@@ -41,16 +42,16 @@ describe('onBeginKey()', () => {
 
 describe('onEndKey()', () => {
     test('Errors if keyStack is empty', () => {
-        expect(() => instance.onEndKey()).toThrowError();
+        expect(() => instance.onEndElement()).toThrowError();
     });
 
     test('Removes end of stateStack', () => {
         const key = 'childkey';
-        instance.onBeginKey(key);
+        instance.onBeginElement(createDummyElement({ key }));
 
         const lengthBeforeEnd = instance.getStateStack().length;
 
-        instance.onEndKey();
+        instance.onEndElement();
 
         expect(instance.getStateStack().length).toBe(lengthBeforeEnd - 1);
     });

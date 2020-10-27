@@ -41,7 +41,7 @@ describe('pushDrawCommand', () => {
                 children: [],
                 drawBuffer: [],
             };
-            instance.setCurrentElement(element);
+            instance.onBeginElement(element);
         });
 
         test('should not error', () => {
