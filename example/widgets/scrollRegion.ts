@@ -92,9 +92,9 @@ function endScrollRegion() {
         gui.draw.fillRect(x, y, w, h);
         gui.draw.strokeRect(x, y, w, h);
 
-        if (gui.action.isElementDragged()) {
+        if (gui.controller.isElementDragged()) {
             if (percentOfContentOnScreenY < 1) {
-                const deltaPercentY = (gui.action.getDragY() / (parentH - scrollbarHeight));
+                const deltaPercentY = (gui.controller.getDragY() / (parentH - scrollbarHeight));
                 const deltaOffsetY = deltaPercentY * (childrenHeight - parentH);
 
                 state.offsetY += deltaOffsetY;

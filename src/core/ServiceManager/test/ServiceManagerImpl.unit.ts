@@ -16,6 +16,7 @@ import { StateService, StateServiceImpl } from '../services/StateService';
 import { LayoutService, LayoutServiceImpl } from '../services/LayoutService';
 import { FocusService, FocusServiceImpl } from '../services/FocusService';
 import { createKeyboardEntryObjectPool, KeyboardService, KeyboardServiceImpl } from '../services/KeyboardService';
+import {ControllerService, ControllerServiceImpl} from '../services/ControllerService';
 
 let hookRunner: HookRunner;
 let keyBuilder: KeyService;
@@ -29,6 +30,7 @@ let stateManager: StateService;
 let layoutHandler: LayoutService;
 let focusManager: FocusService;
 let keyboardService: KeyboardService;
+let controllerService: ControllerService;
 
 beforeEach(() => {
     hookRunner = spy(new HookRunnerImpl());
@@ -53,6 +55,7 @@ beforeEach(() => {
         createKeyboardEntryObjectPool(),
         { addEventListener: jest.fn() },
     ));
+    controllerService = spy(new ControllerServiceImpl());
 
     const elementFactory = new ElementFactoryImpl({ zIndex: -1, key: '__default' });
     elementService = spy(new ElementServiceImpl(
@@ -74,6 +77,7 @@ beforeEach(() => {
         layoutHandler,
         focusManager,
         keyboardService,
+        controllerService,
     );
 });
 

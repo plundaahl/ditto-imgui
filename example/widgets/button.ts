@@ -19,9 +19,9 @@ export function button(buttonText: string) {
     gui.element.bounds.h = 30;
 
     const { x, y, w, h } = gui.element.bounds;
-    const isTriggered = gui.action.isElementTriggered();
+    const isTriggered = gui.controller.isElementTriggered();
 
-    if (gui.action.isElementReadied()) {
+    if (gui.controller.isElementReadied()) {
         gui.focus.focusElement();
     }
 

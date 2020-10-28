@@ -11,6 +11,7 @@ import { StateService } from './services/StateService';
 import { LayoutService } from './services/LayoutService';
 import { FocusService } from './services/FocusService';
 import { KeyboardService } from './services/KeyboardService';
+import { ControllerService } from './services/ControllerService';
 
 export class ServiceManagerImpl implements ServiceManager {
 
@@ -26,6 +27,7 @@ export class ServiceManagerImpl implements ServiceManager {
         layoutHandler: LayoutService,
         focusManager: FocusService,
         keyboardService: KeyboardService,
+        controllerService: ControllerService,
     ) {
 
         this.beginLayer = this.beginLayer.bind(this);
@@ -41,6 +43,7 @@ export class ServiceManagerImpl implements ServiceManager {
         this.layout = layoutHandler;
         this.focus = focusManager;
         this.keyboard = keyboardService;
+        this.controller = controllerService;
 
         hookRunner.registerHookable(stateManager);
         hookRunner.registerHookable(drawHandler);
@@ -68,6 +71,7 @@ export class ServiceManagerImpl implements ServiceManager {
     readonly layout: LayoutService;
     readonly focus: FocusService;
     readonly keyboard: KeyboardService;
+    readonly controller: ControllerService;
 
     beginLayer(key: string): void {
         const { keyBuilder, layerBuilder, elementBuilder } = this;

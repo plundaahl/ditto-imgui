@@ -1,12 +1,10 @@
-import { ControllerManager, Controller } from './ControllerManager';
+import { Controller } from './Controller';
+import { ControllerService } from './ControllerService';
 
-export class ControllerManagerImpl implements ControllerManager {
-    private readonly controllers: Controller[];
+export class ControllerServiceImpl implements ControllerService {
+    private readonly controllers: Controller[] = [];
 
-    constructor(
-        ...controllers: Controller[]
-    ) {
-        this.controllers = controllers;
+    constructor() {
         this.isElementHighlighted = this.isElementHighlighted.bind(this);
         this.isElementReadied = this.isElementReadied.bind(this);
         this.isElementTriggered = this.isElementTriggered.bind(this);
@@ -17,6 +15,10 @@ export class ControllerManagerImpl implements ControllerManager {
         this.isChildInteracted = this.isChildInteracted.bind(this);
         this.getDragX = this.getDragX.bind(this);
         this.getDragY = this.getDragY.bind(this);
+    }
+
+    registerController(controller: Controller): void {
+        this.controllers.push(controller);
     }
 
     isElementHighlighted(): boolean {

@@ -1,10 +1,6 @@
 import { DittoContext } from './DittoContext';
 import { DittoContextImpl } from './DittoContextImpl';
 import { HookRunnerImpl } from './HookRunner';
-import {
-    ControllerManagerImpl,
-    MouseController,
-} from './ControllerManager';
 import { ServiceManagerImpl } from './ServiceManager/ServiceManagerImpl';
 import { KeyServiceImpl } from './ServiceManager/services/KeyService';
 import { ElementServiceImpl } from './ServiceManager/services/ElementService';
@@ -16,6 +12,8 @@ import { StateServiceImpl } from './ServiceManager/services/StateService';
 import { LayoutServiceImpl } from './ServiceManager/services/LayoutService';
 import { FocusServiceImpl } from './ServiceManager/services/FocusService';
 import { KeyboardServiceImpl, createKeyboardEntryObjectPool } from './ServiceManager/services/KeyboardService';
+import { ControllerServiceImpl } from './ServiceManager/services/ControllerService';
+import { MouseController } from './controllers/MouseController';
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
 import { basicVerticalLayoutFn } from './defaults/layout';
@@ -57,13 +55,13 @@ export function createContext(canvas: HTMLCanvasElement) {
             createKeyboardEntryObjectPool(),
             document,
         ),
+        new ControllerServiceImpl(),
     );
+
+    serviceManager.controller.registerController(new MouseController(serviceManager.mouse));
 
     dittoContextSingleton = new DittoContextImpl(
         serviceManager,
-        new ControllerManagerImpl(
-            new MouseController(serviceManager.mouse),
-        ),
     );
 }
 

@@ -1,4 +1,4 @@
-import { Controller } from '../ControllerManager';
+import { Controller } from '../../ServiceManager/services/ControllerService';
 
 export function createDummyController(): Controller {
     return {

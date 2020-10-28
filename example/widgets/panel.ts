@@ -25,14 +25,14 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
 
     const state = panelStateHandle.declareAndGetState({ x, y });
 
-    if (gui.action.isElementHighlighted()) {
-        if (gui.action.isElementDragged()) {
-            state.x += gui.action.getDragX();
-            state.y += gui.action.getDragY();
+    if (gui.controller.isElementHighlighted()) {
+        if (gui.controller.isElementDragged()) {
+            state.x += gui.controller.getDragX();
+            state.y += gui.controller.getDragY();
         }
     }
 
-    if (gui.action.isElementInteracted() || gui.action.isChildInteracted()) {
+    if (gui.controller.isElementInteracted() || gui.controller.isChildInteracted()) {
         gui.layer.bringToFront();
     }
 

@@ -1,6 +1,5 @@
 import { DittoContext } from './DittoContext';
 import { ServiceManager } from './ServiceManager';
-import { ControllerAPI, ControllerManager } from './ControllerManager';
 import { DrawAPI } from './ServiceManager/services/DrawService';
 import { FocusAPI } from './ServiceManager/services/FocusService';
 import { LayerAPI } from './ServiceManager/services/LayerService';
@@ -9,11 +8,11 @@ import { MouseAPI } from './ServiceManager/services/MouseService';
 import { StateAPI } from './ServiceManager/services/StateService';
 import { UiElement } from './types';
 import { KeyboardAPI } from './ServiceManager/services/KeyboardService';
+import { ControllerAPI } from './ServiceManager/services/ControllerService';
 
 export class DittoContextImpl implements DittoContext {
     constructor(
         private readonly serviceManager: ServiceManager,
-        controllerManager: ControllerManager,
     ) {
         this.beginLayer = this.beginLayer.bind(this);
         this.endLayer = this.endLayer.bind(this);
@@ -28,7 +27,7 @@ export class DittoContextImpl implements DittoContext {
         this.layout = serviceManager.layout;
         this.focus = serviceManager.focus;
         this.keyboard = serviceManager.keyboard;
-        this.action = controllerManager;
+        this.controller = serviceManager.controller;
     }
 
     beginLayer(key: string): void {
@@ -55,7 +54,7 @@ export class DittoContextImpl implements DittoContext {
         return this.serviceManager.element;
     }
 
-    action: ControllerAPI;
+    controller: ControllerAPI;
     layer: LayerAPI;
     draw: DrawAPI;
     mouse: MouseAPI;
