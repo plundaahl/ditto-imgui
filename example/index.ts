@@ -1,7 +1,7 @@
 import { run } from './runner';
 import { setupCanvas, resetCanvas } from './util';
 import * as DittoImGUI from '../src/core';
-import { button, panel, scrollRegion } from './widgets';
+import { button, panel, scrollRegion, editableText } from './widgets';
 
 const { canvas, context } = setupCanvas();
 DittoImGUI.createContext(canvas);
@@ -10,25 +10,22 @@ const gui = DittoImGUI.getContext();
 let nextId: number = 6;
 let dummyIds: number[] = [0, 1, 2, 3, 4, 5];
 
+(window as any).sampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+
+const textBinding = (t = (window as any).sampleText) => (window as any).sampleText = t;
+(window as any).panelWidth = 400;
+
 function main() {
     resetCanvas(context);
 
-    panel.begin('Control Panel', 50, 50, 500, 100);
+    panel.begin('Control Panel', 50, 50, (window as any).panelWidth, 400);
     if (button('add')) {
         dummyIds.push(nextId++);
     }
-    {
-        gui.beginElement('m1disp');
-        gui.element.bounds.h = 50;
-        const { x, y } = gui.element.bounds;
-        gui.draw.setFillStyle('#000000');
-        const item = (gui as any).focus.action;
-        gui.draw.drawText(`${item}`, x, y);
-        gui.endElement();
-    }
+    editableText('edit', textBinding, true, true);
     panel.end();
 
-    panel.begin('Display Panel', 250, 200, 100, 300);
+    panel.begin('Display Panel', 250, 600, 100, 300);
     scrollRegion.begin('somekey');
     for (let i = 0; i < dummyIds.length; i++) {
         const id = dummyIds[i];
