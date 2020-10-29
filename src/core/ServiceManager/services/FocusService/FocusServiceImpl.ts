@@ -1,6 +1,5 @@
 import { UiElement } from '../../../types';
 import { FocusService } from './FocusService';
-import { FocusAction } from './FocusAction';
 
 export class FocusServiceImpl implements FocusService {
 
@@ -15,7 +14,6 @@ export class FocusServiceImpl implements FocusService {
     private elementWasSeen: boolean = false;
     private focusChanged: boolean = false;
 
-    protected action: FocusAction | undefined;
     protected prevFocusableElement: UiElement | undefined;
     protected curFocusableElement: UiElement | undefined;
 
@@ -29,7 +27,6 @@ export class FocusServiceImpl implements FocusService {
         this.doFocusOnElement = this.doFocusOnElement.bind(this);
         this.unsetFocusedElementIfNotSeen = this.unsetFocusedElementIfNotSeen.bind(this);
         this.updateFocusedElement = this.updateFocusedElement.bind(this);
-        this.runActionOnPreRender = this.runActionOnPreRender.bind(this);
         this.resetFocusableElements = this.resetFocusableElements.bind(this);
     }
 
@@ -63,20 +60,11 @@ export class FocusServiceImpl implements FocusService {
             this.elementWasSeen = true;
             this.nextElementToFocus = this.nextElementToFocus || this.currentElement;
         }
-
-        if (this.action) {
-            this.action.onSetFocusable(
-                this.focusedElement,
-                this.prevFocusableElement,
-                this.curFocusableElement,
-            );
-        }
     }
 
     private doFocusOnElement(element: UiElement) {
         this.nextElementToFocus = element;
         this.elementWasSeen = true;
-        delete this.action;
     }
 
     isElementFocused(): boolean {
@@ -126,22 +114,10 @@ export class FocusServiceImpl implements FocusService {
             throw new Error('Do not call onPreRender while elements are on stack');
         }
 
-        this.runActionOnPreRender();
         this.calcDidFocusChange();
         this.unsetFocusedElementIfNotSeen();
         this.updateFocusedElement();
         this.resetFocusableElements();
-    }
-
-    private runActionOnPreRender() {
-        if (this.action) {
-            this.action.onPreRender(
-                this.focusedElement,
-                this.focusableElements[0],
-                this.focusableElements[this.focusableElements.length - 1],
-            );
-            delete this.action;
-        }
     }
 
     private unsetFocusedElementIfNotSeen() {

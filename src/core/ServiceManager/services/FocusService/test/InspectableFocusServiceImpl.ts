@@ -1,5 +1,4 @@
 import { UiElement } from '../../../../types';
-import { FocusAction } from '../FocusAction';
 import { FocusServiceImpl } from '../FocusServiceImpl';
 
 export class InspectableFocusServiceImpl extends FocusServiceImpl {
@@ -25,9 +24,5 @@ export class InspectableFocusServiceImpl extends FocusServiceImpl {
 
     getNextElementToFocusOn(): UiElement | undefined {
         return this.nextElementToFocus;
-    }
-
-    getAction(): FocusAction | undefined {
-        return this.action;
     }
 }
