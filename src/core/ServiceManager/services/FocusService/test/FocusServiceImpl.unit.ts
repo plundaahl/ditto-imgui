@@ -1,5 +1,4 @@
 import { Layer, UiElement } from '../../../../types';
-import { FocusAction, NextFocusAction, PrevFocusAction } from '../FocusAction';
 import { InspectableFocusServiceImpl } from './InspectableFocusServiceImpl';
 
 let instance: InspectableFocusServiceImpl;
@@ -91,22 +90,6 @@ describe('onPreRender', () => {
             test('should update currently-focused element', () => {
                 instance.onPreRender();
                 expect(instance.getCurrentlyFocusedElement()).toBe('bizzle');
-            });
-        });
-
-        describe('given a FocusAction was activated last frame', () => {
-            beforeEach(() => instance.incrementFocus());
-            
-            test('should unset action', () => {
-                instance.onPreRender();
-                expect(instance.getAction()).toBe(undefined);
-            });
-
-            test("should call the action's onPreRender() function", () => {
-                const action = instance.getAction() as FocusAction;
-                action.onPreRender = jest.fn(action.onPreRender);
-                instance.onPreRender();
-                expect(action.onPreRender).toHaveBeenCalled();
             });
         });
     });
@@ -201,30 +184,6 @@ describe('focusElement', () => {
     });
 });
 
-describe('incrementFocus', () => {
-    beforeEach(() => {
-        instance.onBeginElement(createElement());
-        instance.setFocusable();
-    });
-
-    test('should set action to NextFocusAction', () => {
-        instance.incrementFocus();
-        expect(instance.getAction()).toBeInstanceOf(NextFocusAction);
-    });
-});
-
-describe('decrementFocus', () => {
-    beforeEach(() => {
-        instance.onBeginElement(createElement());
-        instance.setFocusable();
-    });
-
-    test('should set action to NextFocusAction', () => {
-        instance.decrementFocus();
-        expect(instance.getAction()).toBeInstanceOf(PrevFocusAction);
-    });
-});
-
 describe('setFocusable', () => {
     describe('given there is no current element', () => {
         test('should error', () => {
@@ -243,18 +202,6 @@ describe('setFocusable', () => {
             instance.setFocusable();
             const focusableKeys = instance.getFocusableElements().map(e => e.key);
             expect(focusableKeys.includes(key)).toBe(true);
-        });
-
-        describe('given an action has been triggered', () => {
-            beforeEach(() => instance.incrementFocus());
-
-            test("should call that action's onSetFocus() function", () => {
-                const action = instance.getAction() as FocusAction;
-                action.onSetFocusable = jest.fn(action.onSetFocusable);
-                instance.setFocusable();
-
-                expect(action.onSetFocusable).toHaveBeenCalled();
-            });
         });
     });
 });

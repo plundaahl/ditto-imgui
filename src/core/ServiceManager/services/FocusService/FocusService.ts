@@ -13,14 +13,11 @@ export interface FocusAPI extends FocusShared {
 }
 
 export interface FocusCPI extends FocusShared {
-    incrementFocus(): void;
-    decrementFocus(): void;
 }
 
 export interface FocusService extends FocusAPI, FocusCPI {
     onBeginElement(element: UiElement): void;
     onEndElement(): void;
     onPreRender(): void;
-    onWillRenderElement(element: UiElement, context: CanvasRenderingContext2D): void;
 }
 

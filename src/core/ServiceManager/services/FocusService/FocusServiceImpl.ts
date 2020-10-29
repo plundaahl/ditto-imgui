@@ -1,11 +1,8 @@
 import { UiElement } from '../../../types';
 import { FocusService } from './FocusService';
-import { FocusAction, NextFocusAction, PrevFocusAction } from './FocusAction';
+import { FocusAction } from './FocusAction';
 
 export class FocusServiceImpl implements FocusService {
-
-    private readonly nextFocusAction: FocusAction;
-    private readonly prevFocusAction: FocusAction;
 
     protected readonly focusableElements: UiElement[] = [];
     protected readonly elementStack: UiElement[] = [];
@@ -24,33 +21,20 @@ export class FocusServiceImpl implements FocusService {
 
     constructor() {
         this.onPreRender = this.onPreRender.bind(this);
-        this.onWillRenderElement = this.onWillRenderElement.bind(this);
         this.onEndElement = this.onEndElement.bind(this);
         this.onBeginElement = this.onBeginElement.bind(this);
         this.isElementFocused = this.isElementFocused.bind(this);
         this.setFocusable = this.setFocusable.bind(this);
-        this.focusElement = this.focusElement.bind(this); this.incrementFocus = this.incrementFocus.bind(this);
-        this.decrementFocus = this.decrementFocus.bind(this);
+        this.focusElement = this.focusElement.bind(this);
         this.doFocusOnElement = this.doFocusOnElement.bind(this);
         this.unsetFocusedElementIfNotSeen = this.unsetFocusedElementIfNotSeen.bind(this);
         this.updateFocusedElement = this.updateFocusedElement.bind(this);
         this.runActionOnPreRender = this.runActionOnPreRender.bind(this);
         this.resetFocusableElements = this.resetFocusableElements.bind(this);
-
-        this.nextFocusAction = new NextFocusAction(this.doFocusOnElement);
-        this.prevFocusAction = new PrevFocusAction(this.doFocusOnElement);
     }
 
     protected get currentElement(): UiElement | undefined {
         return this.elementStack[this.elementStack.length - 1];
-    }
-
-    incrementFocus(): void {
-        this.action = this.nextFocusAction;
-    }
-
-    decrementFocus(): void {
-        this.action = this.prevFocusAction;
     }
 
     focusElement(): void {
@@ -135,10 +119,6 @@ export class FocusServiceImpl implements FocusService {
 
     onEndElement(): void {
         this.elementStack.pop();
-    }
-
-    onWillRenderElement(element: UiElement, context: CanvasRenderingContext2D): void {
-        throw new Error('Method not implemented.');
     }
 
     onPreRender(): void {
