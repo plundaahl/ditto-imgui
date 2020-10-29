@@ -8,6 +8,7 @@ export class KeyboardServiceImpl implements KeyboardService {
     private readonly keysDown: KeyEntry[] = [];
     private readonly keysUp: KeyEntry[] = [];
     private readonly keysPressed: KeyEntry[] = [];
+    private enteredText: string = '';
 
     constructor(
         private readonly keyEntryPool: ObjectPool<KeyEntry>,
@@ -19,6 +20,7 @@ export class KeyboardServiceImpl implements KeyboardService {
         this.isCodeDown = this.isCodeDown.bind(this);
         this.isCodeUp = this.isCodeUp.bind(this);
         this.isCodeEntered = this.isCodeEntered.bind(this);
+        this.getEnteredText = this.getEnteredText.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.onKeyUp = this.onKeyUp.bind(this);
         this.onKeyPressed = this.onKeyPressed.bind(this);
@@ -83,6 +85,10 @@ export class KeyboardServiceImpl implements KeyboardService {
         return false;
     }
 
+    getEnteredText(): string {
+        return this.enteredText;
+    }
+
     onPreRender(): void {
         const { keysUp, keysPressed, keyEntryPool } = this;
 
@@ -96,6 +102,7 @@ export class KeyboardServiceImpl implements KeyboardService {
 
         keysUp.length = 0;
         keysPressed.length = 0;
+        this.enteredText = '';
     }
 
     private onKeyDown(event: KeyboardEvent): void {
@@ -127,5 +134,6 @@ export class KeyboardServiceImpl implements KeyboardService {
         key.key = event.key;
         key.code = event.code;
         this.keysPressed.push(key);
+        this.enteredText += event.key;
     }
 }

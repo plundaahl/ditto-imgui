@@ -38,8 +38,7 @@ beforeEach(() => {
 });
 
 const key = 'f';
-const code = 'KeyF';
-
+const code = 'KeyF'; 
 describe('isKeyDown', () => {
     describe('Given key is not down', () => {
         test('Should return false', () => {
@@ -207,6 +206,28 @@ describe('isCodeEntered', () => {
 
             test('Should return false', () => {
                 expect(instance.isCodeEntered(code)).toBe(false);
+            });
+        });
+    });
+});
+
+describe('getEnteredText', () => {
+    describe('given several keypress events have been generated', () => {
+        beforeEach(() => {
+            setKeyPressed('F', 'KeyF');
+            setKeyPressed('o', 'KeyO');
+            setKeyPressed('o', 'KeyO');
+        });
+
+        test('should return keypress events entered', () => {
+            expect(instance.getEnteredText()).toBe('Foo');
+        });
+
+        describe('and onPreRender has been called', () => {
+            beforeEach(() => { instance.onPreRender(); });
+
+            test('should not return entered text', () => {
+                expect(instance.getEnteredText()).toBe('');
             });
         });
     });

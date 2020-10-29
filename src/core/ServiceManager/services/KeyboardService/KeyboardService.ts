@@ -10,6 +10,7 @@ interface KeyboardShared {
     isCodeDown(key: KeyboardCode): boolean;
     isCodeUp(key: KeyboardCode): boolean;
     isCodeEntered(key: KeyboardCode): boolean;
+    getEnteredText(): string;
 }
 
 export interface KeyboardAPI extends KeyboardShared {}
