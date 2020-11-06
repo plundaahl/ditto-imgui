@@ -80,7 +80,7 @@ export class DrawServiceImpl implements DrawService {
     }
 
     drawText(text: string, x: number, y: number) {
-        const { height } = this.measureText('fillText');
+        const { height } = this.measureText('My');
         this.pushDrawCommand({
             command: 'fillText',
             native: true,
@@ -94,11 +94,12 @@ export class DrawServiceImpl implements DrawService {
 
     measureText(text: string) {
         const actualTextMetrics = this.utilityContext.measureText(text);
-        const width = actualTextMetrics.actualBoundingBoxLeft + actualTextMetrics.actualBoundingBoxRight;
-        const approxHeight = this.utilityContext.measureText('M').width;
+        const width = actualTextMetrics.actualBoundingBoxRight + actualTextMetrics.actualBoundingBoxLeft;
+        const metrics = this.utilityContext.measureText('My');
+        const height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
         return {
             width,
-            height: approxHeight,
+            height,
         };
     }
 

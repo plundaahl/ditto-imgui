@@ -8,10 +8,14 @@ interface Setters {
 }
 
 function createMockMouseApi(): [MouseAPI, Setters] {
+    let mouseX = 0;
+    let mouseY = 0;
     let dragX = 0;
     let dragY = 0;
 
     return [{
+        get mouseX() { return mouseX },
+        get mouseY() { return mouseY },
         get dragX() { return dragX },
         get dragY() { return dragY },
         hoversElement: () => false,

@@ -23,6 +23,14 @@ export class MouseServiceImpl implements MouseService {
         this.markParentsAsInelligible = this.markParentsAsInelligible.bind(this);
     }
 
+    get mouseX(): number {
+        return this.mouseWatcher.posX;
+    }
+
+    get mouseY(): number {
+        return this.mouseWatcher.posY;
+    }
+
     get dragX(): number {
         return this.mouseWatcher.dragX;
     }

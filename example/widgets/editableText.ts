@@ -1,24 +1,29 @@
 import { getContext, DittoContext } from '../../src/core';
 import { StateHandle } from '../../src/core/ServiceManager/services/StateService';
+import { TextPainter } from './TextPainter';
 
-const FONT = '';
-const LINEHEIGHT_SCALE = 1.2;
+const FONT = '12px monospace';
 const PADDING = 2;
-const CURSOR_OFFSET = -0.3;
-const BLINK_TIME = 45; // Todo: this should not be frame-dependent
 
 interface EditTextState {
-    blinkTimer: number;
+    dragX: number;
+    dragY: number;
+    selPos: number;
     cursorPos: number;
+    arrowKeyTimer: number;
 }
 
 const defaultEditTextState: EditTextState = {
-    blinkTimer: 0,
-    cursorPos: 0,
+    dragX: -1,
+    dragY: -1,
+    selPos: -1,
+    cursorPos: -1,
+    arrowKeyTimer: 0,
 };
 
 let gui: DittoContext;
 let stateHandle: StateHandle<EditTextState>;
+let textPainter: TextPainter;
 
 function init() {
     if (gui || stateHandle) {
@@ -26,71 +31,58 @@ function init() {
     }
     gui = getContext();
     stateHandle = gui.state.createHandle<EditTextState>('editText');
+    textPainter = new TextPainter(gui);
 }
 
 export function editableText(
     key: string,
     valueBinding: (t?: string) => string,
+    multiline: boolean = false,
     wordWrap: boolean = false,
 ) {
     init();
-    let text = valueBinding();
-
     gui.beginElement(key);
+
     const state = stateHandle.declareAndGetState(defaultEditTextState);
 
-    state.blinkTimer += 1;
-    if (state.blinkTimer > BLINK_TIME) {
-        state.blinkTimer -= (BLINK_TIME + BLINK_TIME);
-    }
-    const shouldDrawCursor = state.blinkTimer >= 0;
+    const y = gui.element.bounds.y;
+    const x = gui.element.bounds.x + PADDING;
+    const w = gui.element.bounds.w - (PADDING + PADDING);
+    let text = valueBinding();
 
     gui.draw.setFont(FONT);
     gui.draw.setFillStyle('#000000');
 
-    const { x: boundsX, y, w: boundsW } = gui.element.bounds;
-    const {
-        width: charW,
-        height: charH,
-    } = gui.draw.measureText('M');
-    const x = boundsX + PADDING;
-    const w = boundsW - (PADDING + PADDING);
-    const lineHeight = charH * LINEHEIGHT_SCALE;
+    const builder = textPainter
+        .startBuilder(text, x, y, '#000000', FONT)
+        .withCursor(state.cursorPos, '#FFFFFF', '#000000');
 
-    if (!wordWrap) {
-        gui.element.bounds.h += charH;
-        gui.draw.drawText(text.replace('\n',' '), x, y);
+    wordWrap && builder.withWordWrap(w);
+    multiline && builder.withMultiline();
+    state.selPos >= 0 && builder.withSelection(state.selPos, '#FFFFFF', '#666666');
 
-        if (shouldDrawCursor) {
-            gui.draw.drawText('|', x + (state.cursorPos * charW), y);
-        }
-    } else {
-        const maxCharsPerLine = Math.floor(w / charW);
-        const textLen = text.length;
+    builder.build();
 
-        let from: number = 0;
-        let line: string;
-        let lineNo: number = 0;
-        let cursorW: number = state.cursorPos;
+    textPainter.paint();
 
-        while (from < textLen) {
-            line = text.substr(from, maxCharsPerLine);
+    gui.draw.setStrokeStyle('#000000');
+    gui.draw.strokeRect(x, y, w, textPainter.getHeight());
 
-            let newlinePos = line.indexOf('\n');
-            if (newlinePos >= 0) {
-                line = line.substr(0, newlinePos);
-            }
+    gui.element.bounds.h = textPainter.getHeight();
 
-            gui.element.bounds.h += charH;
-            gui.draw.drawText(line, x, y + (lineHeight * lineNo));
+    if (gui.mouse.hoversElement() && gui.mouse.isM1Down()) {
+        const { mouseX, mouseY } = gui.mouse;
+        state.cursorPos = textPainter.getCharIndexAtPoint(mouseX, mouseY);
 
-            if (shouldDrawCursor && 0 <= cursorW && cursorW < line.length) {
-                 gui.draw.drawText('|', x + ((cursorW + CURSOR_OFFSET) * charW), y + (lineHeight * lineNo));
-            }
-
-            cursorW -= line.length;
-            from += line.length;
-            lineNo++;
+        if (gui.mouse.isM1Dragged()) {
+            state.selPos = textPainter.getCharIndexAtPoint(
+                state.dragX,
+                state.dragY,
+            );
+        } else {
+            state.selPos = -1;
+            state.dragX = mouseX;
+            state.dragY = mouseY;
         }
     }
 
