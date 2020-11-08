@@ -42,6 +42,7 @@ export function editableText(
 ) {
     init();
     gui.beginElement(key);
+    gui.focus.setFocusable();
 
     const state = stateHandle.declareAndGetState(defaultEditTextState);
 
@@ -53,19 +54,25 @@ export function editableText(
     gui.draw.setFont(FONT);
     gui.draw.setFillStyle('#000000');
 
-    const builder = textPainter
-        .startBuilder(text, x, y, '#000000')
-        .withCursor(state.cursorPos, '#FFFFFF', '#000000');
+    {
+        const builder = textPainter
+            .startBuilder(text, x, y, '#000000')
+            .withCursor(state.cursorPos, '#FFFFFF', '#000000');
 
-    wordWrap && builder.withWordWrap(w);
-    multiline && builder.withMultiline();
-    state.selPos >= 0 && builder.withSelection(state.selPos, '#FFFFFF', '#666666');
+        wordWrap && builder.withWordWrap(w);
+        multiline && builder.withMultiline();
+        state.selPos >= 0 && builder.withSelection(state.selPos, '#FFFFFF', '#666666');
 
-    builder.build();
+        builder.build();
+    }
 
     textPainter.paint();
 
-    gui.draw.setStrokeStyle('#000000');
+    if (gui.focus.isElementFocused()) {
+        gui.draw.setStrokeStyle('#00FF00');
+    } else {
+        gui.draw.setStrokeStyle('#000000');
+    }
     gui.draw.strokeRect(x, y, w, textPainter.getHeight());
 
     gui.element.bounds.h = textPainter.getHeight();
@@ -73,6 +80,7 @@ export function editableText(
     if (gui.mouse.hoversElement() && gui.mouse.isM1Down()) {
         const { mouseX, mouseY } = gui.mouse;
         state.cursorPos = textPainter.getCharIndexAtPoint(mouseX, mouseY);
+        gui.focus.focusElement();
 
         if (gui.mouse.isM1Dragged()) {
             state.selPos = textPainter.getCharIndexAtPoint(
@@ -83,6 +91,39 @@ export function editableText(
             state.selPos = -1;
             state.dragX = mouseX;
             state.dragY = mouseY;
+        }
+    }
+
+    if (gui.focus.isElementFocused()) {
+        const insertedText = gui.keyboard.getEnteredText();
+        if (insertedText) {
+            const selectionStart = Math.min(state.cursorPos, state.selPos >= 0 ? state.selPos : state.cursorPos);
+            const selectionEnd = Math.max(state.cursorPos, state.selPos >= 0 ? state.selPos : state.cursorPos);
+
+            text = text.substring(0, selectionStart)
+                + insertedText
+                + text.substring(selectionEnd);
+
+            state.cursorPos = state.selPos = selectionStart + insertedText.length;
+            valueBinding(text);
+        }
+
+        if (gui.keyboard.isCodeDown('Backspace')) {
+            if (state.selPos < 0 || state.cursorPos === state.selPos) {
+                text = text.substring(0, state.cursorPos - 1) + text.substring(state.cursorPos);
+                valueBinding(text);
+                state.cursorPos--;
+                state.selPos--;
+            } else {
+                const selectionStart = Math.min(state.cursorPos, state.selPos >= 0 ? state.selPos : state.cursorPos);
+                const selectionEnd = Math.max(state.cursorPos, state.selPos >= 0 ? state.selPos : state.cursorPos);
+
+                text = text.substring(0, selectionStart)
+                    + text.substring(selectionEnd);
+
+                state.cursorPos = state.selPos = selectionStart;
+                valueBinding(text);
+            }
         }
     }
 
