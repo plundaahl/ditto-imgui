@@ -9,4 +9,5 @@ export interface HookRunner {
     runOnEndLayerHook(): void;
     runOnPreRenderHook(): void;
     runOnPostRenderHook(): void;
+    runOnUpdateDeltaTime(deltaTimeInMs: number): void;
 }

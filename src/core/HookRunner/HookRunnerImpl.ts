@@ -9,6 +9,7 @@ export class HookRunnerImpl implements HookRunner {
     private readonly onEndLayerListeners: Required<Pick<Hookable, 'onEndLayer'>>[] = [];
     private readonly onPreRenderListeners: Required<Pick<Hookable, 'onPreRender'>>[] = [];
     private readonly onPostRenderListeners: Required<Pick<Hookable, 'onPostRender'>>[] = [];
+    private readonly onUpdateDeltaTimeListeners: Required<Pick<Hookable, 'onUpdateDeltaTime'>>[] = [];
 
     constructor() {
         this.registerHookable = this.registerHookable.bind(this);
@@ -27,6 +28,7 @@ export class HookRunnerImpl implements HookRunner {
         hookable.onEndLayer && this.onEndLayerListeners.push(hookable as Required<Pick<Hookable, 'onEndLayer'>>);
         hookable.onPreRender && this.onPreRenderListeners.push(hookable as Required<Pick<Hookable, 'onPreRender'>>);
         hookable.onPostRender && this.onPostRenderListeners.push(hookable as Required<Pick<Hookable, 'onPostRender'>>);
+        hookable.onUpdateDeltaTime && this.onUpdateDeltaTimeListeners.push(hookable as Required<Pick<Hookable, 'onUpdateDeltaTime'>>);
     }
 
     runOnBeginElementHook(element: UiElement): void {
@@ -62,6 +64,12 @@ export class HookRunnerImpl implements HookRunner {
     runOnPostRenderHook(): void {
         for (const listener of this.onPostRenderListeners) {
             listener.onPostRender();
+        }
+    }
+
+    runOnUpdateDeltaTime(deltaTimeInMs: number): void {
+        for (const listener of this.onUpdateDeltaTimeListeners) {
+            listener.onUpdateDeltaTime(deltaTimeInMs);
         }
     }
 }

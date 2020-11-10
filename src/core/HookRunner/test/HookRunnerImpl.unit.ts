@@ -26,6 +26,7 @@ describe.each([
     ['runOnEndLayerHook', 'onEndLayer', undefined],
     ['runOnPreRenderHook', 'onPreRender', undefined],
     ['runOnPostRenderHook', 'onPostRender', undefined],
+    ['runOnUpdateDeltaTime', 'onUpdateDeltaTime', [ 1234 ]],
 ])('%s', (
     runMethod: keyof HookRunner,
     hook: keyof Hookable,

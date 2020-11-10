@@ -7,4 +7,5 @@ export interface Hookable {
     onEndLayer?(): void;
     onPreRender?(): void;
     onPostRender?(): void;
+    onUpdateDeltaTime?(deltaTimeInMs: number): void;
 }
