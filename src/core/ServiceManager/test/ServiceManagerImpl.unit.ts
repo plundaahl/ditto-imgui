@@ -2,6 +2,7 @@ import { notUndefined } from './notUndefined';
 import { ServiceManager } from '../ServiceManager';
 import { ServiceManagerImpl } from '../ServiceManagerImpl';
 import { HookRunner, HookRunnerImpl } from '../../HookRunner';
+import { FrameTimeTracker, FrameTimeTrackerImpl } from '../../FrameTimeTracker';
 import { KeyService, KeyServiceImpl } from '../services/KeyService';
 import { RenderService, RenderServiceImpl } from '../services/RenderService';
 import { DrawService, DrawServiceImpl } from '../services/DrawService';
@@ -19,6 +20,7 @@ import { createKeyboardEntryObjectPool, KeyboardService, KeyboardServiceImpl } f
 import {ControllerService, ControllerServiceImpl} from '../services/ControllerService';
 
 let hookRunner: HookRunner;
+let frameTimeTracker: FrameTimeTracker;
 let keyBuilder: KeyService;
 let renderer: RenderService;
 let drawService: DrawService;
@@ -34,6 +36,7 @@ let controllerService: ControllerService;
 
 beforeEach(() => {
     hookRunner = spy(new HookRunnerImpl());
+    frameTimeTracker = spy(new FrameTimeTrackerImpl(Date.now));
     keyBuilder = spy(new KeyServiceImpl());
     renderer = spy(new RenderServiceImpl(createFakeCanvasContext()));
     drawService = spy(new DrawServiceImpl());
@@ -67,6 +70,7 @@ beforeEach(() => {
 
     serviceManager = new ServiceManagerImpl(
         hookRunner,
+        frameTimeTracker,
         keyBuilder,
         elementService,
         layerBuilder,
@@ -452,6 +456,15 @@ describe('render', () => {
 
         test('should call hookRunner.runOnPostRenderHook', () => {
             expect(hookRunner.runOnPostRenderHook).toHaveBeenCalled();
+        });
+
+        test('should call frameTimeTracker.advanceFrame', () => {
+            expect(frameTimeTracker.advanceFrame).toHaveBeenCalled();
+        });
+
+        test('should pass output of frameTimeTracker.getFrameDeltaTime into hookRunner.runOnUpdateFrameTimeHook', () => {
+            const deltaT = frameTimeTracker.getFrameDeltaTime();
+            expect(hookRunner.runOnUpdateDeltaTime).toHaveBeenCalledWith(deltaT);
         });
     });
 

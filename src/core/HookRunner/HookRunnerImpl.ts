@@ -19,6 +19,7 @@ export class HookRunnerImpl implements HookRunner {
         this.runOnEndLayerHook = this.runOnEndLayerHook.bind(this);
         this.runOnPreRenderHook = this.runOnPreRenderHook.bind(this);
         this.runOnPostRenderHook = this.runOnPostRenderHook.bind(this);
+        this.runOnUpdateDeltaTime = this.runOnUpdateDeltaTime.bind(this);
     }
 
     registerHookable(hookable: Partial<Hookable>): void {

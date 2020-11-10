@@ -1,6 +1,7 @@
 import { DittoContext } from './DittoContext';
 import { DittoContextImpl } from './DittoContextImpl';
 import { HookRunnerImpl } from './HookRunner';
+import { FrameTimeTrackerImpl } from './FrameTimeTracker';
 import { ServiceManagerImpl } from './ServiceManager/ServiceManagerImpl';
 import { KeyServiceImpl } from './ServiceManager/services/KeyService';
 import { ElementServiceImpl } from './ServiceManager/services/ElementService';
@@ -42,6 +43,7 @@ export function createContext(canvas: HTMLCanvasElement) {
     
     const serviceManager = new ServiceManagerImpl(
         new HookRunnerImpl(),
+        new FrameTimeTrackerImpl(Date.now),
         new KeyServiceImpl(),
         new ElementServiceImpl(elementPool),
         new LayerServiceImpl(),

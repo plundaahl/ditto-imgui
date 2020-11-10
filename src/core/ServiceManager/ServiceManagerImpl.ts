@@ -1,6 +1,7 @@
 import { UiElement, Layer } from '../types';
 import { HookRunner } from '../HookRunner';
 import { ServiceManager } from './ServiceManager';
+import { FrameTimeTracker } from '../FrameTimeTracker';
 import { KeyService } from './services/KeyService';
 import { RenderService } from './services/RenderService';
 import { DrawService } from './services/DrawService';
@@ -17,6 +18,7 @@ export class ServiceManagerImpl implements ServiceManager {
 
     constructor(
         private readonly hookRunner: HookRunner,
+        private readonly frameTimeTracker: FrameTimeTracker,
         private readonly keyBuilder: KeyService,
         private readonly elementBuilder: ElementService,
         private readonly layerBuilder: LayerService,
@@ -138,6 +140,11 @@ export class ServiceManagerImpl implements ServiceManager {
         this.layerBuilder.onPostRender();
         this.elementBuilder.onPostRender();
         this.hookRunner.runOnPostRenderHook();
+
+        this.frameTimeTracker.advanceFrame();
+        this.hookRunner.runOnUpdateDeltaTime(
+            this.frameTimeTracker.getFrameDeltaTime(),
+        );
     }
 }
 

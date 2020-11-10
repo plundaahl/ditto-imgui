@@ -8,6 +8,9 @@ export class FrameTimeTrackerImpl implements FrameTimeTracker {
     constructor(
         private readonly getCurrentTimeInMs: () => number,
     ) {
+        this.advanceFrame = this.advanceFrame.bind(this);
+        this.getCurrentTimeInMs = this.getCurrentTimeInMs.bind(this);
+
         this.lastTime = getCurrentTimeInMs();
         this.frameLen = 0;
     }
