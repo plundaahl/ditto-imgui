@@ -16,7 +16,7 @@ import { MouseService, MouseServiceImpl, MouseAction } from '../services/MouseSe
 import { StateService, StateServiceImpl } from '../services/StateService';
 import { LayoutService, LayoutServiceImpl } from '../services/LayoutService';
 import { FocusService, FocusServiceImpl } from '../services/FocusService';
-import { createKeyboardEntryObjectPool, KeyboardService, KeyboardServiceImpl } from '../services/KeyboardService';
+import { KeyboardService, KeyboardServiceImpl } from '../services/KeyboardService';
 import {ControllerService, ControllerServiceImpl} from '../services/ControllerService';
 
 let hookRunner: HookRunner;
@@ -55,7 +55,6 @@ beforeEach(() => {
         action: MouseAction.NONE,
     }));
     keyboardService = spy(new KeyboardServiceImpl(
-        createKeyboardEntryObjectPool(),
         { addEventListener: jest.fn() },
     ));
     controllerService = spy(new ControllerServiceImpl());
@@ -460,11 +459,6 @@ describe('render', () => {
 
         test('should call frameTimeTracker.advanceFrame', () => {
             expect(frameTimeTracker.advanceFrame).toHaveBeenCalled();
-        });
-
-        test('should pass output of frameTimeTracker.getFrameDeltaTime into hookRunner.runOnUpdateFrameTimeHook', () => {
-            const deltaT = frameTimeTracker.getFrameDeltaTime();
-            expect(hookRunner.runOnUpdateDeltaTime).toHaveBeenCalledWith(deltaT);
         });
     });
 

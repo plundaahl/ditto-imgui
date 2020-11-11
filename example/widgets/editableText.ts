@@ -95,7 +95,7 @@ export function editableText(
     }
 
     if (gui.focus.isElementFocused()) {
-        const insertedText = gui.keyboard.getEnteredText();
+        const insertedText = gui.keyboard.getBufferedText();
         if (insertedText) {
             const selectionStart = Math.min(state.cursorPos, state.selPos >= 0 ? state.selPos : state.cursorPos);
             const selectionEnd = Math.max(state.cursorPos, state.selPos >= 0 ? state.selPos : state.cursorPos);
@@ -108,7 +108,7 @@ export function editableText(
             valueBinding(text);
         }
 
-        if (gui.keyboard.isCodeDown('Backspace')) {
+        if (gui.keyboard.isKeyPressed('Backspace')) {
             if (state.selPos < 0 || state.cursorPos === state.selPos) {
                 text = text.substring(0, state.cursorPos - 1) + text.substring(state.cursorPos);
                 valueBinding(text);
@@ -124,6 +124,16 @@ export function editableText(
                 state.cursorPos = state.selPos = selectionStart;
                 valueBinding(text);
             }
+        }
+
+        if (gui.keyboard.isKeyPressed('ArrowLeft')) {
+            state.cursorPos = Math.max(0, state.cursorPos - 1);
+            state.selPos = state.cursorPos;
+        }
+
+        if (gui.keyboard.isKeyPressed('ArrowRight')) {
+            state.cursorPos = Math.min(text.length, state.cursorPos + 1);
+            state.selPos = state.cursorPos;
         }
     }
 

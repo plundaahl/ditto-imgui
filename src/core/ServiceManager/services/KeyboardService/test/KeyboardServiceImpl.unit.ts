@@ -1,16 +1,11 @@
 import { KeyboardService } from '../KeyboardService';
 import { KeyboardServiceImpl } from '../KeyboardServiceImpl';
-import { KeyEntry } from '../KeyEntry';
-import { ObjectPool } from '../../../../lib/ObjectPool';
 import { KeyboardEventSource } from '../KeyboardEventSource';
-import { createKeyboardEntryObjectPool } from '../createKeyboardEntryObjectPool';
 
-let keyEntryPool: ObjectPool<KeyEntry>;
 let eventSource: KeyboardEventSource;
 let instance: KeyboardService;
 let setKeyDown: (key: string, code: string) => void;
 let setKeyUp: (key: string, code: string) => void;
-let setKeyPressed: (key: string, code: string) => void;
 
 function addEventListener(
     eventType: string,
@@ -24,21 +19,82 @@ function addEventListener(
         setKeyUp = (key, code) => {
             callback(new KeyboardEvent('keyup', { key, code }));
         }
-    } else if (eventType === 'keypress') {
-        setKeyPressed = (key, code) => {
-            callback(new KeyboardEvent('keypress', { key, code }));
-        }
-    }
-}
+    }}
 
 beforeEach(() => {
-    keyEntryPool = createKeyboardEntryObjectPool();
     eventSource = { addEventListener };
-    instance = new KeyboardServiceImpl(keyEntryPool, eventSource);
+    instance = new KeyboardServiceImpl(eventSource, {
+        holdDelayInit: 250,
+        holdDelayRepeat: 30,
+    });
 });
 
-const key = 'f';
-const code = 'KeyF'; 
+const char = 'f';
+const key = 'KeyF'; 
+const frameTimeInMs = 35;
+
+describe('isCharDown', () => {
+    describe('Given char is not down', () => {
+        test('Should return false', () => {
+            expect(instance.isCharDown(char)).toBe(false);
+        });
+    });
+
+    describe('Given char is down', () => {
+        beforeEach(() => setKeyDown(char, key));
+
+        test('Should return true', () => {
+            expect(instance.isCharDown(char)).toBe(true);
+        });
+
+        describe('And several frames have passed', () => {
+            beforeEach(() => {
+                instance.onPreRender(frameTimeInMs);
+                instance.onPreRender(frameTimeInMs);
+                instance.onPreRender(frameTimeInMs);
+            });
+
+            describe('And key has not been set to up', () => {
+                test('Should return true', () => {
+                    expect(instance.isCharDown(char)).toBe(true);
+                });
+            });
+
+            describe('And key has been set to up', () => {
+                beforeEach(() => setKeyUp(char, key));
+
+                test('Should return false', () => {
+                    expect(instance.isCharDown(char)).toBe(false);
+                });
+            });
+        });
+    });
+});
+
+describe('isCharUp', () => {
+    describe('Given key was down', () => {
+        beforeEach(() => setKeyDown(char, key));
+
+        test('Should return false', () => {
+            expect(instance.isCharUp(char)).toBe(false);
+        });
+
+        describe('And key is set to up', () => {
+            beforeEach(() => setKeyUp(char, key));
+
+            test('Should return true', () => {
+                expect(instance.isCharUp(char)).toBe(true);
+            });
+        });
+    });
+
+    describe('Given key is up', () => {
+        test('Should return true', () => {
+            expect(instance.isCharUp(char)).toBe(true);
+        });
+    });
+});
+
 describe('isKeyDown', () => {
     describe('Given key is not down', () => {
         test('Should return false', () => {
@@ -47,7 +103,7 @@ describe('isKeyDown', () => {
     });
 
     describe('Given key is down', () => {
-        beforeEach(() => setKeyDown(key, code));
+        beforeEach(() => setKeyDown(char, key));
 
         test('Should return true', () => {
             expect(instance.isKeyDown(key)).toBe(true);
@@ -55,9 +111,9 @@ describe('isKeyDown', () => {
 
         describe('And several frames have passed', () => {
             beforeEach(() => {
-                instance.onPreRender();
-                instance.onPreRender();
-                instance.onPreRender();
+                instance.onPreRender(frameTimeInMs );
+                instance.onPreRender(frameTimeInMs );
+                instance.onPreRender(frameTimeInMs );
             });
 
             describe('And key has not been set to up', () => {
@@ -67,7 +123,7 @@ describe('isKeyDown', () => {
             });
 
             describe('And key has been set to up', () => {
-                beforeEach(() => setKeyUp(key, code));
+                beforeEach(() => setKeyUp(char, key));
 
                 test('Should return false', () => {
                     expect(instance.isKeyDown(key)).toBe(false);
@@ -78,15 +134,15 @@ describe('isKeyDown', () => {
 });
 
 describe('isKeyUp', () => {
-    describe('Given key was down', () => {
-        beforeEach(() => setKeyDown(key, code));
+    describe('Given code was down', () => {
+        beforeEach(() => setKeyDown(char, key));
 
         test('Should return false', () => {
             expect(instance.isKeyUp(key)).toBe(false);
         });
 
-        describe('And key is set to up', () => {
-            beforeEach(() => setKeyUp(key, code));
+        describe('And code is set to up', () => {
+            beforeEach(() => setKeyUp(char, key));
 
             test('Should return true', () => {
                 expect(instance.isKeyUp(key)).toBe(true);
@@ -94,140 +150,79 @@ describe('isKeyUp', () => {
         });
     });
 
-    describe('Given key is up', () => {
+    describe('Given code is up', () => {
         test('Should return true', () => {
             expect(instance.isKeyUp(key)).toBe(true);
         });
     });
 });
 
-describe('isCodeDown', () => {
-    describe('Given key is not down', () => {
+describe('isCharPressed', () => {
+    describe('Given key was not entered', () => {
         test('Should return false', () => {
-            expect(instance.isCodeDown(code)).toBe(false);
+            expect(instance.isCharPressed(char)).toBe(false);
         });
     });
 
-    describe('Given key is down', () => {
-        beforeEach(() => setKeyDown(key, code));
+    describe('Given key was entered', () => {
+        beforeEach(() => setKeyDown(char, key));
 
         test('Should return true', () => {
-            expect(instance.isCodeDown(code)).toBe(true);
+            expect(instance.isCharPressed(char)).toBe(true);
         });
 
-        describe('And several frames have passed', () => {
-            beforeEach(() => {
-                instance.onPreRender();
-                instance.onPreRender();
-                instance.onPreRender();
-            });
+        describe('Given onPreRender was run', () => {
+            beforeEach(() => instance.onPreRender(frameTimeInMs ));
 
-            describe('And key has not been set to up', () => {
-                test('Should return true', () => {
-                    expect(instance.isCodeDown(code)).toBe(true);
-                });
-            });
-
-            describe('And key has been set to up', () => {
-                beforeEach(() => setKeyUp(key, code));
-
-                test('Should return false', () => {
-                    expect(instance.isCodeDown(code)).toBe(false);
-                });
+            test('Should return false', () => {
+                expect(instance.isCharPressed(char)).toBe(false);
             });
         });
     });
 });
 
-describe('isCodeUp', () => {
-    describe('Given code was down', () => {
-        beforeEach(() => setKeyDown(key, code));
-
-        test('Should return false', () => {
-            expect(instance.isCodeUp(code)).toBe(false);
-        });
-
-        describe('And code is set to up', () => {
-            beforeEach(() => setKeyUp(key, code));
-
-            test('Should return true', () => {
-                expect(instance.isCodeUp(code)).toBe(true);
-            });
-        });
-    });
-
-    describe('Given code is up', () => {
-        test('Should return true', () => {
-            expect(instance.isCodeUp(code)).toBe(true);
-        });
-    });
-});
-
-describe('isKeyEntered', () => {
+describe('isKeyPressed', () => {
     describe('Given code was not entered', () => {
         test('Should return false', () => {
-            expect(instance.isKeyEntered(key)).toBe(false);
+            expect(instance.isKeyPressed(key)).toBe(false);
         });
     });
 
     describe('Given code was entered', () => {
-        beforeEach(() => setKeyPressed(key, code));
+        beforeEach(() => setKeyDown(char, key));
 
         test('Should return true', () => {
-            expect(instance.isKeyEntered(key)).toBe(true);
+            expect(instance.isKeyPressed(key)).toBe(true);
         });
 
         describe('Given onPreRender was run', () => {
-            beforeEach(() => instance.onPreRender());
+            beforeEach(() => instance.onPreRender(frameTimeInMs));
 
             test('Should return false', () => {
-                expect(instance.isKeyEntered(key)).toBe(false);
+                expect(instance.isKeyPressed(key)).toBe(false);
             });
         });
     });
 });
 
-describe('isCodeEntered', () => {
-    describe('Given code was not entered', () => {
-        test('Should return false', () => {
-            expect(instance.isCodeEntered(code)).toBe(false);
-        });
-    });
-
-    describe('Given code was entered', () => {
-        beforeEach(() => setKeyPressed(key, code));
-
-        test('Should return true', () => {
-            expect(instance.isCodeEntered(code)).toBe(true);
-        });
-
-        describe('Given onPreRender was run', () => {
-            beforeEach(() => instance.onPreRender());
-
-            test('Should return false', () => {
-                expect(instance.isCodeEntered(code)).toBe(false);
-            });
-        });
-    });
-});
-
-describe('getEnteredText', () => {
+describe('getBufferedText', () => {
     describe('given several keypress events have been generated', () => {
         beforeEach(() => {
-            setKeyPressed('F', 'KeyF');
-            setKeyPressed('o', 'KeyO');
-            setKeyPressed('o', 'KeyO');
+            setKeyDown('F', 'KeyF');
+            setKeyDown('o', 'KeyO');
+            setKeyDown('o', 'KeyO');
         });
 
-        test('should return keypress events entered', () => {
-            expect(instance.getEnteredText()).toBe('Foo');
+        describe('and onPreRender has not been called', () => {
+            test('should return keypress events entered', () => {
+                expect(instance.getBufferedText()).toBe('');
+            });
         });
 
         describe('and onPreRender has been called', () => {
-            beforeEach(() => { instance.onPreRender(); });
-
+            beforeEach(() => { instance.onPreRender(frameTimeInMs); });
             test('should not return entered text', () => {
-                expect(instance.getEnteredText()).toBe('');
+                expect(instance.getBufferedText()).toBe('Foo');
             });
         });
     });
@@ -236,16 +231,16 @@ describe('getEnteredText', () => {
 describe('onPreRender', () => {
     describe('key up handling', () => {
         describe('given keyUp was set', () => {
-            beforeEach(() => setKeyUp(key, code));
+            beforeEach(() => setKeyUp(char, key));
 
             test('should unset that key', () => {
-                instance.onPreRender();
-                expect(instance.isKeyUp(key)).toBe(true);
+                instance.onPreRender(frameTimeInMs);
+                expect(instance.isCharUp(char)).toBe(true);
             });
 
             test('should unset that code', () => {
-                instance.onPreRender();
-                expect(instance.isCodeUp(code)).toBe(true);
+                instance.onPreRender(frameTimeInMs);
+                expect(instance.isKeyUp(key)).toBe(true);
             });
         });
     });

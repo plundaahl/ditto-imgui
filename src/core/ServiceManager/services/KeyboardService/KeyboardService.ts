@@ -1,22 +1,22 @@
-import {
-    KeyboardKey,
-    KeyboardCode,
-} from './KeyEntry';
+import { Hookable } from '../../../HookRunner';
+
+export type KeyboardChar = string;
+export type KeyboardKey = string;
 
 interface KeyboardShared {
+    isCharDown(char: KeyboardChar): boolean;
+    isCharUp(char: KeyboardChar): boolean;
+    isCharPressed(char: KeyboardChar): boolean;
     isKeyDown(key: KeyboardKey): boolean;
     isKeyUp(key: KeyboardKey): boolean;
-    isKeyEntered(key: KeyboardKey): boolean;
-    isCodeDown(key: KeyboardCode): boolean;
-    isCodeUp(key: KeyboardCode): boolean;
-    isCodeEntered(key: KeyboardCode): boolean;
-    getEnteredText(): string;
+    isKeyPressed(key: KeyboardKey): boolean;
+    getBufferedText(): string;
 }
 
 export interface KeyboardAPI extends KeyboardShared {}
 
 export interface KeyboardCPI extends KeyboardShared {}
 
-export interface KeyboardService extends KeyboardAPI, KeyboardCPI {
-    onPreRender(): void;
+export interface KeyboardService extends KeyboardAPI, KeyboardCPI, Hookable {
+    onPreRender(frameTimeInMs: number): void;
 }

@@ -9,7 +9,6 @@ export class HookRunnerImpl implements HookRunner {
     private readonly onEndLayerListeners: Required<Pick<Hookable, 'onEndLayer'>>[] = [];
     private readonly onPreRenderListeners: Required<Pick<Hookable, 'onPreRender'>>[] = [];
     private readonly onPostRenderListeners: Required<Pick<Hookable, 'onPostRender'>>[] = [];
-    private readonly onUpdateDeltaTimeListeners: Required<Pick<Hookable, 'onUpdateDeltaTime'>>[] = [];
 
     constructor() {
         this.registerHookable = this.registerHookable.bind(this);
@@ -19,7 +18,6 @@ export class HookRunnerImpl implements HookRunner {
         this.runOnEndLayerHook = this.runOnEndLayerHook.bind(this);
         this.runOnPreRenderHook = this.runOnPreRenderHook.bind(this);
         this.runOnPostRenderHook = this.runOnPostRenderHook.bind(this);
-        this.runOnUpdateDeltaTime = this.runOnUpdateDeltaTime.bind(this);
     }
 
     registerHookable(hookable: Partial<Hookable>): void {
@@ -29,7 +27,6 @@ export class HookRunnerImpl implements HookRunner {
         hookable.onEndLayer && this.onEndLayerListeners.push(hookable as Required<Pick<Hookable, 'onEndLayer'>>);
         hookable.onPreRender && this.onPreRenderListeners.push(hookable as Required<Pick<Hookable, 'onPreRender'>>);
         hookable.onPostRender && this.onPostRenderListeners.push(hookable as Required<Pick<Hookable, 'onPostRender'>>);
-        hookable.onUpdateDeltaTime && this.onUpdateDeltaTimeListeners.push(hookable as Required<Pick<Hookable, 'onUpdateDeltaTime'>>);
     }
 
     runOnBeginElementHook(element: UiElement): void {
@@ -56,21 +53,15 @@ export class HookRunnerImpl implements HookRunner {
         }
     }
 
-    runOnPreRenderHook(): void {
+    runOnPreRenderHook(frameTimeInMs: number): void {
         for (const listener of this.onPreRenderListeners) {
-            listener.onPreRender();
+            listener.onPreRender(frameTimeInMs);
         }
     }
 
-    runOnPostRenderHook(): void {
+    runOnPostRenderHook(frameTimeInMs: number): void {
         for (const listener of this.onPostRenderListeners) {
-            listener.onPostRender();
-        }
-    }
-
-    runOnUpdateDeltaTime(deltaTimeInMs: number): void {
-        for (const listener of this.onUpdateDeltaTimeListeners) {
-            listener.onUpdateDeltaTime(deltaTimeInMs);
+            listener.onPostRender(frameTimeInMs);
         }
     }
 }

@@ -5,7 +5,6 @@ export interface Hookable {
     onEndElement?(): void;
     onBeginLayer?(layer: Layer): void;
     onEndLayer?(): void;
-    onPreRender?(): void;
-    onPostRender?(): void;
-    onUpdateDeltaTime?(deltaTimeInMs: number): void;
+    onPreRender?(frameTimeInMs: number): void;
+    onPostRender?(frameTimeInMs: number): void;
 }

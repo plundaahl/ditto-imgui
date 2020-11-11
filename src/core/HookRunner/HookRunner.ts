@@ -7,7 +7,6 @@ export interface HookRunner {
     runOnEndElementHook(): void;
     runOnBeginLayerHook(layer: Layer): void;
     runOnEndLayerHook(): void;
-    runOnPreRenderHook(): void;
-    runOnPostRenderHook(): void;
-    runOnUpdateDeltaTime(deltaTimeInMs: number): void;
+    runOnPreRenderHook(frameTimeInMs: number): void;
+    runOnPostRenderHook(frameTimeInMs: number): void;
 }

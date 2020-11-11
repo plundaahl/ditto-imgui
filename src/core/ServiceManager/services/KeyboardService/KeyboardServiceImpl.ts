@@ -1,139 +1,178 @@
-import { ObjectPool } from '../../../lib/ObjectPool';
-import { KeyEntry, KeyboardKey, KeyboardCode } from './KeyEntry';
 import { KeyboardEventSource } from './KeyboardEventSource';
-import { KeyboardService } from './KeyboardService';
+import { KeyboardService, KeyboardKey, KeyboardChar } from './KeyboardService';
+
+interface KeyData {
+    lastChar?: string;
+    isDown: boolean;
+    isPressed: boolean;
+    holdTimer: number;
+}
+
+interface Config {
+    holdDelayInit: number;
+    holdDelayRepeat: number;
+}
 
 export class KeyboardServiceImpl implements KeyboardService {
-
-    private readonly keysDown: KeyEntry[] = [];
-    private readonly keysUp: KeyEntry[] = [];
-    private readonly keysPressed: KeyEntry[] = [];
+    private readonly charTable: { [char: string]: string } = {};
+    private readonly keyTable: { [code: string]: KeyData } = {};
+    private readonly keyPressBuffer: string[] = [];
     private enteredText: string = '';
 
     constructor(
-        private readonly keyEntryPool: ObjectPool<KeyEntry>,
         keyboardEventSource: KeyboardEventSource,
+        private readonly config: Config = {
+            holdDelayInit: 500,
+            holdDelayRepeat: 30,
+        },
     ) {
+        this.isCharDown = this.isCharDown.bind(this);
+        this.isCharUp = this.isCharUp.bind(this);
+        this.isCharPressed = this.isCharPressed.bind(this);
         this.isKeyDown = this.isKeyDown.bind(this);
         this.isKeyUp = this.isKeyUp.bind(this);
-        this.isKeyEntered = this.isKeyEntered.bind(this);
-        this.isCodeDown = this.isCodeDown.bind(this);
-        this.isCodeUp = this.isCodeUp.bind(this);
-        this.isCodeEntered = this.isCodeEntered.bind(this);
-        this.getEnteredText = this.getEnteredText.bind(this);
+        this.isKeyPressed = this.isKeyPressed.bind(this);
+        this.getBufferedText = this.getBufferedText.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.onKeyUp = this.onKeyUp.bind(this);
-        this.onKeyPressed = this.onKeyPressed.bind(this);
         this.onPreRender = this.onPreRender.bind(this);
+        this.setAllKeysUp = this.setAllKeysUp.bind(this);
 
         keyboardEventSource.addEventListener('keydown', this.onKeyDown);
         keyboardEventSource.addEventListener('keyup', this.onKeyUp);
-        keyboardEventSource.addEventListener('keypress', this.onKeyPressed);
-    }
 
-    isKeyDown(key: KeyboardKey): boolean {
-        for (const entry of this.keysDown) {
-            if (entry.key === key) {
-                return true;
-            }
+        if (window) {
+            window.addEventListener('blur', this.setAllKeysUp);
         }
-        return false;
     }
 
-    isKeyUp(key: KeyboardKey): boolean {
-        for (const entry of this.keysDown) {
-            if (entry.key === key) {
-                return false;
-            }
-        }
-        return true;
+    isCharDown(char: KeyboardChar): boolean {
+        const keyEntry = this.keyTable[this.charTable[char]];
+        return Boolean(
+            keyEntry
+            && keyEntry.lastChar === char
+            && keyEntry.isDown
+        );
     }
 
-    isKeyEntered(key: KeyboardKey): boolean {
-        for (const entry of this.keysPressed) {
-            if (entry.key === key) {
-                return true;
-            }
-        }
-        return false;
+    isCharUp(char: KeyboardChar): boolean {
+        return !this.isCharDown(char);
     }
 
-    isCodeDown(code: KeyboardCode): boolean {
-        for (const entry of this.keysDown) {
-            if (entry.code === code) {
-                return true;
-            }
-        }
-        return false;
+    isCharPressed(char: KeyboardChar): boolean {
+        const keyEntry = this.keyTable[this.charTable[char]];
+        return Boolean(
+            keyEntry
+            && keyEntry.lastChar === char
+            && keyEntry.isPressed
+        );
     }
 
-    isCodeUp(code: KeyboardCode): boolean {
-        for (const entry of this.keysDown) {
-            if (entry.code === code) {
-                return false;
-            }
-        }
-        return true;
+    isKeyDown(code: KeyboardKey): boolean {
+        return Boolean(
+            this.keyTable[code]?.isDown
+        );
     }
 
-    isCodeEntered(code: KeyboardCode): boolean {
-        for (const entry of this.keysPressed) {
-            if (entry.code === code) {
-                return true;
-            }
-        }
-        return false;
+    isKeyUp(code: KeyboardKey): boolean {
+        return !this.isKeyDown(code);
     }
 
-    getEnteredText(): string {
+    isKeyPressed(code: KeyboardKey): boolean {
+        return Boolean(
+            this.keyTable[code]?.isPressed
+        );
+    }
+
+    getBufferedText(): string {
         return this.enteredText;
     }
 
-    onPreRender(): void {
-        const { keysUp, keysPressed, keyEntryPool } = this;
+    onPreRender(frameTimeInMs: number): void {
+        const {
+            keyTable,
+            keyPressBuffer,
+            config: {
+                holdDelayRepeat,
+            }
+        } = this;
 
-        for (const key of keysUp) {
-            keyEntryPool.release(key);
-        }
-
-        for (const key of keysPressed) {
-            keyEntryPool.release(key);
-        }
-
-        keysUp.length = 0;
-        keysPressed.length = 0;
         this.enteredText = '';
+
+        for (const code in keyTable) {
+            const codeEntry = keyTable[code];
+            if (!codeEntry || !codeEntry.isDown) {
+                continue
+            }
+
+            codeEntry.isPressed = false;    
+            codeEntry.holdTimer -= frameTimeInMs;
+
+            if (codeEntry.holdTimer <= 0) {
+                codeEntry.holdTimer = (
+                    codeEntry.holdTimer % holdDelayRepeat) + holdDelayRepeat;
+                this.generateKeyPress(code);
+            }
+        }
+
+        keyPressBuffer.sort((a, b) => keyTable[a].holdTimer - keyTable[b].holdTimer);
+
+        for (const key of keyPressBuffer) {
+            if (keyTable[key].lastChar) {
+                this.enteredText += keyTable[key].lastChar;
+            }
+        }
+        keyPressBuffer.length = 0;
     }
 
     private onKeyDown(event: KeyboardEvent): void {
-        const key = this.keyEntryPool.provision();
-        key.key = event.key;
-        key.code = event.code;
-        this.keysDown.push(key);
-    }
+        const { config: { holdDelayInit } } = this;
+        const { key, code } = event;
 
-    private onKeyUp(event: KeyboardEvent): void {
-        const { keysDown } = this;
+        const keyEntry = this.getKeyEntry(code);
+        keyEntry.isDown = true;
+        keyEntry.holdTimer = holdDelayInit;
+        this.generateKeyPress(code);
 
-        for (let i = 0; i < keysDown.length; i++) {
-            if (keysDown[i].code !== event.code) {
-                continue;
-            }
-
-
-            this.keysUp.push(keysDown[i]);
-            keysDown[i] = keysDown[keysDown.length - 1];
-            keysDown.length--;
-
-            return;
+        if (key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey) {
+            keyEntry.lastChar = key;
+            this.charTable[key] = code;
+        } else {
+            delete keyEntry.lastChar;
         }
     }
 
-    private onKeyPressed(event: KeyboardEvent): void {
-        const key = this.keyEntryPool.provision();
-        key.key = event.key;
-        key.code = event.code;
-        this.keysPressed.push(key);
-        this.enteredText += event.key;
+    private generateKeyPress(key: string): void {
+        const keyEntry = this.getKeyEntry(key);
+        keyEntry.isPressed = true;
+        this.keyPressBuffer.push(key);
+    }
+
+    private onKeyUp(event: KeyboardEvent): void {
+        const codeTableEntry = this.getKeyEntry(event.code);
+        codeTableEntry.isPressed = false;
+        codeTableEntry.isDown = false;
+        codeTableEntry.holdTimer = 0;
+    }
+
+    private getKeyEntry(code: string): KeyData {
+        const { keyTable } = this;
+        keyTable[code] = keyTable[code] || {
+            isDown: false,
+            isPressed: false,
+            holdTimer: 0,
+        };
+        return keyTable[code];
+    }
+
+    private setAllKeysUp() {
+        const { keyTable } = this;
+        for (const key in keyTable) {
+            const keyEntry = keyTable[key];
+            keyEntry.isDown = false;
+            keyEntry.isPressed = false;
+            keyEntry.holdTimer = 0;
+            delete keyEntry.lastChar;
+        }
     }
 }

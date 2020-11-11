@@ -12,7 +12,7 @@ import { MouseServiceImpl, createMouseWatcher } from './ServiceManager/services/
 import { StateServiceImpl } from './ServiceManager/services/StateService';
 import { LayoutServiceImpl } from './ServiceManager/services/LayoutService';
 import { FocusServiceImpl } from './ServiceManager/services/FocusService';
-import { KeyboardServiceImpl, createKeyboardEntryObjectPool } from './ServiceManager/services/KeyboardService';
+import { KeyboardServiceImpl } from './ServiceManager/services/KeyboardService';
 import { ControllerServiceImpl } from './ServiceManager/services/ControllerService';
 import { MouseController } from './controllers/MouseController';
 import { ObjectPool } from './lib/ObjectPool';
@@ -53,10 +53,7 @@ export function createContext(canvas: HTMLCanvasElement) {
         new StateServiceImpl(),
         new LayoutServiceImpl(basicVerticalLayoutFn),
         new FocusServiceImpl(),
-        new KeyboardServiceImpl(
-            createKeyboardEntryObjectPool(),
-            document,
-        ),
+        new KeyboardServiceImpl(document),
         new ControllerServiceImpl(),
     );
 

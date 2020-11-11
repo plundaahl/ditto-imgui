@@ -132,19 +132,17 @@ export class ServiceManagerImpl implements ServiceManager {
     }
 
     render(): void {
+        this.frameTimeTracker.advanceFrame();
+        const frameTime = this.frameTimeTracker.getFrameDeltaTime();
+
         this.layerBuilder.onPreRender();
 
-        this.hookRunner.runOnPreRenderHook();
+        this.hookRunner.runOnPreRenderHook(frameTime);
         this.renderer.render(this.layerBuilder.getOrderedLayers());
 
         this.layerBuilder.onPostRender();
         this.elementBuilder.onPostRender();
-        this.hookRunner.runOnPostRenderHook();
-
-        this.frameTimeTracker.advanceFrame();
-        this.hookRunner.runOnUpdateDeltaTime(
-            this.frameTimeTracker.getFrameDeltaTime(),
-        );
+        this.hookRunner.runOnPostRenderHook(frameTime);
     }
 }
 
