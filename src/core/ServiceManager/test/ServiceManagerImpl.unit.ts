@@ -18,6 +18,8 @@ import { LayoutService, LayoutServiceImpl } from '../services/LayoutService';
 import { FocusService, FocusServiceImpl } from '../services/FocusService';
 import { KeyboardService, KeyboardServiceImpl } from '../services/KeyboardService';
 import {ControllerService, ControllerServiceImpl} from '../services/ControllerService';
+import { spy } from './spy';
+import { createTestBrowserFocusHandle } from '../services/FocusService/test/createTestBrowserFocusHandle';
 
 let hookRunner: HookRunner;
 let frameTimeTracker: FrameTimeTracker;
@@ -43,7 +45,7 @@ beforeEach(() => {
     layerBuilder = spy(new LayerServiceImpl());
     stateManager = spy(new StateServiceImpl());
     layoutHandler = spy(new LayoutServiceImpl(jest.fn()));
-    focusManager = spy(new FocusServiceImpl());
+    focusManager = spy(new FocusServiceImpl(createTestBrowserFocusHandle()));
     mouseHandler = spy(new MouseServiceImpl({
         posX: 50,
         posY: 50,
@@ -482,13 +484,4 @@ describe('render', () => {
         });
     });
 });
-
-function spy<T extends {[key: string]: any}>(obj: T) {
-    for (const prop in obj) {
-        if (obj.hasOwnProperty(prop) && typeof obj[prop] === 'function') {
-            obj[prop] = jest.fn(obj[prop]) as any;
-        }
-    }
-    return obj;
-}
 

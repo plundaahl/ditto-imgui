@@ -41,8 +41,8 @@ export class KeyboardServiceImpl implements KeyboardService {
         keyboardEventSource.addEventListener('keydown', this.onKeyDown);
         keyboardEventSource.addEventListener('keyup', this.onKeyUp);
 
-        if (window) {
-            window.addEventListener('blur', this.setAllKeysUp);
+        if (document) {
+            document.addEventListener('blur', this.setAllKeysUp);
         }
     }
 

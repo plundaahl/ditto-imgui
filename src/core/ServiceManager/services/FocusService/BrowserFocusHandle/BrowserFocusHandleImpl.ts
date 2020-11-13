@@ -35,6 +35,13 @@ export class BrowserFocusHandleImpl implements BrowserFocusHandle {
         private readonly tabCenterTrap: FocusableHtmlElement,
         private readonly tabForwardsTrap: FocusableHtmlElement,
     ) {
+        this.isAppFocused = this.isAppFocused.bind(this);
+        this.focusApp = this.focusApp.bind(this);
+        this.setIsFocusedOnLastElement = this.setIsFocusedOnLastElement.bind(this);
+        this.setIsFocusedOnFirstElement = this.setIsFocusedOnFirstElement.bind(this);
+        this.onAppFocus = this.onAppFocus.bind(this);
+        this.onAppBlur = this.onAppBlur.bind(this);
+
         this.focusCenterTrap = this.focusCenterTrap.bind(this);
         this.handleCenterTrapFocused = this.handleCenterTrapFocused.bind(this);
         this.handleCenterTrapBlurred = this.handleCenterTrapBlurred.bind(this);

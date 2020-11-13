@@ -12,6 +12,7 @@ import { MouseServiceImpl, createMouseWatcher } from './ServiceManager/services/
 import { StateServiceImpl } from './ServiceManager/services/StateService';
 import { LayoutServiceImpl } from './ServiceManager/services/LayoutService';
 import { FocusServiceImpl } from './ServiceManager/services/FocusService';
+import { BrowserFocusHandleImpl, configureFocusElements } from './ServiceManager/services/FocusService/BrowserFocusHandle';
 import { KeyboardServiceImpl } from './ServiceManager/services/KeyboardService';
 import { ControllerServiceImpl } from './ServiceManager/services/ControllerService';
 import { MouseController } from './controllers/MouseController';
@@ -52,7 +53,12 @@ export function createContext(canvas: HTMLCanvasElement) {
         new MouseServiceImpl(mouseWatcher),
         new StateServiceImpl(),
         new LayoutServiceImpl(basicVerticalLayoutFn),
-        new FocusServiceImpl(),
+        new FocusServiceImpl(
+            new BrowserFocusHandleImpl(
+                canvas,
+                ...configureFocusElements(canvas),
+            ),
+        ),
         new KeyboardServiceImpl(document),
         new ControllerServiceImpl(),
     );

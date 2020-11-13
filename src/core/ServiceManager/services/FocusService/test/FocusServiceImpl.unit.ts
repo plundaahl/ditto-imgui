@@ -1,9 +1,22 @@
 import { Layer, UiElement } from '../../../../types';
 import { InspectableFocusServiceImpl } from './InspectableFocusServiceImpl';
+import { createTestBrowserFocusHandle } from './createTestBrowserFocusHandle';
+import { BrowserFocusHandle } from '../BrowserFocusHandle';
+import { spy } from '../../../test/spy';
 
+let onAppFocusCallbacks: { (): void }[];
+let onAppBlurCallbacks: { (): void }[];
+let browserFocusHandle: BrowserFocusHandle;
 let instance: InspectableFocusServiceImpl;
 beforeEach(() => {
-    instance = new InspectableFocusServiceImpl();
+    onAppBlurCallbacks = [];
+    onAppFocusCallbacks = [];
+    browserFocusHandle = spy(createTestBrowserFocusHandle());
+    browserFocusHandle.onAppBlur = jest.fn((fn) => onAppBlurCallbacks.push(fn));
+    browserFocusHandle.onAppFocus = jest.fn((fn) => onAppFocusCallbacks.push(fn));
+    instance = new InspectableFocusServiceImpl(
+        browserFocusHandle,
+    );
 });
 
 describe('onBeginElement', () => {
@@ -179,6 +192,11 @@ describe('focusElement', () => {
                 instance.onBeginElement(element);
                 instance.setFocusable();
                 expect(instance.isElementFocused()).toBe(true);
+            });
+
+            test('should call browserFocusHandle.focusApp()', () => {
+                instance.focusElement();
+                expect(browserFocusHandle.focusApp).toHaveBeenCalled();
             });
         });
     });
@@ -446,6 +464,32 @@ describe('didFocusChange', () => {
         describe('and no element is focused this frame', () => {
             test('should return true', () => {
                 expect(instance.didFocusChange()).toBe(false);
+            });
+        });
+    });
+});
+
+describe('app loses focus', () => {
+    describe('given an element is focused', () => {
+        beforeEach(() => {
+            instance.onBeginElement(createElement({ key: 'foo' }));
+            instance.setFocusable();
+            instance.focusElement();
+            instance.onEndElement(); 
+            instance.onPreRender();
+        });
+
+        describe('when the browserFocusHandle.onAppBlur is triggered', () => {
+            beforeEach(() => {
+                for (const fn of onAppBlurCallbacks) {
+                    fn();
+                }
+            });
+
+            test('then, next frame, element should no longer be focused', () => {
+                instance.onBeginElement(createElement({ key: 'foo' }));
+                instance.setFocusable();
+                expect(instance.isElementFocused()).toBe(false);
             });
         });
     });

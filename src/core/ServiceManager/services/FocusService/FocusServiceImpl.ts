@@ -1,5 +1,6 @@
 import { UiElement } from '../../../types';
 import { FocusService } from './FocusService';
+import { BrowserFocusHandle } from './BrowserFocusHandle';
 
 export class FocusServiceImpl implements FocusService {
 
@@ -17,7 +18,9 @@ export class FocusServiceImpl implements FocusService {
     protected prevFocusableElement: UiElement | undefined;
     protected curFocusableElement: UiElement | undefined;
 
-    constructor() {
+    constructor(
+        private readonly browserFocusHandle: BrowserFocusHandle,
+    ) {
         this.onPreRender = this.onPreRender.bind(this);
         this.onEndElement = this.onEndElement.bind(this);
         this.onBeginElement = this.onBeginElement.bind(this);
@@ -28,6 +31,9 @@ export class FocusServiceImpl implements FocusService {
         this.unsetFocusedElementIfNotSeen = this.unsetFocusedElementIfNotSeen.bind(this);
         this.updateFocusedElement = this.updateFocusedElement.bind(this);
         this.resetFocusableElements = this.resetFocusableElements.bind(this);
+        this.handleAppBlur = this.handleAppBlur.bind(this);
+
+        browserFocusHandle.onAppBlur(this.handleAppBlur);
     }
 
     protected get currentElement(): UiElement | undefined {
@@ -63,6 +69,7 @@ export class FocusServiceImpl implements FocusService {
     }
 
     private doFocusOnElement(element: UiElement) {
+        this.browserFocusHandle.focusApp();
         this.nextElementToFocus = element;
         this.elementWasSeen = true;
     }
@@ -160,5 +167,11 @@ export class FocusServiceImpl implements FocusService {
         delete this.prevFocusableElement;
         delete this.curFocusableElement;
         this.focusableElements.length = 0;
+    }
+
+    private handleAppBlur() {
+        delete this.focusedElement;
+        this.focusedParents.length = 0;
+        this.focusedFloatParents.length = 0;
     }
 }
