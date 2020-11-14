@@ -1,4 +1,4 @@
-import { Layer, UiElement } from '../types';
+import { Layer, UiElement } from '../../types';
 
 export interface Hookable {
     onBeginElement?(element: UiElement): void;

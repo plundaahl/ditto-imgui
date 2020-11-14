@@ -1,4 +1,4 @@
-import { Layer, UiElement } from '../types';
+import { Layer, UiElement } from '../../types';
 import { Hookable } from './Hookable';
 
 export interface HookRunner {

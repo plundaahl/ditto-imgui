@@ -1,4 +1,4 @@
-import { Hookable } from '../../HookRunner';
+import { Hookable } from '../../infrastructure/HookRunner';
 import { UiElement } from '../../types';
 import { StateHandle } from './StateHandle';
 

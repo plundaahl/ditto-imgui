@@ -1,7 +1,7 @@
 import { notUndefined } from './notUndefined';
 import { ServiceManager } from '../ServiceManager';
 import { ServiceManagerImpl } from '../ServiceManagerImpl';
-import { HookRunner, HookRunnerImpl } from '../../HookRunner';
+import { HookRunner, HookRunnerImpl } from '../../infrastructure/HookRunner';
 import { FrameTimeTracker, FrameTimeTrackerImpl } from '../../infrastructure/FrameTimeTracker';
 import { KeyService, KeyServiceImpl } from '../KeyService';
 import { RenderService, RenderServiceImpl } from '../RenderService';

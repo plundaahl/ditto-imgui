@@ -1,6 +1,6 @@
 import { HookRunner } from './HookRunner';
 import { Hookable } from './Hookable';
-import { UiElement, Layer } from '../types';
+import { UiElement, Layer } from '../../types';
 
 export class HookRunnerImpl implements HookRunner {
     private readonly onBeginElementListeners: Required<Pick<Hookable, 'onBeginElement'>>[] = [];

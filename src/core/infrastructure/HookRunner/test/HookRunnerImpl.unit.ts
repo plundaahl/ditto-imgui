@@ -1,11 +1,11 @@
 import { Hookable } from '../Hookable';
 import { HookRunner } from '../HookRunner';
 import { HookRunnerImpl } from '../HookRunnerImpl';
-import { UiElement, Layer } from '../../types';
+import { UiElement, Layer } from '../../../types';
 import {
     createDummyElement,
     createDummyLayer,
-} from '../../test/helpers';
+} from '../../../test/helpers';
 
 let hookableA: Hookable;
 let hookableB: Hookable;

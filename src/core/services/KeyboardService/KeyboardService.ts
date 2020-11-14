@@ -1,4 +1,4 @@
-import { Hookable } from '../../HookRunner';
+import { Hookable } from '../../infrastructure/HookRunner';
 
 export type KeyboardChar = string;
 export type KeyboardKey = string;

@@ -1,5 +1,5 @@
 import { UiElement } from '../../types';
-import { Hookable } from '../../HookRunner';
+import { Hookable } from '../../infrastructure/HookRunner';
 
 import {
     LineCapOpts,
