@@ -2,7 +2,6 @@ import { notUndefined } from './notUndefined';
 import { ServiceManager } from '../ServiceManager';
 import { ServiceManagerImpl } from '../ServiceManagerImpl';
 import { HookRunner, HookRunnerImpl } from '../../infrastructure/HookRunner';
-import { FrameTimeTracker, FrameTimeTrackerImpl } from '../../infrastructure/FrameTimeTracker';
 import { KeyService, KeyServiceImpl } from '../KeyService';
 import { RenderService, RenderServiceImpl } from '../RenderService';
 import { DrawService, DrawServiceImpl } from '../DrawService';
@@ -22,7 +21,6 @@ import { spy } from './spy';
 import { createTestBrowserFocusHandle } from '../FocusService/test/createTestBrowserFocusHandle';
 
 let hookRunner: HookRunner;
-let frameTimeTracker: FrameTimeTracker;
 let keyBuilder: KeyService;
 let renderer: RenderService;
 let drawService: DrawService;
@@ -38,7 +36,6 @@ let controllerService: ControllerService;
 
 beforeEach(() => {
     hookRunner = spy(new HookRunnerImpl());
-    frameTimeTracker = spy(new FrameTimeTrackerImpl(Date.now));
     keyBuilder = spy(new KeyServiceImpl());
     renderer = spy(new RenderServiceImpl(createFakeCanvasContext()));
     drawService = spy(new DrawServiceImpl());
@@ -71,7 +68,6 @@ beforeEach(() => {
 
     serviceManager = new ServiceManagerImpl(
         hookRunner,
-        frameTimeTracker,
         keyBuilder,
         elementService,
         layerBuilder,
@@ -416,7 +412,7 @@ describe('render', () => {
 
             jest.clearAllMocks();
 
-            serviceManager.render();
+            serviceManager.render(123);
         });
 
         test('should call layerBuilder.onPreRender', () => {
@@ -457,10 +453,6 @@ describe('render', () => {
 
         test('should call hookRunner.runOnPostRenderHook', () => {
             expect(hookRunner.runOnPostRenderHook).toHaveBeenCalled();
-        });
-
-        test('should call frameTimeTracker.advanceFrame', () => {
-            expect(frameTimeTracker.advanceFrame).toHaveBeenCalled();
         });
     });
 

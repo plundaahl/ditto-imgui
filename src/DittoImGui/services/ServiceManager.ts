@@ -16,11 +16,6 @@ export interface ServiceCPI {
 }
 
 export interface ServiceAPI {
-    beginLayer(key: string): void;
-    endLayer(): void;
-    beginElement(key: string): void;
-    endElement(): void;
-    render(): void;
     readonly layer: LayerAPI;
     readonly element: Readonly<UiElement>;
     readonly draw: DrawAPI;
@@ -33,6 +28,11 @@ export interface ServiceAPI {
 }
 
 export interface ServiceManager extends ServiceCPI, ServiceAPI {
+    beginLayer(key: string): void;
+    endLayer(): void;
+    beginElement(key: string): void;
+    endElement(): void;
+    render(frameTimeInMs: number): void;
     readonly element: Readonly<UiElement>;
     readonly draw: DrawAPI & DrawCPI;
     readonly mouse: MouseAPI & MouseCPI;

@@ -1,6 +1,7 @@
 import { DittoContext } from './DittoContext';
 import { DittoContextImpl } from './DittoContextImpl';
 import { HookRunnerImpl } from './infrastructure/HookRunner';
+import { InfraContainerImpl } from './infrastructure';
 import { FrameTimeTrackerImpl } from './infrastructure/FrameTimeTracker';
 import { ServiceManagerImpl } from './services';
 import { KeyServiceImpl } from './services/KeyService';
@@ -41,10 +42,13 @@ export function createContext(canvas: HTMLCanvasElement) {
 
     const mouseWatcher = createMouseWatcher(canvas);
     (window as any).mouseWatcher = mouseWatcher;
+
+    const infraContainer = new InfraContainerImpl(
+        new FrameTimeTrackerImpl(Date.now),
+    );
     
     const serviceManager = new ServiceManagerImpl(
         new HookRunnerImpl(),
-        new FrameTimeTrackerImpl(Date.now),
         new KeyServiceImpl(),
         new ElementServiceImpl(elementPool),
         new LayerServiceImpl(),
@@ -66,6 +70,7 @@ export function createContext(canvas: HTMLCanvasElement) {
     serviceManager.controller.registerController(new MouseController(serviceManager.mouse));
 
     dittoContextSingleton = new DittoContextImpl(
+        infraContainer,
         serviceManager,
     );
 }

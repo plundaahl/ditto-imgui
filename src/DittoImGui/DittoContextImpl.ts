@@ -1,4 +1,5 @@
 import { DittoContext } from './DittoContext';
+import { InfraContainer } from './infrastructure';
 import { ServiceManager } from './services';
 import { DrawAPI } from './services/DrawService';
 import { FocusAPI } from './services/FocusService';
@@ -12,6 +13,7 @@ import { ControllerAPI } from './services/ControllerService';
 
 export class DittoContextImpl implements DittoContext {
     constructor(
+        private readonly infraContainer: InfraContainer,
         private readonly serviceManager: ServiceManager,
     ) {
         this.beginLayer = this.beginLayer.bind(this);
@@ -47,7 +49,9 @@ export class DittoContextImpl implements DittoContext {
     }
 
     render(): void {
-        this.serviceManager.render();
+        this.infraContainer.onPreRender();
+        const frameTime = this.infraContainer.frameTimeTracker.getFrameDeltaTime();
+        this.serviceManager.render(frameTime);
     }
 
     get element(): Readonly<UiElement> {
