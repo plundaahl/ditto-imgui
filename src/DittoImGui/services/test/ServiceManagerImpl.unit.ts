@@ -1,15 +1,7 @@
-import { notUndefined } from './notUndefined';
 import { ServiceManager } from '../ServiceManager';
 import { ServiceManagerImpl } from '../ServiceManagerImpl';
 import { HookRunner, HookRunnerImpl } from '../../infrastructure/HookRunner';
-import { KeyService, KeyServiceImpl } from '../KeyService';
-import { RenderService, RenderServiceImpl } from '../RenderService';
 import { DrawService, DrawServiceImpl } from '../DrawService';
-import { LayerService, LayerServiceImpl } from '../LayerService';
-import { ElementService, ElementServiceImpl } from '../ElementService';
-import { ElementFactoryImpl } from '../../factories/ElementFactory';
-import { ObjectPool } from '../../lib/ObjectPool';
-import { createFakeCanvasContext } from './createFakeCanvasContext';
 import { Layer, UiElement } from '../../types';
 import { MouseService, MouseServiceImpl, MouseAction } from '../MouseService';
 import { StateService, StateServiceImpl } from '../StateService';
@@ -21,11 +13,7 @@ import { spy } from './spy';
 import { createTestBrowserFocusHandle } from '../FocusService/test/createTestBrowserFocusHandle';
 
 let hookRunner: HookRunner;
-let keyBuilder: KeyService;
-let renderer: RenderService;
 let drawService: DrawService;
-let layerBuilder: LayerService;
-let elementService: ElementService;
 let serviceManager: ServiceManager;
 let mouseHandler: MouseService;
 let stateManager: StateService;
@@ -36,10 +24,7 @@ let controllerService: ControllerService;
 
 beforeEach(() => {
     hookRunner = spy(new HookRunnerImpl());
-    keyBuilder = spy(new KeyServiceImpl());
-    renderer = spy(new RenderServiceImpl(createFakeCanvasContext()));
     drawService = spy(new DrawServiceImpl());
-    layerBuilder = spy(new LayerServiceImpl());
     stateManager = spy(new StateServiceImpl());
     layoutHandler = spy(new LayoutServiceImpl(jest.fn()));
     focusManager = spy(new FocusServiceImpl(createTestBrowserFocusHandle()));
@@ -58,21 +43,9 @@ beforeEach(() => {
     ));
     controllerService = spy(new ControllerServiceImpl());
 
-    const elementFactory = new ElementFactoryImpl({ zIndex: -1, key: '__default' });
-    elementService = spy(new ElementServiceImpl(
-        new ObjectPool<UiElement>(
-            elementFactory.createElement,
-            elementFactory.resetElement,
-        ),
-    ));
-
     serviceManager = new ServiceManagerImpl(
         hookRunner,
-        keyBuilder,
-        elementService,
-        layerBuilder,
         drawService,
-        renderer,
         mouseHandler,
         stateManager,
         layoutHandler,
@@ -109,28 +82,11 @@ describe('constructor', () => {
 });
 
 describe('beginLayer', () => {
-    const key = 'akey';
-    const qualifiedKey = key;
+    let layer: Layer;
 
     beforeEach(() => {
-        serviceManager.beginLayer(key);
-    });
-
-    test('should pass key into keyBuilder.push', () => {
-        expect(keyBuilder.push).toHaveBeenCalledWith(key);
-    });
-
-    test('should pass qualifiedKey into layerBuilder.beginLayer', () => {
-        expect(layerBuilder.beginLayer).toHaveBeenCalledWith(qualifiedKey);
-    });
-
-    test('should pass new layer into elementBuiler.setCurrentLayer', () => {
-        const currentLayer = layerBuilder.getCurrentLayer();
-        expect(elementService.setCurrentLayer).toHaveBeenCalledWith(currentLayer);
-    });
-
-    test('should pass qualifiedKey into elementBuilder.beginLayer', () => {
-        expect(elementService.beginElement).toHaveBeenCalledWith(qualifiedKey);
+        layer = createLayer('somekey');
+        serviceManager.beginLayer(layer);
     });
 
     test('should call hookRunner.runOnBeginLayer hook', () => {
@@ -145,32 +101,20 @@ describe('beginLayer', () => {
         expect(stateManager.onBeginElement).toHaveBeenCalled();
     });
 
-    test('should link new layer and its root element', () => {
-        const currentLayer = notUndefined(layerBuilder.getCurrentLayer());
-        const currentElement = notUndefined(elementService.getCurrentElement());
-
-        expect(currentElement.layer).toBe(currentLayer);
-        expect(currentLayer.rootElement).toBe(currentElement);
-    });
-
     test('should pass root element into drawHandler.onBeginElement', () => {
-        const currentElement = elementService.getCurrentElement();
-        expect(drawService.onBeginElement).toHaveBeenCalledWith(currentElement);
+        expect(drawService.onBeginElement).toHaveBeenCalledWith(layer.rootElement);
     });
 
     test('should pass root element into mouseHandler.onBeginElement', () => {
-        const currentElement = elementService.getCurrentElement();
-        expect(mouseHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+        expect(mouseHandler.onBeginElement).toHaveBeenCalledWith(layer.rootElement);
     });
 
     test('should pass root element into layoutHandler.onBeginElement', () => {
-        const currentElement = elementService.getCurrentElement();
-        expect(layoutHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+        expect(layoutHandler.onBeginElement).toHaveBeenCalledWith(layer.rootElement);
     });
 
     test('should pass root element into focusManager.onBeginElement', () => {
-        const currentElement = elementService.getCurrentElement();
-        expect(focusManager.onBeginElement).toHaveBeenCalledWith(currentElement);
+        expect(focusManager.onBeginElement).toHaveBeenCalledWith(layer.rootElement);
     });
 });
 
@@ -182,41 +126,17 @@ describe('endLayer', () => {
     });
 
     describe('given one or more layers are present', () => {
-        let prevLayer: Layer;
+        let layer: Layer;
 
         beforeEach(() => {
-            serviceManager.beginLayer('layerA');
-            prevLayer = notUndefined(layerBuilder.getCurrentLayer());
-
-            serviceManager.beginLayer('layerB');
-
+            layer = createLayer('thiskey');
+            serviceManager.beginLayer(layer);
             jest.clearAllMocks();
             serviceManager.endLayer();
         });
 
-        test('should call elementBuilder.endElement', () => {
-            expect(elementService.endElement).toHaveBeenCalled();
-        });
-
-        test('should call layerBuilder.endLayer', () => {
-            expect(layerBuilder.endLayer).toHaveBeenCalled();
-        });
-
-        test('should call keyBuilder.pop', () => {
-            expect(keyBuilder.pop).toHaveBeenCalled();
-        });
-
         test('should call stateManager.onEndKey', () => {
             expect(stateManager.onEndElement).toHaveBeenCalled();
-        });
-
-        test('should set current layer to previous layer before call', () => {
-            expect(layerBuilder.getCurrentLayer()).toBe(prevLayer);
-        });
-
-        test('should pass current layer into elementBuilder.setCurrentLayer', () => {
-            const curLayer = layerBuilder.getCurrentLayer();
-            expect(elementService.setCurrentLayer).toHaveBeenCalledWith(curLayer);
         });
 
         test('should call drawService.onEndElement', () => {
@@ -246,52 +166,28 @@ describe('endLayer', () => {
 });
 
 describe('beginElement', () => {
-    describe('given no layer has been created', () => {
-        test('should error', () => {
-            expect(() => serviceManager.beginElement('anykey')).toThrow();
-        });
-    });
-
-
     describe('given a layer has been created', () => {
-        const key = 'elementkey';
+        let element: UiElement;
 
         beforeEach(() => {
-            serviceManager.beginLayer('layer');
-            serviceManager.beginElement(key);
-        });
-
-        test('should pass key into keyBuilder.push', () => {
-            expect(keyBuilder.push).toHaveBeenCalledWith(key);
-        });
-
-        test('should pass qualified key into elementBuilder.beginElement', () => {
-            const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
-            expect(elementService.beginElement).toHaveBeenCalledWith(qualifiedKey);
-        });
-
-        test('should pass qualified key into elementBuilder.beginElement', () => {
-            expect(stateManager.onBeginElement).toHaveBeenCalled();
+            element = createElement('anykey');
+            serviceManager.beginElement(element);
         });
 
         test('should pass created element into drawHandler.onBeginElement', () => {
-            const curElement = elementService.getCurrentElement();
-            expect(drawService.onBeginElement).toHaveBeenCalledWith(curElement);
+            expect(drawService.onBeginElement).toHaveBeenCalledWith(element);
         });
 
         test('should pass created element into mouseHandler.onBeginElement', () => {
-            const currentElement = elementService.getCurrentElement();
-            expect(mouseHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+            expect(mouseHandler.onBeginElement).toHaveBeenCalledWith(element);
         });
 
         test('should pass created element into layoutHandler.onBeginElement', () => {
-            const currentElement = elementService.getCurrentElement();
-            expect(layoutHandler.onBeginElement).toHaveBeenCalledWith(currentElement);
+            expect(layoutHandler.onBeginElement).toHaveBeenCalledWith(element);
         });
 
         test('should pass created element into focusManager.onBeginElement', () => {
-            const currentElement = elementService.getCurrentElement();
-            expect(focusManager.onBeginElement).toHaveBeenCalledWith(currentElement);
+            expect(focusManager.onBeginElement).toHaveBeenCalledWith(element);
         });
 
         test('should call hookRunner.runOnBeginElement', () => {
@@ -301,35 +197,17 @@ describe('beginElement', () => {
 });
 
 describe('endElement', () => {
-    describe("given next element to remove is a layer's rootElement", () => {
-        beforeEach(() => serviceManager.beginLayer('layer'));
-
-        test('should error', () => {
-            expect(serviceManager.endElement).toThrow();
-        });
-    });
-
     describe("given no layer is present", () => {
         test('should error', () => {
             expect(serviceManager.endElement).toThrow();
         });
     });
 
-    describe("given a layer is present and element is not layer's rootElement", () => {
+    describe("given a layer is present", () => {
         beforeEach(() => {
-            serviceManager.beginLayer('layer');
-            serviceManager.beginElement('element');
-
+            serviceManager.beginElement(createElement('akey'));
             jest.clearAllMocks();
             serviceManager.endElement();
-        });
-
-        test('should call elementBuilder.endElement', () => {
-            expect(elementService.endElement).toHaveBeenCalled();
-        });
-
-        test('should call keyBuilder.pop', () => {
-            expect(keyBuilder.pop).toHaveBeenCalled();
         });
 
         test('should call stateManager.onEndKey', () => {
@@ -358,122 +236,44 @@ describe('endElement', () => {
     });
 });
 
-describe('currentElement', () => {
-    describe('given no element is present', () => {
-        test('should error', () => {
-            expect(() => serviceManager.element).toThrow();
-        });
-    });
+describe('preRender', () => {
+    beforeEach(() => serviceManager.preRender(123));
 
-    describe('given element is present', () => {
-        beforeEach(() => serviceManager.beginLayer('alayer'));
-
-        test('should return current element', () => {
-            expect(serviceManager.element).toBe(elementService.getCurrentElement());
-        });
+    test('should call hookRunner.runOnPreRenderHook', () => {
+        expect(hookRunner.runOnPreRenderHook).toHaveBeenCalled();
     });
 });
 
-describe('currentLayer.bringToFront', () => {
-    describe('given no layer is present', () => {
-        test('should error', () => {
-            expect(serviceManager.layer.bringToFront).toThrow();
-        });
-    });
+describe('postRender', () => {
+    beforeEach(() => serviceManager.postRender(123));
 
-    test('should call layerBuilder.bringCurrentLayerToFront', () => {
-        serviceManager.beginLayer('somelayer');
-        serviceManager.layer.bringToFront();
-
-        expect(layerBuilder.bringToFront).toHaveBeenCalled();
+    test('should call hookRunner.runOnPostRenderHook', () => {
+        expect(hookRunner.runOnPostRenderHook).toHaveBeenCalled();
     });
 });
 
-describe('render', () => {
-    describe('given not all layers have been ended', () => {
-        beforeEach(() => {
-            serviceManager.beginLayer('foo');
-        });
+function createLayerAndElement(key: string): [UiElement, Layer] {
+    const layer: Layer = {
+        key,
+        zIndex: 0,
+    };
+    const element: UiElement = {
+        key,
+        layer,
+        children: [],
+        drawBuffer: [],
+        bounds: { x: 0, y: 0, w: 0, h: 0 },
+    };
+    layer.rootElement = element;
+    return [element, layer];
+}
 
-        test('should error', () => {
-            expect(serviceManager.render).toThrow();
-        });
-    });
+function createLayer(key: string): Layer {
+    const [, layer] = createLayerAndElement(key);
+    return layer;
+}
 
-    describe('given all layers and elements have been ended', () => {
-        beforeEach(() => {
-            serviceManager.beginLayer('foo');
-            serviceManager.beginElement('baz');
-            serviceManager.endElement();
-            serviceManager.endLayer();
-
-            serviceManager.beginLayer('bar');
-            serviceManager.endLayer();
-
-            jest.clearAllMocks();
-
-            serviceManager.render(123);
-        });
-
-        test('should call layerBuilder.onPreRender', () => {
-            expect(layerBuilder.onPreRender).toHaveBeenCalled();
-        });
-
-        test('should call mouseHandler.onPreRender', () => {
-            expect(mouseHandler.onPreRender).toHaveBeenCalled();
-        });
-
-        test('should call renderer.render', () => {
-            expect(renderer.render).toHaveBeenCalled();
-        });
-
-        test('should call layerBuilder.onPostRender', () => {
-            expect(layerBuilder.onPostRender).toHaveBeenCalled();
-        });
-
-        test('should call elementBuilder.onPostRender', () => {
-            expect(elementService.onPostRender).toHaveBeenCalled();
-        });
-
-        test('should call layoutHandler.onPostRender', () => {
-            expect(layoutHandler.onPostRender).toHaveBeenCalled();
-        });
-
-        test('should call focusManager.onPostRender', () => {
-            expect(focusManager.onPreRender).toHaveBeenCalled();
-        });
-
-        test('should call keyboardService.onPreRender', () => {
-            expect(keyboardService.onPreRender).toHaveBeenCalled();
-        });
-
-        test('should call hookRunner.runOnPreRenderHook', () => {
-            expect(hookRunner.runOnPreRenderHook).toHaveBeenCalled();
-        });
-
-        test('should call hookRunner.runOnPostRenderHook', () => {
-            expect(hookRunner.runOnPostRenderHook).toHaveBeenCalled();
-        });
-    });
-
-    describe('multiple render calls', () => {
-        function mockDrawPhase() {
-            serviceManager.beginLayer('foo');
-            serviceManager.beginElement('baz');
-            serviceManager.endElement();
-            serviceManager.endLayer();
-            serviceManager.beginLayer('bar');
-            serviceManager.endLayer();
-        }
-
-        test('should work fine', () => {
-            mockDrawPhase();
-            expect(serviceManager.render).not.toThrow();
-            mockDrawPhase();
-            expect(serviceManager.render).not.toThrow();
-            mockDrawPhase();
-            expect(serviceManager.render).not.toThrow();
-        });
-    });
-});
-
+function createElement(key: string): UiElement {
+    const [element] = createLayerAndElement(key);
+    return element;
+}

@@ -3,12 +3,15 @@ import { DittoContextImpl } from './DittoContextImpl';
 import { HookRunnerImpl } from './infrastructure/HookRunner';
 import { InfraContainerImpl } from './infrastructure';
 import { FrameTimeTrackerImpl } from './infrastructure/FrameTimeTracker';
+
+import { CoreImpl } from './core';
+import { KeyServiceImpl } from './core/KeyService';
+import { ElementServiceImpl } from './core/ElementService';
+import { LayerServiceImpl } from './core/LayerService';
+import { RenderServiceImpl } from './core/RenderService';
+
 import { ServiceManagerImpl } from './services';
-import { KeyServiceImpl } from './services/KeyService';
-import { ElementServiceImpl } from './services/ElementService';
-import { LayerServiceImpl } from './services/LayerService';
 import { DrawServiceImpl } from './services/DrawService';
-import { RenderServiceImpl } from './services/RenderService';
 import { MouseServiceImpl, createMouseWatcher } from './services/MouseService';
 import { StateServiceImpl } from './services/StateService';
 import { LayoutServiceImpl } from './services/LayoutService';
@@ -46,14 +49,17 @@ export function createContext(canvas: HTMLCanvasElement) {
     const infraContainer = new InfraContainerImpl(
         new FrameTimeTrackerImpl(Date.now),
     );
-    
-    const serviceManager = new ServiceManagerImpl(
-        new HookRunnerImpl(),
+
+    const core = new CoreImpl(
         new KeyServiceImpl(),
         new ElementServiceImpl(elementPool),
         new LayerServiceImpl(),
-        new DrawServiceImpl(),
         new RenderServiceImpl(canvasContext),
+    );
+    
+    const serviceManager = new ServiceManagerImpl(
+        new HookRunnerImpl(),
+        new DrawServiceImpl(),
         new MouseServiceImpl(mouseWatcher),
         new StateServiceImpl(),
         new LayoutServiceImpl(basicVerticalLayoutFn),
@@ -71,6 +77,7 @@ export function createContext(canvas: HTMLCanvasElement) {
 
     dittoContextSingleton = new DittoContextImpl(
         infraContainer,
+        core,
         serviceManager,
     );
 }
