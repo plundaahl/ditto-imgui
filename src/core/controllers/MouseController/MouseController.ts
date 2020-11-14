@@ -1,5 +1,5 @@
-import { MouseAPI } from '../../ServiceManager/services/MouseService';
-import { Controller } from '../../ServiceManager/services/ControllerService';
+import { MouseAPI } from '../../services/MouseService';
+import { Controller } from '../../services/ControllerService';
 
 export class MouseController implements Controller {
     constructor(private readonly mouse: MouseAPI) {

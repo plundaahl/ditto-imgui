@@ -1,5 +1,5 @@
 import { getContext, DittoContext } from '../../src/core';
-import { StateHandle } from '../../src/core/ServiceManager/services/StateService';
+import { StateHandle } from '../../src/core/services/StateService';
 
 interface PanelState {
     x: number,

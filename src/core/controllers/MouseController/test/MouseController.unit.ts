@@ -1,6 +1,6 @@
-import { Controller } from '../../../ServiceManager/services/ControllerService';
+import { Controller } from '../../../services/ControllerService';
 import { MouseController } from '../MouseController';
-import { MouseAPI } from '../../../ServiceManager/services/MouseService';
+import { MouseAPI } from '../../../services/MouseService';
 
 interface Setters {
     setDragX: (val: number) => void,

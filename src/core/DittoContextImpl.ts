@@ -1,14 +1,14 @@
 import { DittoContext } from './DittoContext';
-import { ServiceManager } from './ServiceManager';
-import { DrawAPI } from './ServiceManager/services/DrawService';
-import { FocusAPI } from './ServiceManager/services/FocusService';
-import { LayerAPI } from './ServiceManager/services/LayerService';
-import { LayoutAPI } from './ServiceManager/services/LayoutService';
-import { MouseAPI } from './ServiceManager/services/MouseService';
-import { StateAPI } from './ServiceManager/services/StateService';
+import { ServiceManager } from './services';
+import { DrawAPI } from './services/DrawService';
+import { FocusAPI } from './services/FocusService';
+import { LayerAPI } from './services/LayerService';
+import { LayoutAPI } from './services/LayoutService';
+import { MouseAPI } from './services/MouseService';
+import { StateAPI } from './services/StateService';
 import { UiElement } from './types';
-import { KeyboardAPI } from './ServiceManager/services/KeyboardService';
-import { ControllerAPI } from './ServiceManager/services/ControllerService';
+import { KeyboardAPI } from './services/KeyboardService';
+import { ControllerAPI } from './services/ControllerService';
 
 export class DittoContextImpl implements DittoContext {
     constructor(

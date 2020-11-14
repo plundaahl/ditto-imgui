@@ -1,4 +1,4 @@
-import { ServiceAPI } from './ServiceManager';
+import { ServiceAPI } from './services';
 
 export interface DittoContext extends ServiceAPI {}
 
