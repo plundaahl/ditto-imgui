@@ -1,7 +1,7 @@
 import { DittoContext } from './DittoContext';
 import { DittoContextImpl } from './DittoContextImpl';
 import { HookRunnerImpl } from './HookRunner';
-import { FrameTimeTrackerImpl } from './FrameTimeTracker';
+import { FrameTimeTrackerImpl } from './infrastructure/FrameTimeTracker';
 import { ServiceManagerImpl } from './services';
 import { KeyServiceImpl } from './services/KeyService';
 import { ElementServiceImpl } from './services/ElementService';

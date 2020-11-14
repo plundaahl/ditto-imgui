@@ -2,7 +2,7 @@ import { notUndefined } from './notUndefined';
 import { ServiceManager } from '../ServiceManager';
 import { ServiceManagerImpl } from '../ServiceManagerImpl';
 import { HookRunner, HookRunnerImpl } from '../../HookRunner';
-import { FrameTimeTracker, FrameTimeTrackerImpl } from '../../FrameTimeTracker';
+import { FrameTimeTracker, FrameTimeTrackerImpl } from '../../infrastructure/FrameTimeTracker';
 import { KeyService, KeyServiceImpl } from '../KeyService';
 import { RenderService, RenderServiceImpl } from '../RenderService';
 import { DrawService, DrawServiceImpl } from '../DrawService';

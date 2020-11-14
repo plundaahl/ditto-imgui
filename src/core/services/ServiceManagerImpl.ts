@@ -1,7 +1,7 @@
 import { UiElement, Layer } from '../types';
 import { HookRunner } from '../HookRunner';
 import { ServiceManager } from './ServiceManager';
-import { FrameTimeTracker } from '../FrameTimeTracker';
+import { FrameTimeTracker } from '../infrastructure/FrameTimeTracker';
 import { KeyService } from './KeyService';
 import { RenderService } from './RenderService';
 import { DrawService } from './DrawService';
