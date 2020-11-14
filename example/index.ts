@@ -1,6 +1,6 @@
 import { run } from './runner';
 import { setupCanvas, resetCanvas } from './util';
-import * as DittoImGUI from '../src/core';
+import * as DittoImGUI from '../src/DittoImGui';
 import { button, panel, scrollRegion, editableText } from './widgets';
 
 const { canvas, context } = setupCanvas();

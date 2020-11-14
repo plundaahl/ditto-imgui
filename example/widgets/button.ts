@@ -1,4 +1,4 @@
-import { getContext, DittoContext } from '../../src/core';
+import { getContext, DittoContext } from '../../src/DittoImGui';
 
 let gui: DittoContext;
 

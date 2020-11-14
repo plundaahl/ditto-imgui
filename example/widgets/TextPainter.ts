@@ -1,4 +1,4 @@
-import { DittoContext } from '../../src/core';
+import { DittoContext } from '../../src/DittoImGui';
 
 const LINEHEIGHT_SCALE = 1.4;
 const CURSOR = '█';
