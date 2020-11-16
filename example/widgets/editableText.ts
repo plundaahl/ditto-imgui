@@ -1,4 +1,4 @@
-import { getContext, DittoContext } from '../../src/DittoImGui';
+import { getContext, DittoContext, FOCUSABLE } from '../../src/DittoImGui';
 import { StateHandle } from '../../src/DittoImGui/services/StateService';
 import { TextPainter } from './TextPainter';
 
@@ -41,8 +41,7 @@ export function editableText(
     wordWrap: boolean = false,
 ) {
     init();
-    gui.beginElement(key);
-    gui.focus.setFocusable();
+    gui.beginElement(key, FOCUSABLE);
 
     const state = stateHandle.declareAndGetState(defaultEditTextState);
 

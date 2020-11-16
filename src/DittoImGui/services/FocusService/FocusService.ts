@@ -9,7 +9,6 @@ interface FocusShared {
 }
 
 export interface FocusAPI extends FocusShared {
-    setFocusable(): void;
 }
 
 export interface FocusCPI extends FocusShared {

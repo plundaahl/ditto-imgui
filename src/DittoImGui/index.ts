@@ -87,3 +87,4 @@ export function getContext(): DittoContext {
 }
 
 export { DittoContext } from './DittoContext';
+export * from './flags';

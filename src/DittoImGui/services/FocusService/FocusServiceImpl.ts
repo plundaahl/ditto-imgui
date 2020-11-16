@@ -1,4 +1,5 @@
 import { UiElement } from '../../types';
+import { FOCUSABLE } from '../../flags';
 import { FocusService } from './FocusService';
 import { BrowserFocusHandle } from './BrowserFocusHandle';
 
@@ -25,7 +26,6 @@ export class FocusServiceImpl implements FocusService {
         this.onEndElement = this.onEndElement.bind(this);
         this.onBeginElement = this.onBeginElement.bind(this);
         this.isElementFocused = this.isElementFocused.bind(this);
-        this.setFocusable = this.setFocusable.bind(this);
         this.focusElement = this.focusElement.bind(this);
         this.doFocusOnElement = this.doFocusOnElement.bind(this);
         this.unsetFocusedElementIfNotSeen = this.unsetFocusedElementIfNotSeen.bind(this);
@@ -47,25 +47,10 @@ export class FocusServiceImpl implements FocusService {
         }
 
         if (!this.focusableElements.includes(curElement)) {
-            throw new Error('Current element is not focusable. Please call setFocusable() first');
+            throw new Error('Current element is not focusable. Please ensure element has the FOCUSABLE flag');
         }
 
         this.doFocusOnElement(curElement);
-    }
-
-    setFocusable(): void {
-        if (!this.currentElement) {
-            throw new Error('No element currently pushed');
-        }
-
-        this.focusableElements.push(this.currentElement);
-        this.prevFocusableElement = this.curFocusableElement;
-        this.curFocusableElement = this.currentElement;
-
-        if (this.focusedElement === this.currentElement.key) {
-            this.elementWasSeen = true;
-            this.nextElementToFocus = this.nextElementToFocus || this.currentElement;
-        }
     }
 
     private doFocusOnElement(element: UiElement) {
@@ -110,6 +95,17 @@ export class FocusServiceImpl implements FocusService {
 
     onBeginElement(element: UiElement): void {
         this.elementStack.push(element);
+
+        if (element.flags & FOCUSABLE) {
+            this.focusableElements.push(element);
+            this.prevFocusableElement = this.curFocusableElement;
+            this.curFocusableElement = element;
+
+            if (this.focusedElement === element.key) {
+                this.elementWasSeen = true;
+                this.nextElementToFocus = this.nextElementToFocus || element;
+            }
+        }
     }
 
     onEndElement(): void {

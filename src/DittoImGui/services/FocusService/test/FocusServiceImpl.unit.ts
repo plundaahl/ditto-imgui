@@ -1,4 +1,5 @@
 import { Layer, UiElement } from '../../../types';
+import { FOCUSABLE } from '../../../flags';
 import { InspectableFocusServiceImpl } from './InspectableFocusServiceImpl';
 import { createTestBrowserFocusHandle } from './createTestBrowserFocusHandle';
 import { BrowserFocusHandle } from '../BrowserFocusHandle';
@@ -26,6 +27,32 @@ describe('onBeginElement', () => {
         const element = createElement();
         instance.onBeginElement(element);
         expect(instance.getCurrentElement()).toBe(element);
+    });
+
+    describe('given element is focusable', () => {
+        const key = 'testkey';
+
+        beforeEach(() => {
+            instance.onBeginElement(createElement({ key, flags: FOCUSABLE }));
+        });
+
+        test("Should add current element key to focusableElements", () => {
+            const focusableKeys = instance.getFocusableElements().map(e => e.key);
+            expect(focusableKeys.includes(key)).toBe(true);
+        });
+    });
+
+    describe('given element is not focusable', () => {
+        const key = 'testkey';
+
+        beforeEach(() => {
+            instance.onBeginElement(createElement({ key }));
+        });
+
+        test("Should not add current element key to focusableElements", () => {
+            const focusableKeys = instance.getFocusableElements().map(e => e.key);
+            expect(focusableKeys.includes(key)).toBe(false);
+        });
     });
 });
 
@@ -55,22 +82,17 @@ describe('onPreRender', () => {
     describe('given no element is active', () => {
         beforeEach(() => {
             // prev frame
-            instance.onBeginElement(createElement({ key: 'foo' }));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             instance.focusElement(); // sets the current element's focus
             instance.onEndElement();
             instance.onPreRender();
 
             // current frame
-            instance.onBeginElement(createElement({ key: 'foo' }));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             instance.onEndElement();
-            instance.onBeginElement(createElement({ key: 'bar' }));
-            instance.setFocusable();
-            instance.onBeginElement(createElement({ key: 'baz' }));
-            instance.setFocusable();
-            instance.onBeginElement(createElement({ key: 'bing' }));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'bar', flags: FOCUSABLE }));
+            instance.onBeginElement(createElement({ key: 'baz', flags: FOCUSABLE }));
+            instance.onBeginElement(createElement({ key: 'bing', flags: FOCUSABLE }));
             instance.onEndElement();
             instance.onEndElement();
             instance.onEndElement();
@@ -94,8 +116,7 @@ describe('onPreRender', () => {
 
         describe('given focusElement() was called during last frame', () => {
             beforeEach(() => {
-                instance.onBeginElement(createElement({ key: 'bizzle' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'bizzle', flags: FOCUSABLE }));
                 instance.focusElement();
                 instance.onEndElement();
             });
@@ -109,12 +130,10 @@ describe('onPreRender', () => {
 
     describe('given an element was focused', () => {
         beforeEach(() => {
-            instance.onBeginElement(createElement({ key: 'foo' }));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             instance.onEndElement();
 
-            instance.onBeginElement(createElement({ key: 'bar' }));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'bar', flags: FOCUSABLE }));
             instance.focusElement();
             instance.onEndElement();
 
@@ -123,8 +142,7 @@ describe('onPreRender', () => {
 
         describe('and that element is not rendered this frame', () => {
             beforeEach(() => {
-                instance.onBeginElement(createElement({ key: 'foo' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
                 instance.onEndElement();
 
                 instance.onPreRender();
@@ -137,12 +155,10 @@ describe('onPreRender', () => {
 
         describe('and that element is rendered this frame', () => {
             beforeEach(() => {
-                instance.onBeginElement(createElement({ key: 'foo' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
                 instance.onEndElement();
 
-                instance.onBeginElement(createElement({ key: 'bar' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'bar', flags: FOCUSABLE }));
                 instance.focusElement();
                 instance.onEndElement();
 
@@ -163,7 +179,7 @@ describe('focusElement', () => {
         });
     });
 
-    describe('given there is a current element', () => {
+    describe('given there is a current element that is NOT focusable', () => {
         const key = 'testkey';
         let element: UiElement;
 
@@ -177,10 +193,18 @@ describe('focusElement', () => {
                 expect(instance.focusElement).toThrow();
             });
         });
+    });
+
+    describe('given there is a current element that is focusable', () => {
+        const key = 'testkey';
+        let element: UiElement;
+
+        beforeEach(() => {
+            element = createElement({ key, flags: FOCUSABLE });
+            instance.onBeginElement(element);
+        });
 
         describe('and current element has been set to focusable', () => {
-            beforeEach(() => instance.setFocusable());
-
             test('should not error', () => {
                 expect(instance.focusElement).not.toThrow();
             });
@@ -190,7 +214,6 @@ describe('focusElement', () => {
                 instance.onEndElement();
                 instance.onPreRender();
                 instance.onBeginElement(element);
-                instance.setFocusable();
                 expect(instance.isElementFocused()).toBe(true);
             });
 
@@ -202,30 +225,22 @@ describe('focusElement', () => {
     });
 });
 
-describe('setFocusable', () => {
-    describe('given there is no current element', () => {
-        test('should error', () => {
-            expect(instance.setFocusable).toThrow();
-        });
-    });
-
-    describe('given there is currently an element', () => {
-        const key = 'testkey';
-
-        beforeEach(() => {
-            instance.onBeginElement(createElement({ key }));
-        });
-
-        test("Should add current element key to focusableElements", () => {
-            instance.setFocusable();
-            const focusableKeys = instance.getFocusableElements().map(e => e.key);
-            expect(focusableKeys.includes(key)).toBe(true);
-        });
-    });
-});
-
 describe('isElementFocused', () => {
     describe('given no element is active', () => {
+        test('should error', () => {
+            expect(instance.isElementFocused).toThrow();
+        });
+    });
+
+    describe('given an element is active and NOT focusable', () => {
+        const key = 'foo/bar/baz';
+        let element: UiElement;
+
+        beforeEach(() => {
+            element = createElement({ key });
+            instance.onBeginElement(element);
+        });
+
         test('should error', () => {
             expect(instance.isElementFocused).toThrow();
         });
@@ -236,22 +251,12 @@ describe('isElementFocused', () => {
         let element: UiElement;
 
         beforeEach(() => {
-            element = createElement({ key });
+            element = createElement({ key, flags: FOCUSABLE });
             instance.onBeginElement(element);
         });
-
-        describe('and element is not focusable', () => {
-            test('should error', () => {
-                expect(instance.isElementFocused).toThrow();
-            });
-        });
         
-        describe('and element is focusable', () => {
-            beforeEach(() => instance.setFocusable());
-
-            test('should not error', () => {
-                expect(instance.isElementFocused).not.toThrow();
-            });
+        test('should not error', () => {
+            expect(instance.isElementFocused).not.toThrow();
         });
     });
 });
@@ -259,17 +264,16 @@ describe('isElementFocused', () => {
 describe('isChildFocused and isFloatingChildFocused', () => {
     describe('given child is not focused', () => {
         beforeEach(() => {
-            const parent = createElement({ key: 'foo'});
+            const parent = createElement({ key: 'foo', flags: FOCUSABLE });
             const child = createElement({
                 key: 'bar',
                 parent: parent,
+                flags: FOCUSABLE,
             });
             parent.children.push(child);
 
             instance.onBeginElement(parent);
-            instance.setFocusable();
             instance.onBeginElement(child);
-            instance.setFocusable();
             instance.onEndElement();
             instance.onEndElement();
 
@@ -277,32 +281,29 @@ describe('isChildFocused and isFloatingChildFocused', () => {
         });
 
         test('isChildFocused should return false', () => {
-            instance.onBeginElement(createElement({ key: 'foo'}));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             expect(instance.isChildFocused()).toBe(false);
         });
 
         test('isFloatingChildFocused should return false', () => {
-            instance.onBeginElement(createElement({ key: 'foo'}));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             expect(instance.isFloatingChildFocused()).toBe(false);
         });
     });
 
     describe('given element is focused', () => {
         beforeEach(() => {
-            const parent = createElement({ key: 'foo'});
+            const parent = createElement({ key: 'foo', flags: FOCUSABLE });
             const child = createElement({
                 key: 'bar',
                 parent: parent,
+                flags: FOCUSABLE,
             });
             parent.children.push(child);
 
             instance.onBeginElement(parent);
-            instance.setFocusable();
             instance.focusElement();
             instance.onBeginElement(child);
-            instance.setFocusable();
             instance.onEndElement();
             instance.onEndElement();
 
@@ -310,31 +311,28 @@ describe('isChildFocused and isFloatingChildFocused', () => {
         });
 
         test('isChildFocused should return false', () => {
-            instance.onBeginElement(createElement({ key: 'foo'}));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             expect(instance.isChildFocused()).toBe(false);
         });
 
         test('isFloatingChildFocused should return false', () => {
-            instance.onBeginElement(createElement({ key: 'foo'}));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             expect(instance.isFloatingChildFocused()).toBe(false);
         });
     });
 
     describe('given child is focused', () => {
         beforeEach(() => {
-            const parent = createElement({ key: 'foo'});
+            const parent = createElement({ key: 'foo', flags: FOCUSABLE });
             const child = createElement({
                 key: 'bar',
                 parent: parent,
+                flags: FOCUSABLE,
             });
             parent.children.push(child);
 
             instance.onBeginElement(parent);
-            instance.setFocusable();
             instance.onBeginElement(child);
-            instance.setFocusable();
 
             instance.focusElement();
 
@@ -345,33 +343,30 @@ describe('isChildFocused and isFloatingChildFocused', () => {
         });
 
         test('isChildFocused should return true', () => {
-            instance.onBeginElement(createElement({ key: 'foo'}));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             expect(instance.isChildFocused()).toBe(true);
         });
 
         test('isFloatingChildFocused should return false', () => {
-            instance.onBeginElement(createElement({ key: 'foo'}));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             expect(instance.isFloatingChildFocused()).toBe(false);
         });
     });
 
     describe('given child is focused, but on different layer', () => {
         beforeEach(() => {
-            const parent = createElement({ key: 'foo'});
+            const parent = createElement({ key: 'foo', flags: FOCUSABLE });
             const child = createElement({
                 key: 'bar',
                 parent: parent,
                 layer: createLayer({ key: 'other' }),
+                flags: FOCUSABLE,
             });
             parent.children.push(child);
 
             instance.onBeginElement(parent);
-            instance.setFocusable();
             
             instance.onBeginElement(child);
-            instance.setFocusable();
             instance.focusElement();
             instance.onEndElement();
 
@@ -381,14 +376,12 @@ describe('isChildFocused and isFloatingChildFocused', () => {
         });
 
         test('isChildFocused should return false', () => {
-            instance.onBeginElement(createElement({ key: 'foo'}));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             expect(instance.isChildFocused()).toBe(false);
         });
 
         test('isFloatingChildFocused should return true', () => {
-            instance.onBeginElement(createElement({ key: 'foo'}));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             expect(instance.isFloatingChildFocused()).toBe(true);
         });
     });
@@ -397,8 +390,7 @@ describe('isChildFocused and isFloatingChildFocused', () => {
 describe('didFocusChange', () => {
     describe('given an element was focused last frame', () => {
         beforeEach(() => {
-            instance.onBeginElement(createElement({ key: 'foo' }));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             instance.focusElement();
             instance.onEndElement(); 
             instance.onPreRender();
@@ -406,8 +398,7 @@ describe('didFocusChange', () => {
 
         describe('and the same element is focused this frame', () => {
             beforeEach(() => {
-                instance.onBeginElement(createElement({ key: 'foo' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
                 instance.focusElement();
                 instance.onEndElement(); 
                 instance.onPreRender();
@@ -420,8 +411,7 @@ describe('didFocusChange', () => {
 
         describe('and a different element is focused this frame', () => {
             beforeEach(() => {
-                instance.onBeginElement(createElement({ key: 'bar' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'bar', flags: FOCUSABLE }));
                 instance.focusElement();
                 instance.onEndElement(); 
                 instance.onPreRender();
@@ -434,8 +424,7 @@ describe('didFocusChange', () => {
 
         describe('and the element is not focused this frame', () => {
             beforeEach(() => {
-                instance.onBeginElement(createElement({ key: 'bar' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'bar', flags: FOCUSABLE }));
                 instance.onEndElement(); 
                 instance.onPreRender();
             });
@@ -449,8 +438,7 @@ describe('didFocusChange', () => {
     describe('given an element was not focused last frame', () => {
         describe('and an element is focused this frame', () => {
             beforeEach(() => {
-                instance.onBeginElement(createElement({ key: 'foo' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
                 instance.focusElement();
                 instance.onEndElement(); 
                 instance.onPreRender();
@@ -472,8 +460,7 @@ describe('didFocusChange', () => {
 describe('app loses focus', () => {
     describe('given an element is focused', () => {
         beforeEach(() => {
-            instance.onBeginElement(createElement({ key: 'foo' }));
-            instance.setFocusable();
+            instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
             instance.focusElement();
             instance.onEndElement(); 
             instance.onPreRender();
@@ -487,8 +474,7 @@ describe('app loses focus', () => {
             });
 
             test('then, next frame, element should no longer be focused', () => {
-                instance.onBeginElement(createElement({ key: 'foo' }));
-                instance.setFocusable();
+                instance.onBeginElement(createElement({ key: 'foo', flags: FOCUSABLE }));
                 expect(instance.isElementFocused()).toBe(false);
             });
         });
