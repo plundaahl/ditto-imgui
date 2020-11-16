@@ -387,6 +387,28 @@ describe('isChildFocused and isFloatingChildFocused', () => {
     });
 });
 
+describe('isFocusable', () => {
+    describe('given no element is active', () => {
+        test('should error', () => {
+            expect(instance.isFocusable).toThrow();
+        });
+    });
+
+    describe('given element is focusable', () => {
+        beforeEach(() => instance.onBeginElement(createElement({ flags: FOCUSABLE })));
+        test('should return true', () => {
+            expect(instance.isFocusable()).toBe(true);
+        });
+    });
+
+    describe('given element is NOT focusable', () => {
+        beforeEach(() => instance.onBeginElement(createElement()));
+        test('should return false', () => {
+            expect(instance.isFocusable()).toBe(false);
+        });
+    });
+});
+
 describe('didFocusChange', () => {
     describe('given an element was focused last frame', () => {
         beforeEach(() => {

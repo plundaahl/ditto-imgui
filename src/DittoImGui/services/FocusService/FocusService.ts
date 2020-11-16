@@ -6,6 +6,7 @@ interface FocusShared {
     isFloatingChildFocused(): boolean;
     didFocusChange(): boolean;
     focusElement(): void;
+    isFocusable(): boolean;
 }
 
 export interface FocusAPI extends FocusShared {

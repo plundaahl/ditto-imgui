@@ -33,6 +33,7 @@ beforeEach(() => {
             isFloatingChildFocused: jest.fn(),
             didFocusChange: jest.fn(),
             focusElement: jest.fn(),
+            isFocusable: jest.fn(),
         },
         keyboard: {
             isCharDown: jest.fn(),
