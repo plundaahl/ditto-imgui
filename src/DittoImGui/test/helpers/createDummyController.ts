@@ -1,4 +1,4 @@
-import { Controller } from '../../services/ControllerService';
+import { Controller } from '../../controllers/Controller';
 
 export function createDummyController(): Controller {
     return {
@@ -13,5 +13,11 @@ export function createDummyController(): Controller {
         isFloatingChildInteracted: jest.fn(() => false),
         getDragX: jest.fn(() => 0),
         getDragY: jest.fn(() => 0),
+        onBeginElement: jest.fn(),
+        onEndElement: jest.fn(),
+        onBeginLayer: jest.fn(),
+        onEndLayer: jest.fn(),
+        onPreRender: jest.fn(),
+        onPostRender: jest.fn(),
     };
 }

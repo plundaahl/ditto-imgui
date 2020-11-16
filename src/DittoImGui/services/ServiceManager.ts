@@ -4,7 +4,6 @@ import { MouseAPI, MouseCPI } from './MouseService';
 import { StateAPI, StateCPI } from './StateService';
 import { LayoutAPI, LayoutCPI } from './LayoutService';
 import { FocusAPI, FocusCPI } from './FocusService';
-import { ControllerAPI } from './ControllerService';
 import { KeyboardAPI, KeyboardCPI, KeyboardService } from './KeyboardService';
 
 export interface ServiceCPI {
@@ -20,7 +19,6 @@ export interface ServiceAPI {
     readonly layout: LayoutAPI;
     readonly focus: FocusAPI;
     readonly keyboard: KeyboardAPI;
-    readonly controller: ControllerAPI;
 }
 
 export interface ServiceManager extends ServiceCPI, ServiceAPI {

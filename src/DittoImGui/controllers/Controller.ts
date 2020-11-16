@@ -1,4 +1,6 @@
-export interface Controller {
+import { NoArgHookable } from './NoArgHookable';
+
+export interface ControllerAPI {
     isElementHighlighted(): boolean;
     isElementReadied(): boolean;
     isElementTriggered(): boolean;
@@ -11,3 +13,5 @@ export interface Controller {
     getDragX(): number;
     getDragY(): number;
 }
+
+export interface Controller extends ControllerAPI, Partial<NoArgHookable> {}

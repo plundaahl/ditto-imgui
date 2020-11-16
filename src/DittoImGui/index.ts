@@ -18,11 +18,13 @@ import { LayoutServiceImpl } from './services/LayoutService';
 import { FocusServiceImpl } from './services/FocusService';
 import { BrowserFocusHandleImpl, configureFocusElements } from './services/FocusService/BrowserFocusHandle';
 import { KeyboardServiceImpl } from './services/KeyboardService';
-import { ControllerServiceImpl } from './services/ControllerService';
-import { MouseController } from './controllers/MouseController';
+
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
 import { basicVerticalLayoutFn } from './defaults/layout';
+
+import { ControllerManagerImpl } from './controllers';
+import { MouseControllerFactory } from './controllers/MouseController';
 
 let dittoContextSingleton: DittoContext;
 
@@ -70,15 +72,16 @@ export function createContext(canvas: HTMLCanvasElement) {
             ),
         ),
         new KeyboardServiceImpl(document),
-        new ControllerServiceImpl(),
     );
-
-    serviceManager.controller.registerController(new MouseController(serviceManager.mouse));
 
     dittoContextSingleton = new DittoContextImpl(
         infraContainer,
         core,
         serviceManager,
+        new ControllerManagerImpl(
+            serviceManager,
+            new MouseControllerFactory(),
+        ),
     );
 }
 

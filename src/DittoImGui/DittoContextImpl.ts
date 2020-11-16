@@ -2,6 +2,7 @@ import { DittoContext } from './DittoContext';
 import { InfraContainer } from './infrastructure';
 import { Core } from './core';
 import { ServiceManager } from './services';
+import { ControllerManager } from './controllers';
 import { DrawAPI } from './services/DrawService';
 import { FocusAPI } from './services/FocusService';
 import { LayerAPI } from './core/LayerService';
@@ -10,13 +11,14 @@ import { MouseAPI } from './services/MouseService';
 import { StateAPI } from './services/StateService';
 import { UiElement } from './types';
 import { KeyboardAPI } from './services/KeyboardService';
-import { ControllerAPI } from './services/ControllerService';
+import { ControllerAPI } from './controllers';
 
 export class DittoContextImpl implements DittoContext {
     constructor(
         private readonly infraContainer: InfraContainer,
         private readonly core: Core,
         private readonly serviceManager: ServiceManager,
+        private readonly controllerManager: ControllerManager,
     ) {
         this.beginLayer = this.beginLayer.bind(this);
         this.endLayer = this.endLayer.bind(this);
@@ -31,40 +33,46 @@ export class DittoContextImpl implements DittoContext {
         this.layout = serviceManager.layout;
         this.focus = serviceManager.focus;
         this.keyboard = serviceManager.keyboard;
-        this.controller = serviceManager.controller;
+        this.controller = controllerManager;
     }
 
     beginLayer(key: string, flags: number = 0): void {
         this.core.beginLayer(key, flags);
         this.serviceManager.beginLayer(this.core.curLayer);
+        this.controllerManager.onBeginLayer();
     }
 
     endLayer(): void {
         this.core.endLayer();
         this.serviceManager.endLayer();
+        this.controllerManager.onEndLayer();
     }
 
     beginElement(key: string, flags: number = 0): void {
         this.core.beginElement(key, flags);
         this.serviceManager.beginElement(this.core.element);
+        this.controllerManager.onBeginElement();
     }
 
     endElement(): void {
         this.core.endElement();
         this.serviceManager.endElement();
+        this.controllerManager.onEndElement();
     }
 
     render(): void {
         this.infraContainer.onPreRender();
-        this.core.preRender();
-
         const frameTime = this.infraContainer.frameTimeTracker.getFrameDeltaTime();
+
+        this.core.preRender();
         this.serviceManager.preRender(frameTime);
+        this.controllerManager.onPreRender();
 
         this.core.render();
 
         this.core.postRender();
         this.serviceManager.postRender(frameTime);
+        this.controllerManager.onPostRender();
     }
 
     get element(): Readonly<UiElement> {

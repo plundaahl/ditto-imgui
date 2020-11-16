@@ -1,4 +1,4 @@
-import { Controller } from '../../../services/ControllerService';
+import { Controller } from '../../Controller';
 import { MouseController } from '../MouseController';
 import { MouseAPI } from '../../../services/MouseService';
 

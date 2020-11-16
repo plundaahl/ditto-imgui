@@ -1,10 +1,23 @@
+import { ControllerManager } from './ControllerManager';
+import { ControllerFactory } from './ControllerFactory';
 import { Controller } from './Controller';
-import { ControllerService } from './ControllerService';
+import { ServiceCPI } from '../services';
 
-export class ControllerServiceImpl implements ControllerService {
-    private readonly controllers: Controller[] = [];
+type HookListener<T extends keyof Controller> = Required<Pick<Controller, T>>;
 
-    constructor() {
+export class ControllerManagerImpl implements ControllerManager {
+    private readonly controllers: Controller[];
+    private readonly onBeginElementListeners: HookListener<'onBeginElement'>[] = [];
+    private readonly onEndElementListeners: HookListener<'onEndElement'>[] = [];
+    private readonly onBeginLayerListeners: HookListener<'onBeginLayer'>[] = [];
+    private readonly onEndLayerListeners: HookListener<'onEndLayer'>[] = [];
+    private readonly onPreRenderListeners: HookListener<'onPreRender'>[] = [];
+    private readonly onPostRenderListeners: HookListener<'onPostRender'>[] = [];
+
+    constructor(
+        serviceManager: ServiceCPI,
+        ...controllerFactories: ControllerFactory[]
+    ) {
         this.isElementHighlighted = this.isElementHighlighted.bind(this);
         this.isElementReadied = this.isElementReadied.bind(this);
         this.isElementTriggered = this.isElementTriggered.bind(this);
@@ -15,10 +28,72 @@ export class ControllerServiceImpl implements ControllerService {
         this.isChildInteracted = this.isChildInteracted.bind(this);
         this.getDragX = this.getDragX.bind(this);
         this.getDragY = this.getDragY.bind(this);
+
+        this.controllers = controllerFactories.map(
+            fact => fact.createController(serviceManager),
+        );
+
+        for (const controller of this.controllers) {
+            if (controller.onBeginLayer) {
+                this.onBeginLayerListeners.push(controller as any);
+            }
+
+            if (controller.onEndLayer) {
+                this.onEndLayerListeners.push(controller as any);
+            }
+
+            if (controller.onBeginElement) {
+                this.onBeginElementListeners.push(controller as any);
+            }
+
+            if (controller.onEndElement) {
+                this.onEndElementListeners.push(controller as any);
+            }
+
+            if (controller.onPreRender) {
+                this.onPreRenderListeners.push(controller as any);
+            }
+
+            if (controller.onPostRender) {
+                this.onPostRenderListeners.push(controller as any);
+            }
+        }
     }
 
-    registerController(controller: Controller): void {
-        this.controllers.push(controller);
+    onBeginLayer(): void {
+        for (const listener of this.onBeginLayerListeners) {
+            listener.onBeginLayer();
+        }
+    }
+
+    onEndLayer(): void {
+        for (const listener of this.onEndLayerListeners) {
+            listener.onEndLayer();
+        }
+    }
+
+    onBeginElement(): void {
+        for (const listener of this.onBeginElementListeners) {
+            listener.onBeginElement();
+        }
+    }
+
+    onEndElement(): void {
+        for (const listener of this.onEndElementListeners) {
+            listener.onEndElement();
+        }
+    }
+
+    onPreRender(): void {
+        for (const listener of this.onPreRenderListeners) {
+            listener.onPreRender();
+        }
+    }
+
+    onPostRender(): void {
+        for (const listener of this.onPostRenderListeners) {
+            listener.onPostRender();
+        }
     }
 
     isElementHighlighted(): boolean {
