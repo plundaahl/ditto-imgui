@@ -7,6 +7,7 @@ interface FocusShared {
     didFocusChange(): boolean;
     focusElement(): void;
     isFocusable(): boolean;
+    blurAllElements(): void;
 }
 
 export interface FocusAPI extends FocusShared {

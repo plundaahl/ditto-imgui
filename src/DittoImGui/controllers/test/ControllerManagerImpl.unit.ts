@@ -34,6 +34,7 @@ beforeEach(() => {
             didFocusChange: jest.fn(),
             focusElement: jest.fn(),
             isFocusable: jest.fn(),
+            blurAllElements: jest.fn(),
         },
         keyboard: {
             isCharDown: jest.fn(),

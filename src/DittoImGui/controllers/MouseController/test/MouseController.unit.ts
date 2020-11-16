@@ -1,28 +1,34 @@
-import { Controller } from '../../Controller';
 import { MouseController } from '../MouseController';
-import { MouseAPI } from '../../../services/MouseService';
+import { MouseCPI } from '../../../services/MouseService';
+import { FocusCPI } from '../../../services/FocusService';
 
-interface Setters {
+interface MouseSetters {
     setDragX: (val: number) => void,
     setDragY: (val: number) => void,
+    setHoversElement: (val: boolean) => void,
+    setM1Down: (val: boolean) => void,
+    setM2Down: (val: boolean) => void,
 }
 
-function createMockMouseApi(): [MouseAPI, Setters] {
+function createMockMouseApi(): [MouseCPI, MouseSetters] {
     let mouseX = 0;
     let mouseY = 0;
     let dragX = 0;
     let dragY = 0;
+    let hoversElement: boolean = false;
+    let isM1Down: boolean = false;
+    let isM2Down: boolean = false;
 
     return [{
         get mouseX() { return mouseX },
         get mouseY() { return mouseY },
         get dragX() { return dragX },
         get dragY() { return dragY },
-        hoversElement: () => false,
+        hoversElement: () => hoversElement,
         hoversChild: () => false,
         hoversFloatingChild: () => false,
-        isM1Down: () => false,
-        isM2Down: () => false,
+        isM1Down: () => isM1Down,
+        isM2Down: () => isM2Down,
         isM1Clicked: () => false,
         isM1DoubleClicked: () => false,
         isM1Dragged: () => false,
@@ -30,16 +36,54 @@ function createMockMouseApi(): [MouseAPI, Setters] {
     }, {
         setDragX: (val: number) => dragX = val,
         setDragY: (val: number) => dragY = val,
+        setHoversElement: (val: boolean) => { hoversElement = val; },
+        setM1Down: (val: boolean) => isM1Down = val,
+        setM2Down: (val: boolean) => isM2Down = val,
     }];
 }
 
-let setters: Setters;
-let mouse: MouseAPI;
-let instance: Controller;
+interface FocusSetters {
+    setElementFocused(val: boolean): void,
+    setChildFocused(val: boolean): void,
+    setFloatChildFocused(val: boolean): void,
+    setFocusChanged(val: boolean): void,
+    setFocusable(val: boolean): void,
+}
+
+function createMockFocusCpi(): [FocusCPI, FocusSetters] {
+    let elementFocused: boolean = false;
+    let childFocused: boolean = false;
+    let floatChildFocused: boolean = false;
+    let focusChanged: boolean = false;
+    let focusable: boolean = false;
+
+    return [{
+        isElementFocused: () => elementFocused,
+        isChildFocused: () => childFocused,
+        isFloatingChildFocused: () => floatChildFocused,
+        didFocusChange: () => focusChanged,
+        isFocusable: () => focusable,
+        focusElement: jest.fn(),
+        blurAllElements: jest.fn(),
+    }, {
+        setElementFocused: (val: boolean) => elementFocused = val,
+        setChildFocused: (val: boolean) => childFocused = val,
+        setFloatChildFocused: (val: boolean) => floatChildFocused = val,
+        setFocusChanged: (val: boolean) => focusChanged = val,
+        setFocusable: (val: boolean) => { focusable = val; },
+    }];
+}
+
+let mouseSetters: MouseSetters;
+let mouse: MouseCPI;
+let focusSetters: FocusSetters;
+let focus: FocusCPI;
+let instance: MouseController;
 
 beforeEach(() => {
-    [mouse, setters] = createMockMouseApi();
-    instance = new MouseController(mouse);
+    [mouse, mouseSetters] = createMockMouseApi();
+    [focus, focusSetters] = createMockFocusCpi();
+    instance = new MouseController(mouse, focus);
 });
 
 describe('isElementHighlighted', () => {
@@ -206,7 +250,7 @@ describe.each([
     setter: 'setDragX' | 'setDragY',
 ) => {
     describe('Given mouse is not dragged', () => {
-        beforeEach(() => { setters[setter](233); });
+        beforeEach(() => { mouseSetters[setter](233); });
 
         test('should return 0', () => {
             expect(instance[method]()).toBe(0);
@@ -217,12 +261,58 @@ describe.each([
         const value = 123;
 
         beforeEach(() => {
-            setters[setter](value);
+            mouseSetters[setter](value);
             mouse.isM1Dragged = () => true;
         });
 
         test(`should return value of mouse.${mouseProp}`, () => {
             expect(instance[method]()).toBe(value);
         });
+    });
+});
+
+describe('clicking to unfocus', () => {
+    test('clicking on empty space should blur', () => {
+        focusSetters.setFocusable(true);
+        focusSetters.setElementFocused(true);
+        mouseSetters.setHoversElement(false);
+        instance.onBeginElement();
+
+        mouseSetters.setM1Down(true);
+        instance.onPreRender();
+
+        expect(focus.blurAllElements).toHaveBeenCalled();
+    });
+
+    test('clicking a non-focusable element should blur', () => {
+        focusSetters.setFocusable(true);
+        focusSetters.setElementFocused(true);
+        mouseSetters.setHoversElement(false);
+        instance.onBeginElement();
+
+        focusSetters.setFocusable(true);
+        focusSetters.setElementFocused(false);
+        mouseSetters.setHoversElement(false);
+        instance.onBeginElement();
+
+        focusSetters.setFocusable(false);
+        mouseSetters.setHoversElement(true);
+        instance.onBeginElement();
+
+        mouseSetters.setM1Down(true);
+        instance.onPreRender();
+
+        expect(focus.blurAllElements).toHaveBeenCalled();
+    });
+
+    test('clicking a focusable element should not blur', () => {
+        focusSetters.setFocusable(true);
+        mouseSetters.setHoversElement(true);
+        instance.onBeginElement();
+
+        mouseSetters.setM1Down(true);
+        instance.onPreRender();
+
+        expect(focus.blurAllElements).not.toHaveBeenCalled();
     });
 });

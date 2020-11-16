@@ -5,6 +5,9 @@ import { MouseController } from './MouseController';
 
 export class MouseControllerFactory implements ControllerFactory {
     createController(services: ServiceCPI): Controller {
-        return new MouseController(services.mouse);
+        return new MouseController(
+            services.mouse,
+            services.focus,
+        );
     }
 }
