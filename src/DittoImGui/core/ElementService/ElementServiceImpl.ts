@@ -22,7 +22,7 @@ export class ElementServiceImpl implements ElementService {
         this.currentLayer = layer;
     }
 
-    beginElement(key: string): void {
+    beginElement(key: string, flags: number): void {
         const layer = this.currentLayer;
         if (!layer) {
             throw new Error('cannot create layer when no layer is set');
@@ -32,6 +32,7 @@ export class ElementServiceImpl implements ElementService {
         const element: UiElement = this.elementPool.provision();
         element.layer = layer;
         element.key = key;
+        element.flags = flags;
 
         if (parent) {
             element.parent = parent;

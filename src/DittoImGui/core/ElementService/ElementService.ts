@@ -1,7 +1,7 @@
 import { Layer, UiElement } from '../../types';
 
 export interface ElementAPI {
-    beginElement(key: string): void;
+    beginElement(key: string, flags: number): void;
     endElement(): void;
 }
 

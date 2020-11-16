@@ -43,7 +43,7 @@ export class CoreImpl implements Core {
         return element;
     }
 
-    beginLayer(key: string): void {
+    beginLayer(key: string, flags: number): void {
         const { keyBuilder, layerBuilder, elementBuilder } = this;
 
         keyBuilder.push(key);
@@ -53,7 +53,7 @@ export class CoreImpl implements Core {
         const layer = layerBuilder.getCurrentLayer() as Layer;
 
         elementBuilder.setCurrentLayer(layer);
-        elementBuilder.beginElement(qualifiedKey);
+        elementBuilder.beginElement(qualifiedKey, flags);
         const rootElement = elementBuilder.getCurrentElement() as UiElement;
 
         layer.rootElement = rootElement;
@@ -68,13 +68,13 @@ export class CoreImpl implements Core {
         elementBuilder.setCurrentLayer(layerBuilder.getCurrentLayer());
     }
 
-    beginElement(key: string): void {
+    beginElement(key: string, flags: number): void {
         const { keyBuilder, elementBuilder } = this;
 
         keyBuilder.push(key);
         const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
 
-        elementBuilder.beginElement(qualifiedKey);
+        elementBuilder.beginElement(qualifiedKey, flags);
     }
 
     endElement(): void {

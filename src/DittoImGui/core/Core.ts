@@ -11,9 +11,9 @@ export interface CoreAPI {
 }
 
 export interface Core extends CoreCPI, CoreAPI {
-    beginLayer(key: string): void;
+    beginLayer(key: string, flags: number): void;
     endLayer(): void;
-    beginElement(key: string): void;
+    beginElement(key: string, flags: number): void;
     endElement(): void;
     preRender(): void;
     render(): void;

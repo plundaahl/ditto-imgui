@@ -34,13 +34,14 @@ describe('beginElement', () => {
 
     test("should call objectPool's provision method", () => {
         instance.setCurrentLayer({ key: 'layerkey', zIndex: -1 });
-        instance.beginElement('somekey');
+        instance.beginElement('somekey', 123);
 
         expect(pool.provision).toHaveBeenCalled();
     });
 
     describe('created element', () => {
         const key = 'somekey';
+        const flags = 256;
         let layer: Layer;
         let element: UiElement;
 
@@ -50,7 +51,7 @@ describe('beginElement', () => {
                 zIndex: -1,
             };
             instance.setCurrentLayer(layer);
-            instance.beginElement(key);
+            instance.beginElement(key, flags);
             const elem = instance.getCurrentElement();
             if (!elem) {
                 throw new Error('element is undefined');
@@ -66,6 +67,10 @@ describe('beginElement', () => {
             expect(element.layer).toBe(layer);
         });
 
+        test("should set created element's flags", () => {
+            expect(element.flags).toBe(flags);
+        });
+
         describe('given parent exists', () => {
             const childKey = `${key}/childkey`;
             let parent: UiElement;
@@ -73,7 +78,7 @@ describe('beginElement', () => {
 
             beforeEach(() => {
                 parent = element;
-                instance.beginElement(childKey);
+                instance.beginElement(childKey, 0);
                 child = instance.getCurrentElement();
             });
 
@@ -99,9 +104,9 @@ describe('beginElement', () => {
                 zIndex: -1,
             });
 
-            instance.beginElement('parent');
+            instance.beginElement('parent', 0);
             parent = instance.getCurrentElement();
-            instance.beginElement('child');
+            instance.beginElement('child', 0);
             child = instance.getCurrentElement();
         });
 
@@ -127,9 +132,9 @@ describe('endElement', () => {
                 zIndex: -1,
             });
 
-            instance.beginElement('parent');
+            instance.beginElement('parent', 0);
             parent = instance.getCurrentElement();
-            instance.beginElement('child');
+            instance.beginElement('child', 0);
 
             instance.endElement();
         });
@@ -148,7 +153,7 @@ describe('onPostRender', () => {
                 zIndex: -1,
             });
 
-            instance.beginElement('foo');
+            instance.beginElement('foo', 0);
         });
 
         test('should error', () => {
@@ -167,21 +172,21 @@ describe('onPostRender', () => {
 
             elements = [];
 
-            instance.beginElement('foo');
+            instance.beginElement('foo', 0);
             elements.push(instance.getCurrentElement());
-            instance.beginElement('foo/bar');
+            instance.beginElement('foo/bar', 0);
             elements.push(instance.getCurrentElement());
-            instance.beginElement('foo/bar/baz');
-            elements.push(instance.getCurrentElement());
-            instance.endElement();
-            instance.beginElement('foo/bar/bing');
+            instance.beginElement('foo/bar/baz', 0);
             elements.push(instance.getCurrentElement());
             instance.endElement();
-            instance.endElement();
-            instance.endElement();
-            instance.beginElement('fuu');
+            instance.beginElement('foo/bar/bing', 0);
             elements.push(instance.getCurrentElement());
-            instance.beginElement('fuu/bor');
+            instance.endElement();
+            instance.endElement();
+            instance.endElement();
+            instance.beginElement('fuu', 0);
+            elements.push(instance.getCurrentElement());
+            instance.beginElement('fuu/bor', 0);
             elements.push(instance.getCurrentElement());
             instance.endElement();
             instance.endElement();

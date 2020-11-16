@@ -34,8 +34,8 @@ export class DittoContextImpl implements DittoContext {
         this.controller = serviceManager.controller;
     }
 
-    beginLayer(key: string): void {
-        this.core.beginLayer(key);
+    beginLayer(key: string, flags: number = 0): void {
+        this.core.beginLayer(key, flags);
         this.serviceManager.beginLayer(this.core.curLayer);
     }
 
@@ -44,8 +44,8 @@ export class DittoContextImpl implements DittoContext {
         this.serviceManager.endLayer();
     }
 
-    beginElement(key: string): void {
-        this.core.beginElement(key);
+    beginElement(key: string, flags: number = 0): void {
+        this.core.beginElement(key, flags);
         this.serviceManager.beginElement(this.core.element);
     }
 

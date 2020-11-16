@@ -10,8 +10,7 @@ beforeEach(() => {
     instance = new ElementFactoryImpl(defaultLayer);
 });
 
-describe('createElement', () => {
-    describe('returned element', () => {
+describe('createElement', () => { describe('returned element', () => {
         let element: UiElement;
         beforeEach(() => element = instance.createElement());
 
@@ -52,6 +51,7 @@ describe('resetElement', () => {
         element.children.push(instance.createElement());
         element.parent = instance.createElement();
         element.layer = { key: 'differentlayer', zIndex: 94 };
+        element.flags = 256;
 
         instance.resetElement(element);
     });
@@ -81,6 +81,10 @@ describe('resetElement', () => {
         expect(element.bounds.y).toBe(0);
         expect(element.bounds.h).toBe(0);
         expect(element.bounds.w).toBe(0);
+    });
+
+    test("should reset flags to 0", () => {
+        expect(element.flags).toBe(0);
     });
 });
 

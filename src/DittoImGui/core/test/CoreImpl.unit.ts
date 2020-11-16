@@ -40,10 +40,11 @@ beforeEach(() => {
 
 describe('beginLayer', () => {
     const key = 'akey';
+    const flags = 128;
     const qualifiedKey = key;
 
     beforeEach(() => {
-        instance.beginLayer(key);
+        instance.beginLayer(key, flags);
     });
 
     test('should pass key into keyBuilder.push', () => {
@@ -59,8 +60,8 @@ describe('beginLayer', () => {
         expect(elementService.setCurrentLayer).toHaveBeenCalledWith(currentLayer);
     });
 
-    test('should pass qualifiedKey into elementBuilder.beginLayer', () => {
-        expect(elementService.beginElement).toHaveBeenCalledWith(qualifiedKey);
+    test('should pass qualifiedKey and flags into elementBuilder.beginLayer', () => {
+        expect(elementService.beginElement).toHaveBeenCalledWith(qualifiedKey, flags);
     });
 
     test('should link new layer and its root element', () => {
@@ -83,10 +84,10 @@ describe('endLayer', () => {
         let prevLayer: Layer;
 
         beforeEach(() => {
-            instance.beginLayer('layerA');
+            instance.beginLayer('layerA', 0);
             prevLayer = notUndefined(layerBuilder.getCurrentLayer());
 
-            instance.beginLayer('layerB');
+            instance.beginLayer('layerB', 0);
 
             jest.clearAllMocks();
             instance.endLayer();
@@ -117,33 +118,35 @@ describe('endLayer', () => {
 describe('beginElement', () => {
     describe('given no layer has been created', () => {
         test('should error', () => {
-            expect(() => instance.beginElement('anykey')).toThrow();
+            expect(() => instance.beginElement('anykey', 0)).toThrow();
         });
     });
 
 
     describe('given a layer has been created', () => {
         const key = 'elementkey';
+        const flags = 128;
 
         beforeEach(() => {
-            instance.beginLayer('layer');
-            instance.beginElement(key);
+            instance.beginLayer('layer', 0);
+            instance.beginElement(key, flags);
         });
 
         test('should pass key into keyBuilder.push', () => {
             expect(keyBuilder.push).toHaveBeenCalledWith(key);
         });
 
-        test('should pass qualified key into elementBuilder.beginElement', () => {
+        test('should pass qualified key and flags into elementBuilder.beginElement', () => {
             const qualifiedKey = keyBuilder.getCurrentQualifiedKey();
-            expect(elementService.beginElement).toHaveBeenCalledWith(qualifiedKey);
+            expect(elementService.beginElement)
+                .toHaveBeenCalledWith(qualifiedKey, flags);
         });
     });
 });
 
 describe('endElement', () => {
     describe("given next element to remove is a layer's rootElement", () => {
-        beforeEach(() => instance.beginLayer('layer'));
+        beforeEach(() => instance.beginLayer('layer', 0));
 
         test('should error', () => {
             expect(instance.endElement).toThrow();
@@ -158,8 +161,8 @@ describe('endElement', () => {
 
     describe("given a layer is present and element is not layer's rootElement", () => {
         beforeEach(() => {
-            instance.beginLayer('layer');
-            instance.beginElement('element');
+            instance.beginLayer('layer', 0);
+            instance.beginElement('element', 0);
 
             jest.clearAllMocks();
             instance.endElement();
@@ -183,7 +186,7 @@ describe('currentElement', () => {
     });
 
     describe('given element is present', () => {
-        beforeEach(() => instance.beginLayer('alayer'));
+        beforeEach(() => instance.beginLayer('alayer', 0));
 
         test('should return current element', () => {
             expect(instance.element).toBe(elementService.getCurrentElement());
@@ -199,7 +202,7 @@ describe('currentLayer.bringToFront', () => {
     });
 
     test('should call layerBuilder.bringCurrentLayerToFront', () => {
-        instance.beginLayer('somelayer');
+        instance.beginLayer('somelayer', 0);
         instance.layer.bringToFront();
 
         expect(layerBuilder.bringToFront).toHaveBeenCalled();
@@ -209,7 +212,7 @@ describe('currentLayer.bringToFront', () => {
 describe('render', () => {
     describe('given not all layers have been ended', () => {
         beforeEach(() => {
-            instance.beginLayer('foo');
+            instance.beginLayer('foo', 0);
         });
 
         test('should error', () => {
@@ -219,12 +222,12 @@ describe('render', () => {
 
     describe('given all layers and elements have been ended', () => {
         beforeEach(() => {
-            instance.beginLayer('foo');
-            instance.beginElement('baz');
+            instance.beginLayer('foo', 0);
+            instance.beginElement('baz', 0);
             instance.endElement();
             instance.endLayer();
 
-            instance.beginLayer('bar');
+            instance.beginLayer('bar', 0);
             instance.endLayer();
 
             jest.clearAllMocks();
@@ -253,11 +256,11 @@ describe('render', () => {
 
     describe('multiple render calls', () => {
         function mockDrawPhase() {
-            instance.beginLayer('foo');
-            instance.beginElement('baz');
+            instance.beginLayer('foo', 0);
+            instance.beginElement('baz', 0);
             instance.endElement();
             instance.endLayer();
-            instance.beginLayer('bar');
+            instance.beginLayer('bar', 0);
             instance.endLayer();
         }
 
