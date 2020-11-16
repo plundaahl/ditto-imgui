@@ -10,6 +10,7 @@ export function createDummyElement(e: Partial<UiElement> = {}): UiElement {
         parent: undefined,
         drawBuffer: [],
         children: [],
+        flags: 0,
         ...e,
     };
 }

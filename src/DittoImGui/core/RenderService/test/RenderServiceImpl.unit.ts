@@ -123,6 +123,7 @@ function createElement(...children: UiElement[]): UiElement {
         drawBuffer: [],
         layer: undefined as unknown as Layer,
         bounds: { x: 0, y: 0, w: 0, h: 0 },
+        flags: 0,
     }
 
     for (const child of children) {

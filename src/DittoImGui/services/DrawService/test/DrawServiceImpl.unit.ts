@@ -40,6 +40,7 @@ describe('pushDrawCommand', () => {
                 },
                 children: [],
                 drawBuffer: [],
+                flags: 0,
             };
             instance.onBeginElement(element);
         });

@@ -16,6 +16,7 @@ export class ElementFactoryImpl implements ElementFactory {
             drawBuffer: [],
             children: [],
             layer: this.defaultLayer,
+            flags: 0,
         };
     }
 
@@ -25,6 +26,7 @@ export class ElementFactoryImpl implements ElementFactory {
         element.layer = this.defaultLayer;
         element.drawBuffer.length = 0;
         element.children.length = 0;
+        element.flags = 0;
 
         const { bounds } = element;
         bounds.x = 0;

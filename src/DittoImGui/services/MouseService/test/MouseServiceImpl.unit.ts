@@ -691,6 +691,7 @@ function createElement(props: Partial<UiElement> = {}): UiElement {
         bounds: { x: 0, y: 0, w: 100, h: 100 },
         children: [],
         drawBuffer: [],
+        flags: 0,
         ...props,
     };
 }

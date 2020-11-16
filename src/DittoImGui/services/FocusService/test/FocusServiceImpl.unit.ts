@@ -510,6 +510,7 @@ function createElement(element: Partial<UiElement> = {}): UiElement {
         children: [],
         drawBuffer: [],
         layer: createLayer(),
+        flags: 0,
         ...element,
     };
 }

@@ -263,6 +263,7 @@ function createLayerAndElement(key: string): [UiElement, Layer] {
         children: [],
         drawBuffer: [],
         bounds: { x: 0, y: 0, w: 0, h: 0 },
+        flags: 0,
     };
     layer.rootElement = element;
     return [element, layer];

@@ -166,6 +166,7 @@ function createElement(
         drawBuffer: [],
         layer: defaultLayer,
         bounds: { x: 0, y: 0, w: 0, h: 0 },
+        flags: 0,
         ...overrides,
     };
 

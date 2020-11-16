@@ -9,5 +9,6 @@ export interface UiElement {
     layer: Layer;
     bounds: Box;
     drawBuffer: DrawCommand[];
+    flags: number;
 }
 
