@@ -45,6 +45,9 @@ beforeEach(() => {
             isKeyPressed: jest.fn(),
             getBufferedText: jest.fn(),
         },
+        childBounds: {
+            getChildBounds: jest.fn(),
+        },
     };
 
     controllerA = createDummyController();

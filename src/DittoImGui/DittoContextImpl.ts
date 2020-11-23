@@ -9,14 +9,14 @@ import { LayerAPI } from './core/LayerService';
 import { LayoutAPI } from './services/LayoutService';
 import { MouseAPI } from './services/MouseService';
 import { StateAPI } from './services/StateService';
+import { ChildBoundsServiceAPI } from './services/ChildBoundsService';
 import { UiElement } from './types';
 import { KeyboardAPI } from './services/KeyboardService';
 import { ControllerAPI } from './controllers';
 
 export class DittoContextImpl implements DittoContext {
     constructor(
-        private readonly infraContainer: InfraContainer,
-        private readonly core: Core,
+        private readonly infraContainer: InfraContainer, private readonly core: Core,
         private readonly serviceManager: ServiceManager,
         private readonly controllerManager: ControllerManager,
     ) {
@@ -27,12 +27,15 @@ export class DittoContextImpl implements DittoContext {
         this.render = this.render.bind(this);
 
         this.layer = core.layer;
+
         this.draw = serviceManager.draw;
         this.mouse = serviceManager.mouse;
         this.state = serviceManager.state;
         this.layout = serviceManager.layout;
         this.focus = serviceManager.focus;
         this.keyboard = serviceManager.keyboard;
+        this.childBounds = serviceManager.childBounds;
+
         this.controller = controllerManager;
     }
 
@@ -87,4 +90,5 @@ export class DittoContextImpl implements DittoContext {
     layout: LayoutAPI;
     focus: FocusAPI;
     keyboard: KeyboardAPI;
+    childBounds: ChildBoundsServiceAPI;
 }
