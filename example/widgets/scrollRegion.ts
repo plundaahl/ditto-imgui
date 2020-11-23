@@ -52,19 +52,9 @@ function endScrollRegion() {
     const state = stateHandle.declareAndGetState(defaultScrollState);
     const { parentH, offsetY } = state;
 
-    let childrenHeight: number = gui.element.children[0]?.bounds.y || 0;
-    const offsetPosY = gui.element.bounds.y;
-
-    for (const child of gui.element.children) {
-        if (child.layer === gui.element.layer) {
-            childrenHeight = Math.max(
-                child.bounds.h + child.bounds.y - offsetPosY,
-                childrenHeight,
-            );
-        }
-    }
-
-    childrenHeight = Math.max(childrenHeight, parentH);
+    const childrenHeight: number = gui.childBounds.getChildBounds().h + (
+        gui.childBounds.getChildBounds().y - gui.element.bounds.y
+    );
 
     gui.element.bounds.y += offsetY;
     gui.element.bounds.h = parentH;
