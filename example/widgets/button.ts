@@ -15,9 +15,9 @@ export function button(buttonText: string) {
 
     gui.beginElement(buttonText, FOCUSABLE);
 
-    gui.element.bounds.h = 30;
+    gui.element.getBounds().h = 30;
 
-    const { x, y, w, h } = gui.element.bounds;
+    const { x, y, w, h } = gui.element.getBounds();
     const isTriggered = gui.controller.isElementTriggered();
 
     if (gui.controller.isElementReadied()) {

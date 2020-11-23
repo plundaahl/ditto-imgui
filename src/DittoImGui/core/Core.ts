@@ -1,13 +1,15 @@
-import { UiElement, Layer } from "../types";
+import { Layer } from "../types";
 import { LayerAPI } from './LayerService';
+import { ElementAPI, ElementService } from './ElementService';
 
-export interface CoreCPI {
-    readonly element: Readonly<UiElement>;
+interface CoreShared {
+    readonly element: ElementAPI;
 }
 
-export interface CoreAPI {
+export interface CoreCPI extends CoreShared {}
+
+export interface CoreAPI extends CoreShared {
     readonly layer: LayerAPI;
-    readonly element: Readonly<UiElement>;
 }
 
 export interface Core extends CoreCPI, CoreAPI {
@@ -18,7 +20,7 @@ export interface Core extends CoreCPI, CoreAPI {
     preRender(): void;
     render(): void;
     postRender(): void;
-    readonly element: Readonly<UiElement>;
+    readonly element: Readonly<ElementService>;
     readonly curLayer: Readonly<Layer>;
 }
 

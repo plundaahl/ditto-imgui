@@ -2,6 +2,7 @@ import { ObjectPool } from '../../../lib/ObjectPool';
 import { ElementFactory, ElementFactoryImpl } from '../../../factories/ElementFactory';
 import { Layer, UiElement } from '../../../types';
 import { ElementServiceImpl } from '../ElementServiceImpl';
+import { createDummyLayer } from '../../../test/helpers/';
 
 let factory: ElementFactory;
 let pool: ObjectPool<UiElement>;
@@ -30,8 +31,32 @@ describe('getCurrentElement', () => {
     });
 });
 
-describe('beginElement', () => {
+describe('getBounds', () => {
+    describe('given no element is active', () => {
+        test('should error', () => {
+            expect(instance.getBounds).toThrow();
+        });
+    });
 
+    describe('given an element is active', () => {
+        let element: UiElement;
+
+        beforeEach(() => {
+            instance.setCurrentLayer(createDummyLayer());
+            instance.beginElement('bar', 0);
+            const curElement = instance.getCurrentElement();
+            if (curElement) {
+                element = curElement;
+            }
+        });
+
+        test('should return that elements bounding box', () => {
+            expect(instance.getBounds()).toBe(element.bounds);
+        });
+    });
+});
+
+describe('beginElement', () => {
     test("should call objectPool's provision method", () => {
         instance.setCurrentLayer({ key: 'layerkey', zIndex: -1 });
         instance.beginElement('somekey', 123);

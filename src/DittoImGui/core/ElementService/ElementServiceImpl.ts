@@ -1,4 +1,4 @@
-import { Layer, UiElement } from '../../types';
+import { Layer, UiElement, Box } from '../../types';
 import { ElementService } from './ElementService';
 import { ObjectPool } from '../../lib/ObjectPool';
 
@@ -15,7 +15,16 @@ export class ElementServiceImpl implements ElementService {
         this.beginElement = this.beginElement.bind(this);
         this.endElement = this.endElement.bind(this);
         this.getCurrentElement = this.getCurrentElement.bind(this);
+        this.getBounds = this.getBounds.bind(this);
         this.onPostRender = this.onPostRender.bind(this);
+    }
+
+    getBounds(): Box {
+        const element = this.currentElement;
+        if (!element) {
+            throw new Error('No element active');
+        }
+        return element.bounds;
     }
 
     setCurrentLayer(layer: Layer | undefined): void {

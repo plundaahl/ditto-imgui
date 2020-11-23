@@ -44,10 +44,11 @@ export function editableText(
     gui.beginElement(key, FOCUSABLE);
 
     const state = stateHandle.declareAndGetState(defaultEditTextState);
+    const bounds = gui.element.getBounds();
 
-    const y = gui.element.bounds.y;
-    const x = gui.element.bounds.x + PADDING;
-    const w = gui.element.bounds.w - (PADDING + PADDING);
+    const y = bounds.y;
+    const x = bounds.x + PADDING;
+    const w = bounds.w - (PADDING + PADDING);
     let text = valueBinding();
 
     gui.draw.setFont(FONT);
@@ -74,7 +75,7 @@ export function editableText(
     }
     gui.draw.strokeRect(x, y, w, textPainter.getHeight());
 
-    gui.element.bounds.h = textPainter.getHeight();
+    bounds.h = textPainter.getHeight();
 
     if (gui.mouse.hoversElement() && gui.mouse.isM1Down()) {
         const { mouseX, mouseY } = gui.mouse;

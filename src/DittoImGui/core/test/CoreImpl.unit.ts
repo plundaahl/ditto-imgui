@@ -178,22 +178,6 @@ describe('endElement', () => {
     });
 });
 
-describe('currentElement', () => {
-    describe('given no element is present', () => {
-        test('should error', () => {
-            expect(() => instance.element).toThrow();
-        });
-    });
-
-    describe('given element is present', () => {
-        beforeEach(() => instance.beginLayer('alayer', 0));
-
-        test('should return current element', () => {
-            expect(instance.element).toBe(elementService.getCurrentElement());
-        });
-    });
-});
-
 describe('currentLayer.bringToFront', () => {
     describe('given no layer is present', () => {
         test('should error', () => {

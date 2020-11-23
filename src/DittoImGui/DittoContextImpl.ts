@@ -1,6 +1,7 @@
 import { DittoContext } from './DittoContext';
 import { InfraContainer } from './infrastructure';
 import { Core } from './core';
+import { ElementAPI } from './core/ElementService';
 import { ServiceManager } from './services';
 import { ControllerManager } from './controllers';
 import { DrawAPI } from './services/DrawService';
@@ -10,13 +11,13 @@ import { LayoutAPI } from './services/LayoutService';
 import { MouseAPI } from './services/MouseService';
 import { StateAPI } from './services/StateService';
 import { ChildBoundsServiceAPI } from './services/ChildBoundsService';
-import { UiElement } from './types';
 import { KeyboardAPI } from './services/KeyboardService';
 import { ControllerAPI } from './controllers';
 
 export class DittoContextImpl implements DittoContext {
     constructor(
-        private readonly infraContainer: InfraContainer, private readonly core: Core,
+        private readonly infraContainer: InfraContainer,
+        private readonly core: Core,
         private readonly serviceManager: ServiceManager,
         private readonly controllerManager: ControllerManager,
     ) {
@@ -26,6 +27,7 @@ export class DittoContextImpl implements DittoContext {
         this.endElement = this.endElement.bind(this);
         this.render = this.render.bind(this);
 
+        this.element = core.element;
         this.layer = core.layer;
 
         this.draw = serviceManager.draw;
@@ -53,7 +55,11 @@ export class DittoContextImpl implements DittoContext {
 
     beginElement(key: string, flags: number = 0): void {
         this.core.beginElement(key, flags);
-        this.serviceManager.beginElement(this.core.element);
+        const curElement = this.core.element.getCurrentElement();
+        if (!curElement) {
+            throw new Error('should not happen');
+        }
+        this.serviceManager.beginElement(curElement);
         this.controllerManager.onBeginElement();
     }
 
@@ -78,10 +84,7 @@ export class DittoContextImpl implements DittoContext {
         this.controllerManager.onPostRender();
     }
 
-    get element(): Readonly<UiElement> {
-        return this.core.element;
-    }
-
+    element: ElementAPI;
     controller: ControllerAPI;
     layer: LayerAPI;
     draw: DrawAPI;

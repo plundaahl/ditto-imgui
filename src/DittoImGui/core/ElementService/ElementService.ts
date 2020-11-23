@@ -1,13 +1,14 @@
-import { Layer, UiElement } from '../../types';
+import { Layer, UiElement, Box } from '../../types';
 
 export interface ElementAPI {
-    beginElement(key: string, flags: number): void;
-    endElement(): void;
+    getBounds(): Box;
 }
 
 export interface ElementCPI {}
 
 export interface ElementService extends ElementAPI {
+    beginElement(key: string, flags: number): void;
+    endElement(): void;
     setCurrentLayer(layer?: Layer): void;
     getCurrentElement(): UiElement | undefined;
     onPostRender(): void;

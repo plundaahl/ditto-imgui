@@ -20,8 +20,11 @@ export class CoreImpl implements Core {
         this.endElement = this.endElement.bind(this);
         this.render = this.render.bind(this);
 
+        this.element = elementBuilder;
         this.layer = layerBuilder;
     }
+
+    readonly element: ElementService;
 
     readonly layer: {
         bringToFront: () => void;
@@ -33,14 +36,6 @@ export class CoreImpl implements Core {
             throw new Error('no layer is currently on stack');
         }
         return layer;
-    }
-
-    get element(): Readonly<UiElement> {
-        const element = this.elementBuilder.getCurrentElement();
-        if (element === undefined) {
-            throw new Error('no element is currently on stack');
-        }
-        return element;
     }
 
     beginLayer(key: string, flags: number): void {

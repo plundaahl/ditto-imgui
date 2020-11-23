@@ -36,7 +36,7 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
         gui.layer.bringToFront();
     }
 
-    const bounds = gui.element.bounds;
+    const bounds = gui.element.getBounds();
     bounds.x = state.x;
     bounds.y = state.y;
     bounds.w = w;
