@@ -55,8 +55,8 @@ function endScrollRegion() {
     const { parentH, offsetY } = state;
     const bounds = gui.element.getBounds();
 
-    const childrenHeight: number = gui.childBounds.getChildBounds().h + (
-        gui.childBounds.getChildBounds().y - bounds.y
+    const childrenHeight: number = gui.bounds.getChildBounds().h + (
+        gui.bounds.getChildBounds().y - bounds.y
     );
 
     bounds.y += offsetY;

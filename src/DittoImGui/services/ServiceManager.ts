@@ -5,13 +5,13 @@ import { StateAPI, StateCPI } from './StateService';
 import { LayoutAPI, LayoutCPI } from './LayoutService';
 import { FocusAPI, FocusCPI } from './FocusService';
 import { KeyboardAPI, KeyboardCPI, KeyboardService } from './KeyboardService';
-import { ChildBoundsService, ChildBoundsServiceAPI, ChildBoundsServiceCPI } from './ChildBoundsService';
+import { BoundsService, BoundsServiceAPI, BoundsServiceCPI } from './BoundsService';
 
 export interface ServiceCPI {
     readonly mouse: MouseCPI;
     readonly focus: FocusCPI;
     readonly keyboard: KeyboardCPI;
-    readonly childBounds: ChildBoundsServiceCPI;
+    readonly bounds: BoundsServiceCPI;
 }
 
 export interface ServiceAPI {
@@ -21,7 +21,7 @@ export interface ServiceAPI {
     readonly layout: LayoutAPI;
     readonly focus: FocusAPI;
     readonly keyboard: KeyboardAPI;
-    readonly childBounds: ChildBoundsServiceAPI;
+    readonly bounds: BoundsServiceAPI;
 }
 
 export interface ServiceManager extends ServiceCPI, ServiceAPI {
@@ -37,6 +37,6 @@ export interface ServiceManager extends ServiceCPI, ServiceAPI {
     readonly layout: LayoutAPI & LayoutCPI;
     readonly focus: FocusAPI & FocusCPI;
     readonly keyboard: KeyboardService;
-    readonly childBounds: ChildBoundsService;
+    readonly bounds: BoundsService;
 }
 

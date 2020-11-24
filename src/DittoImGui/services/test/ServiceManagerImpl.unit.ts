@@ -8,7 +8,7 @@ import { StateService, StateServiceImpl } from '../StateService';
 import { LayoutService, LayoutServiceImpl } from '../LayoutService';
 import { FocusService, FocusServiceImpl } from '../FocusService';
 import { KeyboardService, KeyboardServiceImpl } from '../KeyboardService';
-import {  ChildBoundsService, ChildBoundsServiceImpl } from '../ChildBoundsService';
+import { BoundsService, BoundsServiceImpl } from '../BoundsService';
 import { spy } from './spy';
 import { createTestBrowserFocusHandle } from '../FocusService/test/createTestBrowserFocusHandle';
 
@@ -20,7 +20,7 @@ let stateManager: StateService;
 let layoutHandler: LayoutService;
 let focusManager: FocusService;
 let keyboardService: KeyboardService;
-let childBoundsService: ChildBoundsService;
+let boundsService: BoundsService;
 
 beforeEach(() => {
     hookRunner = spy(new HookRunnerImpl());
@@ -41,7 +41,7 @@ beforeEach(() => {
     keyboardService = spy(new KeyboardServiceImpl(
         { addEventListener: jest.fn() },
     ));
-    childBoundsService = spy(new ChildBoundsServiceImpl());
+    boundsService = spy(new BoundsServiceImpl());
 
     serviceManager = new ServiceManagerImpl(
         hookRunner,
@@ -51,7 +51,7 @@ beforeEach(() => {
         layoutHandler,
         focusManager,
         keyboardService,
-        childBoundsService,
+        boundsService,
     );
 });
 
@@ -80,8 +80,8 @@ describe('constructor', () => {
         expect(hookRunner.registerHookable).toHaveBeenCalledWith(keyboardService);
     });
 
-    test('should register childBoundsService with hookRunner', () => {
-        expect(hookRunner.registerHookable).toHaveBeenCalledWith(childBoundsService);
+    test('should register boundsService with hookRunner', () => {
+        expect(hookRunner.registerHookable).toHaveBeenCalledWith(boundsService);
     });
 });
 

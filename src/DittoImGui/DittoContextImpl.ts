@@ -10,7 +10,7 @@ import { LayerAPI } from './core/LayerService';
 import { LayoutAPI } from './services/LayoutService';
 import { MouseAPI } from './services/MouseService';
 import { StateAPI } from './services/StateService';
-import { ChildBoundsServiceAPI } from './services/ChildBoundsService';
+import { BoundsServiceAPI } from './services/BoundsService';
 import { KeyboardAPI } from './services/KeyboardService';
 import { ControllerAPI } from './controllers';
 
@@ -36,7 +36,7 @@ export class DittoContextImpl implements DittoContext {
         this.layout = serviceManager.layout;
         this.focus = serviceManager.focus;
         this.keyboard = serviceManager.keyboard;
-        this.childBounds = serviceManager.childBounds;
+        this.bounds = serviceManager.bounds;
 
         this.controller = controllerManager;
     }
@@ -93,5 +93,5 @@ export class DittoContextImpl implements DittoContext {
     layout: LayoutAPI;
     focus: FocusAPI;
     keyboard: KeyboardAPI;
-    childBounds: ChildBoundsServiceAPI;
+    bounds: BoundsServiceAPI;
 }

@@ -7,7 +7,7 @@ import { StateService } from './StateService';
 import { LayoutService } from './LayoutService';
 import { FocusService } from './FocusService';
 import { KeyboardService } from './KeyboardService';
-import { ChildBoundsService } from './ChildBoundsService';
+import { BoundsService } from './BoundsService';
 
 export class ServiceManagerImpl implements ServiceManager {
 
@@ -19,7 +19,7 @@ export class ServiceManagerImpl implements ServiceManager {
         layoutHandler: LayoutService,
         focusManager: FocusService,
         keyboardService: KeyboardService,
-        childBoundsService: ChildBoundsService,
+        boundsService: BoundsService,
     ) {
 
         this.beginLayer = this.beginLayer.bind(this);
@@ -35,7 +35,7 @@ export class ServiceManagerImpl implements ServiceManager {
         this.layout = layoutHandler;
         this.focus = focusManager;
         this.keyboard = keyboardService;
-        this.childBounds = childBoundsService;
+        this.bounds = boundsService;
 
         hookRunner.registerHookable(stateManager);
         hookRunner.registerHookable(drawHandler);
@@ -43,7 +43,7 @@ export class ServiceManagerImpl implements ServiceManager {
         hookRunner.registerHookable(layoutHandler);
         hookRunner.registerHookable(focusManager);
         hookRunner.registerHookable(keyboardService);
-        hookRunner.registerHookable(childBoundsService);
+        hookRunner.registerHookable(boundsService);
     }
 
     readonly draw: DrawService;
@@ -52,7 +52,7 @@ export class ServiceManagerImpl implements ServiceManager {
     readonly layout: LayoutService;
     readonly focus: FocusService;
     readonly keyboard: KeyboardService;
-    readonly childBounds: ChildBoundsService;
+    readonly bounds: BoundsService;
 
     beginLayer(layer: Layer): void {
         const element = layer.rootElement;

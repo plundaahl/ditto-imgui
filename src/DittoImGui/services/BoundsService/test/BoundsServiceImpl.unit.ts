@@ -1,12 +1,12 @@
-import { ChildBoundsService } from '../ChildBoundsService';
-import { ChildBoundsServiceImpl } from '../ChildBoundsServiceImpl';
+import { BoundsService } from '../BoundsService';
+import { BoundsServiceImpl } from '../BoundsServiceImpl';
 import { UiElement, Box } from '../../../types';
 import { createDummyElement } from '../../../test/helpers';
 
-let instance: ChildBoundsService;
+let instance: BoundsService;
 
 beforeEach(() => {
-    instance = new ChildBoundsServiceImpl();
+    instance = new BoundsServiceImpl();
 });
 
 describe('getChildBounds', () => {

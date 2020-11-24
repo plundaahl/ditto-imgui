@@ -1,7 +1,7 @@
-import { ChildBoundsService } from './ChildBoundsService';
+import { BoundsService } from './BoundsService';
 import { UiElement, Box } from '../../types';
 
-export class ChildBoundsServiceImpl implements ChildBoundsService {
+export class BoundsServiceImpl implements BoundsService {
     private elementStack: UiElement[] = [];
     private usedBoundsStack: Box[] = [];
 
