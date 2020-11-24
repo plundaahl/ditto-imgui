@@ -2,11 +2,11 @@ import { Layer } from "../types";
 import { LayerAPI } from './LayerService';
 import { ElementAPI, ElementService } from './ElementService';
 
-interface CoreShared {
+interface CoreShared {}
+
+export interface CoreCPI extends CoreShared {
     readonly element: ElementAPI;
 }
-
-export interface CoreCPI extends CoreShared {}
 
 export interface CoreAPI extends CoreShared {
     readonly layer: LayerAPI;

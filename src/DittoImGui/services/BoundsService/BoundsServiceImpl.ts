@@ -8,6 +8,7 @@ export class BoundsServiceImpl implements BoundsService {
     constructor() {
         this.onBeginElement = this.onBeginElement.bind(this);
         this.onEndElement = this.onEndElement.bind(this);
+        this.getElementBounds = this.getElementBounds.bind(this);
         this.getChildBounds = this.getChildBounds.bind(this);
     }
 
@@ -66,6 +67,14 @@ export class BoundsServiceImpl implements BoundsService {
             curChildBounds.w = right - left;
             curChildBounds.h = bottom - top;
         }
+    }
+
+    getElementBounds(): Box {
+        const element = this.getCurElement();
+        if (!element) {
+            throw new Error('No element is active');
+        }
+        return element.bounds;
     }
 
     getChildBounds(): Readonly<Box> {

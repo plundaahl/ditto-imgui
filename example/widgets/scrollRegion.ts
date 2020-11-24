@@ -27,17 +27,17 @@ function init() {
 function beginScrollRegion(key: string) {
     init();
 
-    const parentBounds = gui.element.getBounds();
+    const parentBounds = gui.bounds.getElementBounds();
 
     gui.beginElement(key); // CONTAINER
-    const containerBounds = gui.element.getBounds();
+    const containerBounds = gui.bounds.getElementBounds();
     containerBounds.x = parentBounds.x;
     containerBounds.y = parentBounds.y;
     containerBounds.w = parentBounds.w;
     containerBounds.h = parentBounds.h;
 
     gui.beginElement('content'); // CONTENT
-    const contentBounds = gui.element.getBounds();
+    const contentBounds = gui.bounds.getElementBounds();
     const state = stateHandle.declareAndGetState(defaultScrollState);
     state.parentH = parentBounds.h;
 
@@ -53,7 +53,7 @@ function beginScrollRegion(key: string) {
 function endScrollRegion() {
     const state = stateHandle.declareAndGetState(defaultScrollState);
     const { parentH, offsetY } = state;
-    const bounds = gui.element.getBounds();
+    const bounds = gui.bounds.getElementBounds();
 
     const childrenHeight: number = gui.bounds.getChildBounds().h + (
         gui.bounds.getChildBounds().y - bounds.y
@@ -70,11 +70,11 @@ function endScrollRegion() {
         : 0;
     const scrollbarHeight = parentH * percentOfContentOnScreenY;
     const scrollbarOffsetY = (parentH - scrollbarHeight) * percentScrolledY;
-    const parentBounds = gui.element.getBounds();
+    const parentBounds = gui.bounds.getElementBounds();
 
     if (state.drawY) {
         gui.beginElement('scrollY');
-        const bounds = gui.element.getBounds();
+        const bounds = gui.bounds.getElementBounds();
         bounds.x = parentBounds.x + parentBounds.w - SCROLLBAR_WIDTH;
         bounds.y = parentBounds.y + scrollbarOffsetY;
         bounds.w = SCROLLBAR_WIDTH;

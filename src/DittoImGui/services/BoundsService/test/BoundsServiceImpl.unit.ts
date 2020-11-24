@@ -9,6 +9,27 @@ beforeEach(() => {
     instance = new BoundsServiceImpl();
 });
 
+describe('getElementBounds', () => {
+    describe('given there is no element', () => {
+        test('should error', () => {
+            expect(instance.getElementBounds).toThrow();
+        });
+    });
+
+    describe('given there is an element', () => {
+        let element: UiElement;
+
+        beforeEach(() => {
+            element = createDummyElement();
+            instance.onBeginElement(element);
+        });
+
+        test('should not error', () => {
+            expect(instance.getElementBounds).not.toThrow();
+        });
+    });
+});
+
 describe('getChildBounds', () => {
     describe('Given there is no element', () => {
         test('should error', () => {

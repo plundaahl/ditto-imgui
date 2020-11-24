@@ -46,6 +46,7 @@ beforeEach(() => {
             getBufferedText: jest.fn(),
         },
         bounds: {
+            getElementBounds: jest.fn(),
             getChildBounds: jest.fn(),
         },
     };

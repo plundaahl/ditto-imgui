@@ -1,7 +1,6 @@
 import { DittoContext } from './DittoContext';
 import { InfraContainer } from './infrastructure';
 import { Core } from './core';
-import { ElementAPI } from './core/ElementService';
 import { ServiceManager } from './services';
 import { ControllerManager } from './controllers';
 import { DrawAPI } from './services/DrawService';
@@ -27,7 +26,6 @@ export class DittoContextImpl implements DittoContext {
         this.endElement = this.endElement.bind(this);
         this.render = this.render.bind(this);
 
-        this.element = core.element;
         this.layer = core.layer;
 
         this.draw = serviceManager.draw;
@@ -84,7 +82,6 @@ export class DittoContextImpl implements DittoContext {
         this.controllerManager.onPostRender();
     }
 
-    element: ElementAPI;
     controller: ControllerAPI;
     layer: LayerAPI;
     draw: DrawAPI;

@@ -2,6 +2,7 @@ import { Hookable } from '../../infrastructure/HookRunner';
 import { UiElement, Box } from '../../types';
 
 interface BoundsServiceShared {
+    getElementBounds(): Box;
     getChildBounds(): Readonly<Box>;
 }
 

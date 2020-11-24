@@ -44,7 +44,7 @@ export function editableText(
     gui.beginElement(key, FOCUSABLE);
 
     const state = stateHandle.declareAndGetState(defaultEditTextState);
-    const bounds = gui.element.getBounds();
+    const bounds = gui.bounds.getElementBounds();
 
     const y = bounds.y;
     const x = bounds.x + PADDING;
