@@ -18,7 +18,7 @@ export class LayerServiceImpl implements LayerService {
         this.endLayer = this.endLayer.bind(this);
         this.getCurrentLayer = this.getCurrentLayer.bind(this);
         this.getOrderedLayers = this.getOrderedLayers.bind(this);
-        this.bringToFront = this.bringToFront.bind(this);
+        this.bringLayerToFront = this.bringLayerToFront.bind(this);
         this.onPreRender = this.onPreRender.bind(this);
         this.onPostRender = this.onPostRender.bind(this);
         this.createLayer = this.createLayer.bind(this);
@@ -67,7 +67,7 @@ export class LayerServiceImpl implements LayerService {
         return this.layerOrder;
     }
 
-    bringToFront(): void {
+    bringLayerToFront(): void {
         const { layerStack } = this;
         const layer = layerStack[layerStack.length - 1];
         if (!layer) {

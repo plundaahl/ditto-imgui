@@ -178,18 +178,18 @@ describe('endElement', () => {
     });
 });
 
-describe('currentLayer.bringToFront', () => {
+describe('currentLayer.bringLayerToFront', () => {
     describe('given no layer is present', () => {
         test('should error', () => {
-            expect(instance.layer.bringToFront).toThrow();
+            expect(instance.layer.bringLayerToFront).toThrow();
         });
     });
 
     test('should call layerBuilder.bringCurrentLayerToFront', () => {
         instance.beginLayer('somelayer', 0);
-        instance.layer.bringToFront();
+        instance.layer.bringLayerToFront();
 
-        expect(layerBuilder.bringToFront).toHaveBeenCalled();
+        expect(layerBuilder.bringLayerToFront).toHaveBeenCalled();
     });
 });
 

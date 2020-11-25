@@ -25,10 +25,7 @@ export class CoreImpl implements Core {
     }
 
     readonly element: ElementService;
-
-    readonly layer: {
-        bringToFront: () => void;
-    }
+    readonly layer: LayerService;
 
     get curLayer(): Readonly<Layer> {
         const layer = this.layerBuilder.getCurrentLayer();

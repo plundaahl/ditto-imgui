@@ -1,7 +1,7 @@
 import { Layer } from '../../types';
 
 export interface LayerAPI {
-    bringToFront(): void;
+    bringLayerToFront(): void;
 }
 
 export interface LayerCPI {}

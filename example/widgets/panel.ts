@@ -33,7 +33,7 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
     }
 
     if (gui.controller.isElementInteracted() || gui.controller.isChildInteracted()) {
-        gui.layer.bringToFront();
+        gui.layer.bringLayerToFront();
     }
 
     const bounds = gui.bounds.getElementBounds();

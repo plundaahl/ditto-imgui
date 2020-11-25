@@ -98,10 +98,10 @@ describe('endLayer', () => {
     });
 });
 
-describe('bringToFront', () => {
+describe('bringLayerToFront', () => {
     describe('given no layers are present', () => {
         test('should error', () => {
-            expect(instance.bringToFront).toThrow();
+            expect(instance.bringLayerToFront).toThrow();
         });
     });
 });
@@ -192,12 +192,12 @@ describe('getOrderedLayers', () => {
     describe('given some layers had asked to be moved to front', () => {
         beforeEach(() => {
             instance.beginLayer('foo');
-            instance.bringToFront();
+            instance.bringLayerToFront();
             instance.endLayer();
             instance.beginLayer('bar');
             instance.endLayer();
             instance.beginLayer('baz');
-            instance.bringToFront();
+            instance.bringLayerToFront();
             instance.endLayer();
             instance.beginLayer('bing');
             instance.endLayer();
