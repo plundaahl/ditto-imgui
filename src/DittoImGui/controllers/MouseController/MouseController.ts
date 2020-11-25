@@ -25,13 +25,13 @@ export class MouseController implements Controller {
 
     onBeginElement(): void {
         const { focus } = this;
-        if (!focus.isFocusable()) {
+        if (!focus.isElementFocusable()) {
             return;
         }
 
         this.anElementIsFocused = this.anElementIsFocused || focus.isElementFocused();
 
-        if (this.mouse.hoversElement() && focus.isFocusable()) {
+        if (this.mouse.hoversElement() && focus.isElementFocusable()) {
             this.hoveredElementIsFocusable = true;
         }
     }

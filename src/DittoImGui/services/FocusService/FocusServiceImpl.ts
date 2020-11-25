@@ -26,7 +26,7 @@ export class FocusServiceImpl implements FocusService {
         this.onEndElement = this.onEndElement.bind(this);
         this.onBeginElement = this.onBeginElement.bind(this);
         this.isElementFocused = this.isElementFocused.bind(this);
-        this.isFocusable = this.isFocusable.bind(this);
+        this.isElementFocusable = this.isElementFocusable.bind(this);
         this.blurAllElements = this.blurAllElements.bind(this);
         this.focusElement = this.focusElement.bind(this);
         this.doFocusOnElement = this.doFocusOnElement.bind(this);
@@ -99,7 +99,7 @@ export class FocusServiceImpl implements FocusService {
         return this.focusedFloatParents.includes(currentElement.key);
     }
 
-    isFocusable(): boolean {
+    isElementFocusable(): boolean {
         const { currentElement } = this;
         if (!currentElement) {
             throw new Error('no element selected');

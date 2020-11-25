@@ -6,7 +6,7 @@ interface FocusShared {
     isFloatingChildFocused(): boolean;
     didFocusChange(): boolean;
     focusElement(): void;
-    isFocusable(): boolean;
+    isElementFocusable(): boolean;
     blurAllElements(): void;
 }
 

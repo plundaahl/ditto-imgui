@@ -62,7 +62,7 @@ function createMockFocusCpi(): [FocusCPI, FocusSetters] {
         isChildFocused: () => childFocused,
         isFloatingChildFocused: () => floatChildFocused,
         didFocusChange: () => focusChanged,
-        isFocusable: () => focusable,
+        isElementFocusable: () => focusable,
         focusElement: jest.fn(),
         blurAllElements: jest.fn(),
     }, {
