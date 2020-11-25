@@ -20,10 +20,10 @@ function createMockMouseApi(): [MouseCPI, MouseSetters] {
     let isM2Down: boolean = false;
 
     return [{
-        get mouseX() { return mouseX },
-        get mouseY() { return mouseY },
-        get dragX() { return dragX },
-        get dragY() { return dragY },
+        getMouseX() { return mouseX },
+        getMouseY() { return mouseY },
+        getDragX() { return dragX },
+        getDragY() { return dragY },
         hoversElement: () => hoversElement,
         hoversChild: () => false,
         hoversFloatingChild: () => false,

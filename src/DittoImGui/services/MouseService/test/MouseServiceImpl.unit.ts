@@ -22,14 +22,14 @@ beforeEach(() => {
 describe('dragX', () => {
     test('should return mouseWatcher.dragX', () => {
         mouseWatcher.dragX = 32;
-        expect(mouseHandler.dragX).toBe(mouseWatcher.dragX);
+        expect(mouseHandler.getDragX()).toBe(mouseWatcher.dragX);
     });
 });
 
 describe('dragY', () => {
     test('should return mouseWatcher.dragY', () => {
         mouseWatcher.dragY = 32;
-        expect(mouseHandler.dragY).toBe(mouseWatcher.dragY);
+        expect(mouseHandler.getDragY()).toBe(mouseWatcher.dragY);
     });
 });
 

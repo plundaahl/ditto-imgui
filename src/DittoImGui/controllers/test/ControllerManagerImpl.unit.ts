@@ -13,10 +13,10 @@ let controllerC: Controller;
 beforeEach(() => {
     serviceManager = {
         mouse: {
-            mouseX: 0,
-            mouseY: 0,
-            dragX: 0,
-            dragY: 0,
+            getMouseX: () => 0,
+            getMouseY: () => 0,
+            getDragX: () => 0,
+            getDragY: () => 0,
             hoversElement: jest.fn(),
             hoversChild: jest.fn(),
             hoversFloatingChild: jest.fn(),

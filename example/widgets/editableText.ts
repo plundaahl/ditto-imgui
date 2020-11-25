@@ -78,7 +78,8 @@ export function editableText(
     bounds.h = textPainter.getHeight();
 
     if (gui.mouse.hoversElement() && gui.mouse.isM1Down()) {
-        const { mouseX, mouseY } = gui.mouse;
+        const mouseX = gui.mouse.getMouseX();
+        const mouseY = gui.mouse.getMouseY();
         state.cursorPos = textPainter.getCharIndexAtPoint(mouseX, mouseY);
         gui.focus.focusElement();
 

@@ -1,10 +1,10 @@
 import { UiElement } from '../../types';
 
 export interface MouseAPI {
-    readonly mouseX: number;
-    readonly mouseY: number;
-    readonly dragX: number;
-    readonly dragY: number;
+    getMouseX(): number;
+    getMouseY(): number;
+    getDragX(): number;
+    getDragY(): number;
     hoversElement(): boolean;
     hoversChild(): boolean;
     hoversFloatingChild(): boolean;

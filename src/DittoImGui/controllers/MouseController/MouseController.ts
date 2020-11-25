@@ -98,14 +98,14 @@ export class MouseController implements Controller {
     getDragX(): number {
         const { mouse } = this;
         return mouse.isM1Dragged()
-            ? mouse.dragX
+            ? mouse.getDragX()
             : 0;
     }
 
     getDragY(): number {
         const { mouse } = this;
         return mouse.isM1Dragged()
-            ? mouse.dragY
+            ? mouse.getDragY()
             : 0;
     }
 }
