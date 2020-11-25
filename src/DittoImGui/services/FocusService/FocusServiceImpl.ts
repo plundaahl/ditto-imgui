@@ -27,7 +27,7 @@ export class FocusServiceImpl implements FocusService {
         this.onBeginElement = this.onBeginElement.bind(this);
         this.isElementFocused = this.isElementFocused.bind(this);
         this.isElementFocusable = this.isElementFocusable.bind(this);
-        this.blurAllElements = this.blurAllElements.bind(this);
+        this.blur = this.blur.bind(this);
         this.focusElement = this.focusElement.bind(this);
         this.doFocusOnElement = this.doFocusOnElement.bind(this);
         this.unsetFocusedElementIfNotSeen = this.unsetFocusedElementIfNotSeen.bind(this);
@@ -55,7 +55,7 @@ export class FocusServiceImpl implements FocusService {
         this.doFocusOnElement(curElement);
     }
 
-    blurAllElements(): void {
+    blur(): void {
         this.focusedElement = undefined;
         this.focusedParents.length = 0;
         this.focusedFloatParents.length = 0;

@@ -64,7 +64,7 @@ function createMockFocusCpi(): [FocusCPI, FocusSetters] {
         didFocusChange: () => focusChanged,
         isElementFocusable: () => focusable,
         focusElement: jest.fn(),
-        blurAllElements: jest.fn(),
+        blur: jest.fn(),
     }, {
         setElementFocused: (val: boolean) => elementFocused = val,
         setChildFocused: (val: boolean) => childFocused = val,
@@ -281,7 +281,7 @@ describe('clicking to unfocus', () => {
         mouseSetters.setM1Down(true);
         instance.onPreRender();
 
-        expect(focus.blurAllElements).toHaveBeenCalled();
+        expect(focus.blur).toHaveBeenCalled();
     });
 
     test('clicking a non-focusable element should blur', () => {
@@ -302,7 +302,7 @@ describe('clicking to unfocus', () => {
         mouseSetters.setM1Down(true);
         instance.onPreRender();
 
-        expect(focus.blurAllElements).toHaveBeenCalled();
+        expect(focus.blur).toHaveBeenCalled();
     });
 
     test('clicking a focusable element should not blur', () => {
@@ -313,6 +313,6 @@ describe('clicking to unfocus', () => {
         mouseSetters.setM1Down(true);
         instance.onPreRender();
 
-        expect(focus.blurAllElements).not.toHaveBeenCalled();
+        expect(focus.blur).not.toHaveBeenCalled();
     });
 });

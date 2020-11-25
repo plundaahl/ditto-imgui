@@ -44,7 +44,7 @@ export class MouseController implements Controller {
             && this.anElementIsFocused
             && mouseWasInteracted
         ) {
-            this.focus.blurAllElements();
+            this.focus.blur();
         }
 
         this.hoveredElementIsFocusable = false;
