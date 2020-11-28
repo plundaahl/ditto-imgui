@@ -1,18 +1,8 @@
-import { getContext, DittoContext, StateComponentKey } from '../../src/DittoImGui';
+import { DittoContext, StateComponentKey } from '../../src/DittoImGui';
 
 const stateKey = new StateComponentKey('example/panel', { x: 0, y: 0 });
-let gui: DittoContext;
 
-function init() {
-    if (gui) {
-        return;
-    }
-    gui = getContext();
-}
-
-function beginPanel(key: string, x: number, y: number, w: number, h: number) {
-    init();
-
+function beginPanel(gui: DittoContext, key: string, x: number, y: number, w: number, h: number) {
     gui.beginLayer(key);
 
     const state = gui.state.getStateComponent(stateKey, { x, y });
@@ -45,7 +35,7 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
     gui.draw.clip();
 }
 
-function endPanel() {
+function endPanel(gui: DittoContext) {
     gui.endLayer();
 }
 

@@ -1,4 +1,4 @@
-import { getContext, DittoContext, FOCUSABLE, StateComponentKey } from '../../src/DittoImGui';
+import { DittoContext, FOCUSABLE, StateComponentKey } from '../../src/DittoImGui';
 import { TextPainter } from './TextPainter';
 
 const FONT = '12px monospace';
@@ -11,24 +11,23 @@ const stateKey = new StateComponentKey('example/editableText', {
     arrowKeyTimer: 0,
 });
 
-let gui: DittoContext;
-let textPainter: TextPainter;
-
-function init() {
-    if (gui) {
-        return;
+const textPainters: Map<DittoContext, TextPainter> = new Map();
+function getTextPainter(gui: DittoContext): TextPainter {
+    if (!textPainters.has(gui)) {
+        textPainters.set(gui, new TextPainter(gui));
     }
-    gui = getContext();
-    textPainter = new TextPainter(gui);
+    return textPainters.get(gui) as TextPainter;
 }
 
+
 export function editableText(
+    gui: DittoContext,
     key: string,
     valueBinding: (t?: string) => string,
     multiline: boolean = false,
     wordWrap: boolean = false,
 ) {
-    init();
+    const textPainter = getTextPainter(gui);
     gui.beginElement(key, FOCUSABLE);
 
     const state = gui.state.getStateComponent(stateKey);

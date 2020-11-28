@@ -4,9 +4,7 @@ import * as DittoImGUI from '../src/DittoImGui';
 import { button, panel, scrollRegion, editableText } from './widgets';
 
 const { canvas, context } = setupCanvas();
-DittoImGUI.createContext(canvas);
-
-const gui = DittoImGUI.getContext();
+const gui = DittoImGUI.createContext(canvas);
 let nextId: number = 6;
 let dummyIds: number[] = [0, 1, 2, 3, 4, 5];
 
@@ -18,23 +16,23 @@ const textBinding = (t = (window as any).sampleText) => (window as any).sampleTe
 function main() {
     resetCanvas(context);
 
-    panel.begin('Control Panel', 50, 50, (window as any).panelWidth, 400);
-    if (button('add')) {
+    panel.begin(gui, 'Control Panel', 50, 50, (window as any).panelWidth, 400);
+    if (button(gui, 'add')) {
         dummyIds.push(nextId++);
     }
-    editableText('edit', textBinding, true, true);
-    panel.end();
+    editableText(gui, 'edit', textBinding, true, true);
+    panel.end(gui);
 
-    panel.begin('Display Panel', 250, 600, 100, 300);
-    scrollRegion.begin('somekey');
+    panel.begin(gui, 'Display Panel', 250, 600, 100, 300);
+    scrollRegion.begin(gui, 'somekey');
     for (let i = 0; i < dummyIds.length; i++) {
         const id = dummyIds[i];
-        if (button(`Element ${id}`)) {
+        if (button(gui, `Element ${id}`)) {
             dummyIds = dummyIds.filter(e => e !== id);
         }
     }
-    scrollRegion.end();
-    panel.end();
+    scrollRegion.end(gui);
+    panel.end(gui);
     gui.render();
 }
 

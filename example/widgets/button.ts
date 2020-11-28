@@ -1,18 +1,6 @@
-import { getContext, DittoContext, FOCUSABLE } from '../../src/DittoImGui';
+import { DittoContext, FOCUSABLE } from '../../src/DittoImGui';
 
-let gui: DittoContext;
-
-function init() {
-    if (gui) {
-        return;
-    }
-    gui = getContext();
-}
-
-
-export function button(buttonText: string) {
-    init();
-
+export function button(gui: DittoContext, buttonText: string) {
     gui.beginElement(buttonText, FOCUSABLE);
 
     gui.bounds.getElementBounds().h = 30;
