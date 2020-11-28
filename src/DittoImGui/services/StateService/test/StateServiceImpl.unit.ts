@@ -1,115 +1,250 @@
+import { StateServiceImpl } from '../StateServiceImpl';
+import { StateService } from '../StateService';
+import { StateComponentKey } from '../StateComponentKey';
 import { createDummyElement } from '../../../test/helpers';
-import { InspectableStateService } from './InspectableStateService';
+import { UiElement } from '../../../types';
+import { PERSISTENT } from '../../../flags';
 
-interface ExampleRecord {
-    field: number,
-}
-
-let instance: InspectableStateService;
+let instance: StateService;
 
 beforeEach(() => {
-    instance = new InspectableStateService();
+    instance = new StateServiceImpl();
 });
 
-describe('get currentStateNode', () => {
-    test('Should return the StateNode at the end of keyStack', () => {
-        const stateStack = instance.getStateStack();
-        const stateNode = { _children: {} };
-        stateStack.push(stateNode);
-        expect(instance.getCurrentStateNode()).toBe(stateNode);
+describe('getStateComponent', () => {
+    interface DummyState { foo: string };
+    let keyName: string;
+    let defaultState: DummyState;
+    let key: StateComponentKey<DummyState>;
+
+    beforeEach(() => {
+        keyName = 'bar';
+        defaultState = { foo: 'hi there' };
+        key = new StateComponentKey(keyName, defaultState);
+    });
+
+    describe('given no element is active', () => {
+        test('should error', () => {
+            expect(() => {
+                instance.getStateComponent(key);
+            }).toThrow();
+        });
+    });
+
+    describe('given no duplicate key name has been registered', () => {
+        describe('and an element is active', () => {
+            let element: UiElement;
+
+            beforeEach(() => {
+                element = createDummyElement();
+                instance.onBeginElement(element);
+            });
+
+            test('should not error', () => {
+                expect(() => {
+                    instance.getStateComponent(key);
+                }).not.toThrow();
+            });
+
+            describe('and element was not previously active', () => {
+                describe('and no init value was passed', () => {
+                    test("returned state should match StateComponentKey's default", () => {
+                        const state = instance.getStateComponent(key);
+                        expect(JSON.stringify(state))
+                            .toBe(JSON.stringify(defaultState));
+                    });
+                });
+
+                describe('and an init value was passed', () => {
+                    test("returned state should match init value", () => {
+                        const initValue = { foo: 'a different value' };
+                        const state = instance.getStateComponent(key, initValue);
+                        expect(JSON.stringify(state))
+                            .toBe(JSON.stringify(initValue));
+                    });
+                });
+            });
+
+            describe('and element was previously active', () => {
+                let prevState: DummyState;
+
+                describe('and state was not changed', () => {
+                    beforeEach(() => {
+                        const state = instance.getStateComponent(key);
+
+                        prevState = JSON.parse(JSON.stringify(state));
+
+                        instance.onEndElement();
+                        instance.onBeginElement(element);
+                    });
+
+                    test('returned state should match previous state', () => {
+                        const state = instance.getStateComponent(key);
+
+                        expect(JSON.stringify(state))
+                            .toBe(JSON.stringify(prevState));
+                    });
+                });
+
+                describe('and state was changed', () => {
+                    beforeEach(() => {
+                        const state = instance.getStateComponent(key);
+                        state.foo = 'this is an updated value';
+                        prevState = JSON.parse(JSON.stringify(state));
+
+                        instance.onEndElement();
+                        instance.onBeginElement(element);
+                    });
+
+                    test('returned state should match updated state', () => {
+                        const state = instance.getStateComponent(key);
+
+                        expect(JSON.stringify(state))
+                            .toBe(JSON.stringify(prevState));
+                    });
+                });
+            });
+
+            describe('and a different element was previously active', () => {
+                let secondElement: UiElement;
+
+                beforeEach(() => {
+                    instance.onEndElement();
+                    secondElement = createDummyElement({ key: 'foo/bar' });
+                    instance.onBeginElement(secondElement);
+                });
+
+                test("modifying one element's state should not affect the other", () => {
+                    const updatedValue = 'a totally different value';
+
+                    let secondElementState = instance.getStateComponent(key);
+                    secondElementState.foo = updatedValue;
+
+                    instance.onEndElement();
+                    instance.onBeginElement(element);
+
+                    let firstElementState = instance.getStateComponent(key);
+                    expect(firstElementState).not.toEqual(updatedValue);
+                });
+            });
+        });
+    });
+
+    describe('given duplicate key name has been registered', () => {
+        let identicallyNamedKey: StateComponentKey<{ baz: number }>;
+
+        beforeEach(() => {
+            identicallyNamedKey = new StateComponentKey(
+                keyName,
+                { baz: 123 },
+            );
+
+            instance.onBeginElement(createDummyElement());
+            instance.getStateComponent(identicallyNamedKey);
+            instance.onEndElement();
+        });
+
+        describe('and an element is active', () => {
+            let element: UiElement;
+
+            beforeEach(() => {
+                element = createDummyElement();
+                instance.onBeginElement(element);
+            });
+
+            test('should error', () => {
+                expect(() => {
+                    instance.getStateComponent(key);
+                }).toThrow();
+            });
+        });
+    });
+
+    describe('given key has been used before', () => {
+        beforeEach(() => {
+            instance.onBeginElement(createDummyElement());
+            instance.getStateComponent(key);
+            instance.onEndElement();
+        });
+
+        describe('and an element is active', () => {
+            let element: UiElement;
+
+            beforeEach(() => {
+                element = createDummyElement();
+                instance.onBeginElement(element);
+            });
+
+            test('should not error', () => {
+                expect(() => {
+                    instance.getStateComponent(key);
+                }).not.toThrow();
+            });
+        });
     });
 });
 
-describe('onBeginElement()', () => {
-    test('If stateStore does not contain node for key, adds it', () => {
-        const key = 'childKey';
-        const parentState = instance.getCurrentStateNode();
+describe('onPostRender', () => {
+    interface DummyState { foo: string };
+    let element: UiElement;
+    let keyName: string;
+    let defaultState: DummyState;
+    let key: StateComponentKey<DummyState>;
 
-        instance.onBeginElement(createDummyElement({ key }));
-
-        expect(parentState._children[key]).not.toBe(undefined);
+    beforeEach(() => {
+        keyName = 'foo';
+        defaultState = { foo: 'init' };
+        key = new StateComponentKey(keyName, defaultState);
     });
 
-    test('Adds the new stateNode to stateStack', () => {
-        const key = 'childKey';
-        const parentState = instance.getCurrentStateNode();
+    describe('given an element was transient', () => {
+        beforeEach(() => {
+            element = createDummyElement({ flags: 0 });
+            instance.onBeginElement(element);
+            const prevState = instance.getStateComponent(key);
+            prevState.foo = 'updatedValue';
+        });
 
-        instance.onBeginElement(createDummyElement({ key }));
-        const childState = parentState._children[key];
-        expect(instance.getCurrentStateNode()).toBe(childState);
-    });
-});
+        describe('and the element is skipped for a frame', () => {
+            beforeEach(() => {
+                instance.onEndElement();
+                instance.onPostRender(60);
+                instance.onPostRender(60);
+                instance.onBeginElement(element);
+            });
 
-describe('onEndKey()', () => {
-    test('Errors if keyStack is empty', () => {
-        expect(() => instance.onEndElement()).toThrowError();
-    });
-
-    test('Removes end of stateStack', () => {
-        const key = 'childkey';
-        instance.onBeginElement(createDummyElement({ key }));
-
-        const lengthBeforeEnd = instance.getStateStack().length;
-
-        instance.onEndElement();
-
-        expect(instance.getStateStack().length).toBe(lengthBeforeEnd - 1);
-    });
-});
-
-describe('createHandle()', () => {
-    test('Should error if a duplicate key is registered', () => {
-        const key = 'somekey';
-        instance.createHandle<ExampleRecord>(key);
-        expect(() => instance.createHandle<ExampleRecord>(key))
-            .toThrowError();
-    });
-});
-
-describe('initDefaultState()', () => {
-    test('If current node does not contain record, copies from defaultState', () => {
-        const key = 'justakey';
-        const defaultState = { field: 1234 };
-
-        expect((instance.getCurrentStateNode() as any)[key]).toBe(undefined);
-
-        instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
-
-        const record = (instance.getCurrentStateNode() as any)[key];
-
-        expect(record).not.toBe(undefined);
-        expect(JSON.stringify(record)).toEqual(JSON.stringify(record));
+            test('then state should revert to default', () => {
+                const state = instance.getStateComponent(key);
+                expect(JSON.stringify(state))
+                    .toBe(JSON.stringify(defaultState));
+            });
+        });
     });
 
-    test('When initializing a record, resulting record is a copy', () => {
-        const key = 'justakey';
-        const defaultState = { field: 1234 };
+    describe('given an element was persistent', () => {
+        let prevState: DummyState;
 
-        instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
+        beforeEach(() => {
+            element = createDummyElement({ flags: PERSISTENT });
+            instance.onBeginElement(element);
+            prevState = instance.getStateComponent(key);
+            prevState.foo = 'updatedValue';
+        });
 
-        const record = (instance.getCurrentStateNode() as any)[key];
-        expect(record).not.toBe(defaultState);
-    });
+        describe('and the element is skipped for a frame', () => {
+            beforeEach(() => {
+                instance.onEndElement();
+                instance.onPostRender(60);
+                instance.onPostRender(60);
+                instance.onBeginElement(element);
+            });
 
-    test('If current node is initialized, does not reinitialize it', () => {
-        const key = 'justakey';
-        const defaultState = { field: 1234 };
-
-        instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
-        const record = (instance.getCurrentStateNode() as any)[key];
-
-        instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
-        expect((instance.getCurrentStateNode() as any)[key]).toBe(record);
+            test('then state should be persisted', () => {
+                const state = instance.getStateComponent(key);
+                expect(JSON.stringify(state))
+                    .toBe(JSON.stringify(prevState));
+            });
+        });
     });
 });
 
-describe('getState()', () => {
-    test('Returns the registered record for the current node', () => {
-        const key = 'justakey';
-        const defaultState = { field: 1234 };
-
-        const record = instance.doDeclareAndGetState<ExampleRecord>(key, defaultState);
-
-        expect(instance.doDeclareAndGetState<ExampleRecord>(key, defaultState)).toBe(record);
-    });
-});

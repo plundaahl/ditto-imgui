@@ -1,36 +1,24 @@
-import { getContext, DittoContext, FOCUSABLE } from '../../src/DittoImGui';
-import { StateHandle } from '../../src/DittoImGui/services/StateService';
+import { getContext, DittoContext, FOCUSABLE, StateComponentKey } from '../../src/DittoImGui';
 import { TextPainter } from './TextPainter';
 
 const FONT = '12px monospace';
 const PADDING = 2;
-
-interface EditTextState {
-    dragX: number;
-    dragY: number;
-    selPos: number;
-    cursorPos: number;
-    arrowKeyTimer: number;
-}
-
-const defaultEditTextState: EditTextState = {
+const stateKey = new StateComponentKey('example/editableText', {
     dragX: -1,
     dragY: -1,
     selPos: -1,
     cursorPos: -1,
     arrowKeyTimer: 0,
-};
+});
 
 let gui: DittoContext;
-let stateHandle: StateHandle<EditTextState>;
 let textPainter: TextPainter;
 
 function init() {
-    if (gui || stateHandle) {
+    if (gui) {
         return;
     }
     gui = getContext();
-    stateHandle = gui.state.createHandle<EditTextState>('editText');
     textPainter = new TextPainter(gui);
 }
 
@@ -43,7 +31,7 @@ export function editableText(
     init();
     gui.beginElement(key, FOCUSABLE);
 
-    const state = stateHandle.declareAndGetState(defaultEditTextState);
+    const state = gui.state.getStateComponent(stateKey);
     const bounds = gui.bounds.getElementBounds();
 
     const y = bounds.y;

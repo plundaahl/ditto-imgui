@@ -1,21 +1,13 @@
-import { getContext, DittoContext } from '../../src/DittoImGui';
-import { StateHandle } from '../../src/DittoImGui/services/StateService';
+import { getContext, DittoContext, StateComponentKey } from '../../src/DittoImGui';
 
-interface PanelState {
-    x: number,
-    y: number,
-}
-
+const stateKey = new StateComponentKey('example/panel', { x: 0, y: 0 });
 let gui: DittoContext;
-let panelStateHandle: StateHandle<PanelState>;
 
 function init() {
-    if (gui || panelStateHandle) {
+    if (gui) {
         return;
     }
-
     gui = getContext();
-    panelStateHandle = gui.state.createHandle<{ x: number, y: number }>('panel');
 }
 
 function beginPanel(key: string, x: number, y: number, w: number, h: number) {
@@ -23,7 +15,7 @@ function beginPanel(key: string, x: number, y: number, w: number, h: number) {
 
     gui.beginLayer(key);
 
-    const state = panelStateHandle.declareAndGetState({ x, y });
+    const state = gui.state.getStateComponent(stateKey, { x, y });
 
     if (gui.controller.isElementHighlighted()) {
         if (gui.controller.isElementDragged()) {

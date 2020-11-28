@@ -1,4 +1,3 @@
-export { StateService, StateAPI, StateCPI } from './StateService'
+export { StateComponentKey } from './StateComponentKey';
 export { StateServiceImpl } from './StateServiceImpl';
-export { StateHandle } from './StateHandle';
-
+export { StateService, StateAPI, StateCPI } from './StateService';

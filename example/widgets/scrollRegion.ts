@@ -1,27 +1,18 @@
-import { getContext, DittoContext } from '../../src/DittoImGui';
-import { StateHandle } from '../../src/DittoImGui/services/StateService';
+import { getContext, DittoContext, StateComponentKey } from '../../src/DittoImGui';
 
-interface ScrollState {
-    offsetY: number,
-    parentH: number,
-    drawY: boolean,
-};
-
-let gui: DittoContext;
-let stateHandle: StateHandle<ScrollState>;
 const SCROLLBAR_WIDTH = 15;
-const defaultScrollState: ScrollState = {
+const stateKey = new StateComponentKey('example/scrollRegion', {
     offsetY: 0,
     parentH: 0,
     drawY: false,
-};
+});
+let gui: DittoContext;
 
 function init() {
-    if (gui || stateHandle) {
+    if (gui) {
         return;
     }
     gui = getContext();
-    stateHandle = gui.state.createHandle<ScrollState>('scrollregion');
 }
 
 function beginScrollRegion(key: string) {
@@ -38,7 +29,7 @@ function beginScrollRegion(key: string) {
 
     gui.beginElement('content'); // CONTENT
     const contentBounds = gui.bounds.getElementBounds();
-    const state = stateHandle.declareAndGetState(defaultScrollState);
+    const state = gui.state.getStateComponent(stateKey);
     state.parentH = parentBounds.h;
 
     contentBounds.x = parentBounds.x;
@@ -51,7 +42,7 @@ function beginScrollRegion(key: string) {
 }
 
 function endScrollRegion() {
-    const state = stateHandle.declareAndGetState(defaultScrollState);
+    const state = gui.state.getStateComponent(stateKey);
     const { parentH, offsetY } = state;
     const bounds = gui.bounds.getElementBounds();
 

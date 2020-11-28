@@ -1,15 +1,15 @@
 import { Hookable } from '../../infrastructure/HookRunner';
-import { UiElement } from '../../types';
-import { StateHandle } from './StateHandle';
+import { StateComponentKey } from './StateComponentKey';
+
+interface StateHookable extends Required<Pick<Hookable, 'onBeginElement' | 'onEndElement' | 'onPostRender'>> {}
 
 export interface StateAPI {
-    createHandle<T extends {}>(handleKey: string): StateHandle<T>;
+    getStateComponent<T>(
+        key: StateComponentKey<T>,
+        initValue?: T,
+    ): T;
 }
 
 export interface StateCPI {}
 
-export interface StateService extends StateAPI, StateCPI, Hookable {
-    onBeginElement(element: UiElement): void;
-    onEndElement(): void;
-}
-
+export interface StateService extends StateHookable, StateAPI, StateCPI {}
