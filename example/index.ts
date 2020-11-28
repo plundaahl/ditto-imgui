@@ -4,7 +4,7 @@ import * as DittoImGUI from '../src/DittoImGui';
 import { button, panel, scrollRegion, editableText } from './widgets';
 
 const { canvas, context } = setupCanvas();
-const gui = DittoImGUI.createContext(canvas);
+const gui = new DittoImGUI.ExtDittoContextImpl(canvas);
 let nextId: number = 6;
 let dummyIds: number[] = [0, 1, 2, 3, 4, 5];
 
