@@ -61,20 +61,23 @@ export class Color {
         return this.rgb.toString();
     }
 
-    fromRgb(r: number, g: number, b: number): void {
+    fromRgb(r: number, g: number, b: number): Color {
         const { rgb } = this;
         rgb.r = r;
         rgb.g = g;
         rgb.b = b;
+        return this;
     }
 
-    fromHexString(hexString: string) {
+    fromHexString(hexString: string): Color {
         this.hex.fromString(hexString);
+        return this;
     }
 
-    fromColor(color: Color) {
+    fromColor(color: Color): Color {
         this.r = color.r;
         this.g = color.g;
         this.b = color.b;
+        return this;
     }
 }
