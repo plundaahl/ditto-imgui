@@ -1,12 +1,11 @@
 import { FOCUSABLE } from '../../src/DittoImGui';
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 
-const BORDER_WIDTH = 2;
-const BORDER_WIDTH_X2 = BORDER_WIDTH * 2;
-const TITLE_BAR_HEIGHT = 25;
-const PADDING = 7;
-
 export function beginTitleBar(gui: StyledDittoContext, title: string) {
+    const borderWidth = gui.boxSize.getBorderWidth();
+    const borderWidthX2 = borderWidth * 2;
+    const padding = gui.boxSize.getPadding();
+
     const { x: parentX, y: parentY, w: parentW } = gui.bounds.getElementBounds();
 
     const isWindowFocused = gui.focus.isElementFocusable() && gui.focus.isElementFocused();
@@ -15,10 +14,10 @@ export function beginTitleBar(gui: StyledDittoContext, title: string) {
     gui.beginElement('titlebar', FOCUSABLE);
 
     const bounds = gui.bounds.getElementBounds();
-    bounds.x = parentX + BORDER_WIDTH;
-    bounds.y = parentY + BORDER_WIDTH;
-    bounds.w = parentW - BORDER_WIDTH_X2;
-    bounds.h = TITLE_BAR_HEIGHT;
+    bounds.x = parentX + borderWidth;
+    bounds.y = parentY + borderWidth;
+    bounds.w = parentW - borderWidthX2;
+    bounds.h = padding + padding + gui.draw.measureText('M').height;
     const { x, y, w, h } = bounds;
 
     const region = 'titlebar';
@@ -31,8 +30,7 @@ export function beginTitleBar(gui: StyledDittoContext, title: string) {
 
     // title text
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'detail'));
-    gui.draw.setFont('courier 14px bold');
-    gui.draw.drawText(title, x + PADDING, y + PADDING);
+    gui.draw.drawText(title, x + padding, y + padding);
     gui.draw.restore();
 
     if (gui.controller.isElementInteracted()) {

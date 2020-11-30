@@ -1,5 +1,5 @@
-import Color from '../src/lib/Color';
-import { Theme, RegionType, modes, regionTypes } from '../src/StyledDittoImGui';
+import Color from '../../src/lib/Color';
+import { Theme, RegionType, modes, regionTypes } from '../../src/StyledDittoImGui';
 
 const baseColors: { [R in RegionType]: string } = {
     panel: '#444',

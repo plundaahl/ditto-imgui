@@ -4,9 +4,6 @@ import {
     Mode,
 } from '../../src/StyledDittoImGui';
 
-const BORDER_WIDTH = 2;
-const BORDER_WIDTH_X2 = BORDER_WIDTH * 2;
-
 export function bevelBox(
     gui: StyledDittoContext,
     x: number,
@@ -17,6 +14,9 @@ export function bevelBox(
     mode: Mode,
     inward: boolean = false,
 ) {
+    const borderWidth = gui.boxSize.getBorderWidth();
+    const borderWidthX2 = borderWidth * 2;
+
     gui.draw.save();
 
     // lower-right border
@@ -35,8 +35,8 @@ export function bevelBox(
     );
     gui.draw.beginPath();
     gui.draw.moveTo(x, y + h);
-    gui.draw.lineTo(x + BORDER_WIDTH, y + h - BORDER_WIDTH);
-    gui.draw.lineTo(x + w - BORDER_WIDTH, y + BORDER_WIDTH);
+    gui.draw.lineTo(x + borderWidth, y + h - borderWidth);
+    gui.draw.lineTo(x + w - borderWidth, y + borderWidth);
     gui.draw.lineTo(x + w, y);
     gui.draw.lineTo(x, y);
     gui.draw.fill();
@@ -44,10 +44,10 @@ export function bevelBox(
     // background
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'bg'));
     gui.draw.fillRect(
-        x + BORDER_WIDTH,
-        y + BORDER_WIDTH,
-        w - BORDER_WIDTH_X2,
-        h - BORDER_WIDTH_X2,
+        x + borderWidth,
+        y + borderWidth,
+        w - borderWidthX2,
+        h - borderWidthX2,
     );
 
     gui.draw.restore();

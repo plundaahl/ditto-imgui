@@ -1,12 +1,12 @@
 import { run } from './runner';
-import { theme } from './theme';
+import { theme, boxSize } from './config';
 import { setupCanvas, resetCanvas } from './util';
 import { StyledDittoContextImpl } from '../src/StyledDittoImGui';
-import { button, panel, scrollRegion, editableText } from './widgets';
+import { button, panel } from './widgets';
 import Color from '../src/lib/Color';
 
 const { canvas, context } = setupCanvas();
-const gui = new StyledDittoContextImpl(canvas, theme);
+const gui = new StyledDittoContextImpl(canvas, theme, boxSize);
 
 const color = Color.fromHexString('#BB0000');
 

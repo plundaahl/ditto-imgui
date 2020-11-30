@@ -10,6 +10,9 @@ const stateKey = new StateComponentKey('example/panel', {
 });
 
 function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, w: number, h: number) {
+    const borderWidth = gui.boxSize.getBorderWidth();
+    const borderWidthX2 = borderWidth * 2;
+
     gui.beginLayer(key, FOCUSABLE);
 
     const state = gui.state.getStateComponent(stateKey, { x, y, collapsed: false });
@@ -23,7 +26,12 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
 
     bevelBox(gui, state.x, state.y, w, h, 'panel', 'idle');
     gui.draw.beginPath();
-    gui.draw.rect(state.x + 1, state.y + 1, w - 2, h - 2);
+    gui.draw.rect(
+        state.x + borderWidth,
+        state.y + borderWidth,
+        w - borderWidthX2,
+        h - borderWidthX2,
+    );
     gui.draw.clip();
 
     beginTitleBar(gui, key);
@@ -53,7 +61,7 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
 
     if (state.collapsed) {
         const childBounds = gui.bounds.getChildBounds();
-        bounds.h = childBounds.h + (childBounds.y - bounds.y) + 2;
+        bounds.h = childBounds.h + (childBounds.y - bounds.y) + borderWidthX2;
     }
 }
 
