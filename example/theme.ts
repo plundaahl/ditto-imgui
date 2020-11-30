@@ -2,17 +2,17 @@ import Color from '../src/lib/Color';
 import { Theme, regions, modes } from '../src/StyledDittoImGui';
 
 const baseColors: { [R in keyof typeof regions]: string } = {
-    panel: '#DDD',
-    titlebar: '#0FB',
-    controlStd: '#DDD',
+    panel: '#444',
+    titlebar: '#085',
+    controlStd: '#666',
     controlDanger: '#DDD',
     controlImportant: '#DDD',
     editable: '#FFF',
 };
 
-const highlightAmt = 0.2;
-const lowlightAmt = 0.2;
-const detail = '#000';
+const highlightAmt = 0.75;
+const lowlightAmt = 0.5;
+const detail = '#FFF';
 const bgSelect = '#555';
 const detailSelect = '#FFF';
 
@@ -44,5 +44,12 @@ export const theme: Theme = (() => {
             theme[regionName][mode].detailSelect = detailSelect;
         }
     }
+
+    theme.titlebar.idle.detail = '#0FA';
+    theme.titlebar.focused.bg = '#0FA';
+    theme.titlebar.focused.detail = '#000';
+
     return theme as unknown as Theme;
 })();
+
+(window as any).theme = theme;
