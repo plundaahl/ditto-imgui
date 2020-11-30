@@ -14,7 +14,6 @@ import {
     FillStyleOpts,
     setStrokeStyle,
     StrokeStyleOpts,
-    setTextBaseline,
 } from './CustomCommands';
 
 export class DrawServiceImpl implements DrawService {
@@ -81,33 +80,31 @@ export class DrawServiceImpl implements DrawService {
     }
 
     drawText(text: string, x: number, y: number) {
-        const baseline = 'top';
-        this.utilityContext.textBaseline = baseline;
-        this.pushDrawCommand({
-            command: setTextBaseline,
-            native: false,
-            args: [
-                baseline,
-            ],
-        });
+        const { ascent } = this.measureText('My');
         this.pushDrawCommand({
             command: 'fillText',
             native: true,
             args: [
                 text,
                 x,
-                y,
+                y + ascent,
             ]
         })
     }
 
     measureText(text: string) {
-        const actualTextMetrics = this.utilityContext.measureText(text);
-        const width = actualTextMetrics.actualBoundingBoxRight + actualTextMetrics.actualBoundingBoxLeft;
-        const metrics = this.utilityContext.measureText('My');
-        const height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+        const widthMetrics = this.utilityContext.measureText(text);
+        const heightMetrics = this.utilityContext.measureText('My');
+
+        const width = widthMetrics.actualBoundingBoxRight + widthMetrics.actualBoundingBoxLeft;
+        const descent = heightMetrics.actualBoundingBoxDescent;
+        const ascent = heightMetrics.actualBoundingBoxAscent;
+        const height = descent + ascent;
+
         return {
             width,
+            ascent,
+            descent,
             height,
         };
     }

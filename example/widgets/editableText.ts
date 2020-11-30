@@ -1,8 +1,7 @@
-import { DittoContext, FOCUSABLE, StateComponentKey } from '../../src/DittoImGui';
+import { StyledDittoContext } from '../../src/StyledDittoImGui';
+import { FOCUSABLE, StateComponentKey } from '../../src/DittoImGui';
 import { TextPainter } from './TextPainter';
 
-const FONT = '12px monospace';
-const PADDING = 2;
 const stateKey = new StateComponentKey('example/editableText', {
     dragX: -1,
     dragY: -1,
@@ -11,8 +10,8 @@ const stateKey = new StateComponentKey('example/editableText', {
     arrowKeyTimer: 0,
 });
 
-const textPainters: Map<DittoContext, TextPainter> = new Map();
-function getTextPainter(gui: DittoContext): TextPainter {
+const textPainters: Map<StyledDittoContext, TextPainter> = new Map();
+function getTextPainter(gui: StyledDittoContext): TextPainter {
     if (!textPainters.has(gui)) {
         textPainters.set(gui, new TextPainter(gui));
     }
@@ -21,7 +20,7 @@ function getTextPainter(gui: DittoContext): TextPainter {
 
 
 export function editableText(
-    gui: DittoContext,
+    gui: StyledDittoContext,
     key: string,
     valueBinding: (t?: string) => string,
     multiline: boolean = false,
@@ -34,11 +33,11 @@ export function editableText(
     const bounds = gui.bounds.getElementBounds();
 
     const y = bounds.y;
-    const x = bounds.x + PADDING;
-    const w = bounds.w - (PADDING + PADDING);
+    const x = bounds.x;
+    const w = bounds.w;
     let text = valueBinding();
 
-    gui.draw.setFont(FONT);
+    gui.draw.setFont(gui.font.getFont('editable', 'idle'));
     gui.draw.setFillStyle('#000000');
 
     {

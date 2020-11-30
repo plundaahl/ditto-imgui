@@ -1,14 +1,16 @@
 import { run } from './runner';
-import { theme, boxSize } from './config';
+import { theme, boxSize, font } from './config';
 import { setupCanvas, resetCanvas } from './util';
 import { StyledDittoContextImpl } from '../src/StyledDittoImGui';
-import { button, panel } from './widgets';
+import { button, panel, editableText } from './widgets';
 import Color from '../src/lib/Color';
 
 const { canvas, context } = setupCanvas();
-const gui = new StyledDittoContextImpl(canvas, theme, boxSize);
+const gui = new StyledDittoContextImpl(canvas, theme, boxSize, font);
 
 const color = Color.fromHexString('#BB0000');
+
+let text = "foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz foo bar baz ";
 
 function main() {
     resetCanvas(context);
@@ -22,6 +24,7 @@ function main() {
     const { x, y, w, h } = gui.bounds.getElementBounds();
     gui.draw.setFillStyle(color.toHexString());
     gui.draw.fillRect(x, y, w, h);
+    editableText(gui, 'sometext', (t = text) => text = t, true, true);
     panel.end(gui);
 
     gui.render();

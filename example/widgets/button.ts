@@ -7,7 +7,7 @@ export function button(gui: StyledDittoContext, buttonText: string) {
     const padding = gui.boxSize.getPadding();
 
     gui.beginElement(buttonText, FOCUSABLE);
-
+    gui.draw.setFont(gui.font.getFont('controlStd', 'idle'));
     gui.bounds.getElementBounds().h = gui.draw.measureText('M').height
         + border + border
         + padding + padding;

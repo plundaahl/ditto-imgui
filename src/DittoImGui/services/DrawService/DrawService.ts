@@ -14,7 +14,7 @@ export interface DrawAPI {
     fillRect(x: number, y: number, w: number, h: number): void;
     strokeRect(x: number, y: number, w: number, h: number): void;
     drawText(text: string, x: number, y: number): void;
-    measureText(text: string): { width: number, height: number };
+    measureText(text: string): { width: number, height: number, ascent: number, descent: number };
     setLineWidth(width: number): void;
     setLineCap(cap: LineCapOpts): void;
     setLineJoin(join: LineJoinOpts): void;

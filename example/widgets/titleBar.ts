@@ -13,13 +13,13 @@ export function beginTitleBar(gui: StyledDittoContext, title: string) {
 
     gui.beginElement('titlebar', FOCUSABLE);
     gui.draw.save();
-    gui.draw.setFont('bold 11pt monospace');
+    gui.draw.setFont(gui.font.getFont('titlebar', 'idle'));
 
     const bounds = gui.bounds.getElementBounds();
     bounds.x = parentX + borderWidth;
     bounds.y = parentY + borderWidth;
     bounds.w = parentW - borderWidthX2;
-    bounds.h = padding + padding + gui.draw.measureText('M').height;
+    bounds.h = padding + padding + gui.draw.measureText('M').ascent;
     const { x, y, w, h } = bounds;
 
     const region = 'titlebar';

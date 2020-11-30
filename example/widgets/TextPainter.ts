@@ -2,7 +2,13 @@ import { DittoContext } from '../../src/DittoImGui';
 
 const LINEHEIGHT_SCALE = 1.4;
 const CURSOR = '█';
-const WIDTH_SCALING = 1.1;
+const oneHundredMs = (() => {
+    let str: string = '';
+    for (let i = 0; i < 100; i++) {
+        str += 'M';
+    }
+    return str;
+})();
 
 const allWhiteSpace = (() => {
     let str: string = '';
@@ -100,6 +106,7 @@ export class TextPainter {
     private lines: string[] = [];
     private lineHeight: number;
     private charWidth: number;
+    private descent: number;
     
     constructor(private context: DittoContext) {
         this.onBuild = this.onBuild.bind(this);
@@ -174,6 +181,7 @@ export class TextPainter {
             : [text];
 
         const metrics = gui.draw.measureText('M');
+        const WIDTH_SCALING = metrics.width / (gui.draw.measureText(oneHundredMs).width * 0.01);
     
         if (multiLine && wordWrap) {
             const wrappedLines: string[] = [];
@@ -204,6 +212,7 @@ export class TextPainter {
         this.charWidth = metrics.width / WIDTH_SCALING;
         this.lines = lines;
         this.height = this.lineHeight * lines.length;
+        this.descent = metrics.descent;
     }
 
     getHeight(): number {
@@ -243,6 +252,7 @@ export class TextPainter {
             lineHeight,
             selectBgStyle,
             selectFgStyle,
+            descent,
         } = this;
     
         let cursorX = cursorPos;
@@ -257,7 +267,7 @@ export class TextPainter {
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            const lineY = y + (lineHeight * i);
+            const lineY = y + (lineHeight * i) + descent;
             const lineLength = line.length;
 
             gui.draw.setFillStyle(style);

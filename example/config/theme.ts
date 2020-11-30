@@ -51,5 +51,3 @@ export const theme: Theme = (() => {
 
     return theme as unknown as Theme;
 })();
-
-(window as any).theme = theme;
