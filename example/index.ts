@@ -21,9 +21,6 @@ function main() {
     panel.end(gui);
 
     panel.begin(gui, 'Output Panel', 50, 650, 200, 200);
-    const { x, y, w, h } = gui.bounds.getElementBounds();
-    gui.draw.setFillStyle(color.toHexString());
-    gui.draw.fillRect(x, y, w, h);
     editableText(gui, 'sometext', (t = text) => text = t, true, true);
     panel.end(gui);
 

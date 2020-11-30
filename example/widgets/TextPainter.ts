@@ -32,6 +32,8 @@ interface TextModelData {
     x: number;
     y: number;
     w: number;
+    xPadding: number;
+    yPadding: number;
     multiLine: boolean;
     wordWrap: boolean;
     cursorPos: number;
@@ -59,6 +61,14 @@ class TextPainterBuilder {
         return this;
     }
 
+    withPadding(padding: number): TextPainterBuilder;
+    withPadding(xPadding: number, yPadding: number): TextPainterBuilder;
+    withPadding(xPadding: number, yPadding?: number): TextPainterBuilder {
+        this.sharedData.xPadding = xPadding;
+        this.sharedData.yPadding = yPadding !== undefined ? yPadding : xPadding;
+        return this;
+    }
+
     withCursor(
         cursorPos: number,
         cursorFgStyle: string,
@@ -82,6 +92,9 @@ class TextPainterBuilder {
     }
 
     build(): TextPainter {
+        this.sharedData.x += this.sharedData.xPadding;
+        this.sharedData.y += this.sharedData.yPadding;
+        this.sharedData.w -= this.sharedData.xPadding * 2;
         return this.onBuild(this.sharedData);
     }
 }
@@ -116,6 +129,8 @@ export class TextPainter {
             x: 0,
             y: 0,
             w: -1,
+            xPadding: 0,
+            yPadding: 0,
             multiLine: false,
             wordWrap: false,
             cursorPos: -1,
@@ -185,9 +200,6 @@ export class TextPainter {
     
         if (multiLine && wordWrap) {
             const wrappedLines: string[] = [];
-    
-            // NOTE: Not sure why WIDTH_SCALING is needed, but if we don't have it,
-            // the maxLineLength is too short.
             const maxLineLength = Math.floor((w / metrics.width) * WIDTH_SCALING);
     
             for (const line of lines) {

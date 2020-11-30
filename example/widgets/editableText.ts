@@ -1,6 +1,7 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { FOCUSABLE, StateComponentKey } from '../../src/DittoImGui';
 import { TextPainter } from './TextPainter';
+import { bevelBox } from './bevelBox';
 
 const stateKey = new StateComponentKey('example/editableText', {
     dragX: -1,
@@ -25,16 +26,24 @@ export function editableText(
     valueBinding: (t?: string) => string,
     multiline: boolean = false,
     wordWrap: boolean = false,
+    height?: number,
 ) {
     const textPainter = getTextPainter(gui);
     gui.beginElement(key, FOCUSABLE);
+    gui.draw.save();
 
     const state = gui.state.getStateComponent(stateKey);
     const bounds = gui.bounds.getElementBounds();
+    const parentBounds = gui.bounds.getParentBounds();
+
+    const border = gui.boxSize.getBorderWidth();
+    const borderX2 = border * 2;
+    const padding = gui.boxSize.getPadding();
 
     const y = bounds.y;
     const x = bounds.x;
     const w = bounds.w;
+
     let text = valueBinding();
 
     gui.draw.setFont(gui.font.getFont('editable', 'idle'));
@@ -43,6 +52,7 @@ export function editableText(
     {
         const builder = textPainter
             .startBuilder(text, x, y, '#000000')
+            .withPadding(gui.boxSize.getBorderWidth())
             .withCursor(state.cursorPos, '#FFFFFF', '#000000');
 
         wordWrap && builder.withWordWrap(w);
@@ -52,6 +62,25 @@ export function editableText(
         builder.build();
     }
 
+    const textHeight = textPainter.getHeight() + (gui.boxSize.getBorderWidth() * 2);
+    const h = height !== undefined
+        ? height
+        : parentBounds
+            ? Math.min(
+                textHeight,
+                parentBounds.h - gui.bounds.getSiblingBounds().h - padding - borderX2,
+            )
+            : textHeight;
+
+    bevelBox(gui, x, y, w, h, 'editable', 'idle');
+    gui.draw.beginPath();
+    gui.draw.rect(
+        x + border,
+        y + border,
+        w + borderX2,
+        h + borderX2,
+    );
+    gui.draw.clip();
     textPainter.paint();
 
     if (gui.focus.isElementFocused()) {
@@ -59,9 +88,8 @@ export function editableText(
     } else {
         gui.draw.setStrokeStyle('#000000');
     }
-    gui.draw.strokeRect(x, y, w, textPainter.getHeight());
 
-    bounds.h = textPainter.getHeight();
+    bounds.h = h;
 
     if (gui.mouse.hoversElement() && gui.mouse.isM1Down()) {
         const mouseX = gui.mouse.getMouseX();
@@ -124,5 +152,6 @@ export function editableText(
         }
     }
 
+    gui.draw.restore();
     gui.endElement();
 }
