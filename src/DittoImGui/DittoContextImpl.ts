@@ -14,6 +14,16 @@ import { KeyboardAPI } from './services/KeyboardService';
 import { ControllerAPI } from './controllers';
 
 export class DittoContextImpl implements DittoContext {
+    controller: ControllerAPI;
+    layer: LayerAPI;
+    draw: DrawAPI;
+    mouse: MouseAPI;
+    state: StateAPI;
+    layout: LayoutAPI;
+    focus: FocusAPI;
+    keyboard: KeyboardAPI;
+    bounds: BoundsServiceAPI;
+
     constructor(
         private readonly infraContainer: InfraContainer,
         private readonly core: Core,
@@ -81,14 +91,4 @@ export class DittoContextImpl implements DittoContext {
         this.serviceManager.postRender(frameTime);
         this.controllerManager.onPostRender();
     }
-
-    controller: ControllerAPI;
-    layer: LayerAPI;
-    draw: DrawAPI;
-    mouse: MouseAPI;
-    state: StateAPI;
-    layout: LayoutAPI;
-    focus: FocusAPI;
-    keyboard: KeyboardAPI;
-    bounds: BoundsServiceAPI;
 }
