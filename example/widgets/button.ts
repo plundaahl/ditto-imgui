@@ -15,14 +15,19 @@ export function button(gui: StyledDittoContext, buttonText: string) {
     const { x, y, w, h } = gui.bounds.getElementBounds();
     const isTriggered = gui.controller.isElementTriggered();
     const isInteracted = gui.controller.isElementInteracted();
+    const isFocused = gui.focus.isElementFocused();
 
-    if (gui.controller.isElementReadied()) {
+    if (isInteracted) {
         gui.focus.focusElement();
     }
 
     const region = 'controlStd';
-    const mode = isTriggered ? 'active' : 'idle';
-    bevelBox(gui, x, y, w, h, region, mode, isInteracted);
+    const mode = isTriggered || gui.controller.isElementReadied()
+        ? 'active'
+        : isFocused
+            ? 'focused'
+            : 'idle';
+    bevelBox(gui, x, y, w, h, region, mode);
 
     // text
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'detail'));

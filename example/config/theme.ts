@@ -1,23 +1,30 @@
 import Color from '../../src/lib/Color';
-import { Theme, RegionType, modes, regionTypes } from '../../src/StyledDittoImGui';
+import { Theme } from '../../src/StyledDittoImGui';
+
+const DARK_METAL = '#222';
+const BRIGHT_METAL = '#666';
+const WHITE = '#FFF';
+const BLACK = '#000';
+const DARK_TEAL = '#085';
+const BRIGHT_TEAL = '#5FA';
 
 const baseHighlight = 0.75;
 const baseLowlight = 0.5;
 
-const darkMetal = mkTheme('#222', '#FFF');
-const brightMetal = mkTheme('#666', '#FFF');
+const darkMetal = mkTheme(DARK_METAL, WHITE);
+const brightMetal = mkTheme(BRIGHT_METAL, WHITE);
 
-const darkTeal = mkTheme('#085', '#FFF');
-const brightTeal = mkTheme('#5FA', '#000');
+const darkTeal = mkTheme(DARK_TEAL, WHITE);
+const brightTeal = mkTheme(BRIGHT_TEAL, BLACK);
 
 const editableMetal = withInverseBevel(
     withBg(
-        withDetail(brightMetal, '#000'), '#FFF'));
+        withDetail(brightMetal, BLACK), WHITE));
 
 export const theme: Theme = {
     panel: {
         idle: { ...darkMetal },
-        focused: { ...darkMetal },
+        focused: { ...withDetail(darkMetal, BRIGHT_TEAL) },
         active: { ...darkMetal },
         disabled: { ...darkMetal },
     },
@@ -29,8 +36,8 @@ export const theme: Theme = {
     },
     controlStd: {
         idle: { ...brightMetal },
-        focused: { ...brightMetal },
-        active: { ...withInverseBevel(brightMetal) },
+        focused: { ...darkTeal },
+        active: { ...withInverseBevel(darkTeal) },
         disabled: { ...brightMetal },
     },
     controlDanger: {
