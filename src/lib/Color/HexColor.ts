@@ -23,7 +23,7 @@ export class HexColor {
 
     public fromString(text: string) {
         if (!hexRegex.test(text)) {
-            throw new Error('not a valid hex code');
+            throw new Error(`${text} (of type ${typeof text}) is not a valid hex code`);
         }
 
         const len = text.length === 4 ? 1 : 2;

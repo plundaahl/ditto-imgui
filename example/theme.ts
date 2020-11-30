@@ -1,7 +1,7 @@
 import Color from '../src/lib/Color';
-import { Theme, regions, modes } from '../src/StyledDittoImGui';
+import { Theme, RegionType, modes, regionTypes } from '../src/StyledDittoImGui';
 
-const baseColors: { [R in keyof typeof regions]: string } = {
+const baseColors: { [R in RegionType]: string } = {
     panel: '#444',
     titlebar: '#085',
     controlStd: '#666',
@@ -18,10 +18,10 @@ const detailSelect = '#FFF';
 
 export const theme: Theme = (() => {
     let theme: any = {};
-    for (const regionName in regions) {
+    for (const regionName of regionTypes) {
         theme[regionName] = {};
 
-        for (const mode in modes) {
+        for (const mode of modes) {
             theme[regionName][mode] = {};
 
             const colorHex = (baseColors as any)[regionName];

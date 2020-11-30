@@ -1,7 +1,7 @@
 import {
     StyledDittoContext,
-    regions,
-    modes,
+    RegionType,
+    Mode,
 } from '../../src/StyledDittoImGui';
 
 const BORDER_WIDTH = 2;
@@ -13,8 +13,8 @@ export function bevelBox(
     y: number,
     w: number,
     h: number,
-    region: keyof typeof regions,
-    mode: keyof typeof modes,
+    region: RegionType,
+    mode: Mode,
     inward: boolean = false,
 ) {
     gui.draw.save();

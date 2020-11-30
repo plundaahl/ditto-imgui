@@ -1,40 +1,17 @@
-export const regions = {
-    titlebar: 'titlebar',
-    panel: 'panel',
-    controlStd: 'controlStd',
-    controlImportant: 'controlImportant',
-    controlDanger: 'controlDanger',
-    editable: 'editable',
-};
-
-export const modes = {
-    idle: 'idle',
-    focused: 'focused',
-    active: 'active',
-    disabled: 'disabled',
-};
-
-export const aspects = {
-    bg: 'bg',
-    bgHighlight: 'bgHighlight',
-    bgLowlight: 'bgLowlight',
-    bgSelected: 'bgSelected',
-    detail: 'detail',
-    detailSelected: 'detailSelected',
-};
-
-export type RegionType = keyof typeof regions;
-export type Mode = keyof typeof modes;
-export type Aspect = keyof typeof aspects;
+import {
+    RegionType,
+    Mode,
+    ThemeAspect,
+} from '../types';
 
 export type Theme = {
-    [R in keyof typeof regions]: {
-        [M in keyof typeof modes]: {
-            [A in keyof typeof aspects]: string;
+    [R in RegionType]: {
+        [M in Mode]: {
+            [A in ThemeAspect]: string;
         };
     };
 };
 
 export interface ThemeManager {
-    getColor(regionType: RegionType, mode: Mode, aspect: Aspect): string;
+    getColor(regionType: RegionType, mode: Mode, aspect: ThemeAspect): string;
 }
