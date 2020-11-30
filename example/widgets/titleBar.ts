@@ -12,6 +12,8 @@ export function beginTitleBar(gui: StyledDittoContext, title: string) {
     const isChildFocused = gui.focus.isChildFocused();
 
     gui.beginElement('titlebar', FOCUSABLE);
+    gui.draw.save();
+    gui.draw.setFont('bold 11pt monospace');
 
     const bounds = gui.bounds.getElementBounds();
     bounds.x = parentX + borderWidth;
@@ -23,7 +25,6 @@ export function beginTitleBar(gui: StyledDittoContext, title: string) {
     const region = 'titlebar';
     const mode = (isChildFocused || isWindowFocused) ? 'focused' : 'idle';
 
-    gui.draw.save();
     // background
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'bg'));
     gui.draw.fillRect(x, y, w, h);
@@ -31,11 +32,12 @@ export function beginTitleBar(gui: StyledDittoContext, title: string) {
     // title text
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'detail'));
     gui.draw.drawText(title, x + padding, y + padding);
-    gui.draw.restore();
 
     if (gui.controller.isElementInteracted()) {
         gui.focus.focusElement();
     }
+
+    gui.draw.restore();
 }
 
 export function endTitleBar(gui: StyledDittoContext) {

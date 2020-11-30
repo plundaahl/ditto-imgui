@@ -14,6 +14,7 @@ import {
     FillStyleOpts,
     setStrokeStyle,
     StrokeStyleOpts,
+    setTextBaseline,
 } from './CustomCommands';
 
 export class DrawServiceImpl implements DrawService {
@@ -80,14 +81,22 @@ export class DrawServiceImpl implements DrawService {
     }
 
     drawText(text: string, x: number, y: number) {
-        const { height } = this.measureText('My');
+        const baseline = 'top';
+        this.utilityContext.textBaseline = baseline;
+        this.pushDrawCommand({
+            command: setTextBaseline,
+            native: false,
+            args: [
+                baseline,
+            ],
+        });
         this.pushDrawCommand({
             command: 'fillText',
             native: true,
             args: [
                 text,
                 x,
-                y + height,
+                y,
             ]
         })
     }
@@ -129,6 +138,7 @@ export class DrawServiceImpl implements DrawService {
     }
 
     setFont(font: string): void {
+        this.utilityContext.font = font;
         this.pushDrawCommand({
             native: false,
             command: setFont,
@@ -244,6 +254,7 @@ export class DrawServiceImpl implements DrawService {
     }
 
     save(): void {
+        this.utilityContext.save();
         this.pushDrawCommand({
             native: true,
             command: 'save',
@@ -252,6 +263,7 @@ export class DrawServiceImpl implements DrawService {
     }
 
     restore(): void {
+        this.utilityContext.restore();
         this.pushDrawCommand({
             native: true,
             command: 'restore',

@@ -2,6 +2,11 @@ export function setLineWidth(context: CanvasRenderingContext2D, width: number): 
     context.lineWidth = width;
 }
 
+export type TextBaselineOpts = 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom';
+export function setTextBaseline(context: CanvasRenderingContext2D, baseline: TextBaselineOpts): void {
+    context.textBaseline = baseline;
+}
+
 export type LineCapOpts = 'butt' | 'round' | 'square';
 export function setLineCap(context: CanvasRenderingContext2D, cap: LineCapOpts): void {
     context.lineCap = cap;
