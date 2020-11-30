@@ -3,7 +3,6 @@ import { FOCUSABLE } from '../../src/DittoImGui';
 import { bevelBox } from './bevelBox';
 
 const TWO_THIRDS = 2 / 3;
-const ONE_THIRD = 1 - TWO_THIRDS;
 
 export function slider(
     gui: StyledDittoContext,
@@ -11,13 +10,13 @@ export function slider(
     valueBinding: (v?: number) => number,
     min: number,
     max: number,
+    constraintFn?: (v: number) => number,
 ) {
-    gui.beginElement(title, FOCUSABLE);
+    gui.beginElement(title);
     gui.draw.save();
 
-    const isFocused = gui.focus.isElementFocused() || gui.focus.isChildFocused();
-
-    let mode: Mode = 'idle';
+    const isFocused = gui.focus.isChildFocused();
+let mode: Mode = 'idle';
     if (gui.controller.isElementInteracted()) {
         mode = 'active';
     } else if (isFocused) {
@@ -31,8 +30,9 @@ export function slider(
     const borderX2 = border * 2;
     const padding = gui.boxSize.getPadding();
     const bounds = gui.bounds.getElementBounds();
+    const isInteracted = gui.controller.isElementInteracted();
 
-    bounds.h = bounds.h || ((border * 2) + (padding * 2) + textMetrics.height);
+    bounds.h = bounds.h || ((border * 2) + (padding * 2) + textMetrics.ascent);
     bounds.w = bounds.w || 200;
 
     const { x, y, w, h } = bounds;
@@ -43,7 +43,7 @@ export function slider(
 
     // slider
     {
-        gui.beginElement('slider');
+        gui.beginElement('slider', FOCUSABLE);
         const bounds = gui.bounds.getElementBounds();
         bounds.x = x + border;
         bounds.y = y + border;
@@ -55,6 +55,7 @@ export function slider(
         const percent = (value - min) / (max - min);
         const sliderPos = percent * sliderW;
 
+        // draw slider
         gui.draw.setFillStyle(isFocused
             ? gui.theme.getColor('titlebar', 'focused', 'bg')
             : gui.theme.getColor('titlebar', 'idle', 'bg')
@@ -66,6 +67,11 @@ export function slider(
             sliderH,
         );
 
+        // draw value
+        gui.draw.setFillStyle(gui.theme.getColor('editable', 'idle', 'detail'));
+        gui.draw.setFont(gui.font.getFont('editable', mode));
+        gui.draw.drawText(value.toString(), sliderX + padding, sliderY + padding);
+
         let delta = 0;
         if (gui.mouse.hoversElement() && gui.mouse.isM1Down()) {
             delta = gui.mouse.getMouseX() - sliderX - sliderPos;
@@ -76,7 +82,16 @@ export function slider(
         if (delta) {
             const newPos = Math.max(0, Math.min(sliderW, sliderPos + delta));
             const newPercent = newPos / sliderW;
-            valueBinding((newPercent * (max - min)) + min);
+            const newValue = (newPercent * (max - min)) + min;
+            valueBinding(
+                constraintFn
+                    ? constraintFn(newValue)
+                    : newValue 
+            );
+        }
+
+        if (isInteracted) {
+            gui.focus.focusElement();
         }
 
         gui.endElement();
@@ -93,10 +108,6 @@ export function slider(
         x + (w * TWO_THIRDS) + padding,
         y + ((h - textMetrics.height) * 0.5),
     );
-
-    if (gui.controller.isElementInteracted() || gui.controller.isChildInteracted()) {
-        gui.focus.focusElement();
-    }
 
     gui.draw.restore();
     gui.endElement();

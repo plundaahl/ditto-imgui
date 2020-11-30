@@ -2,7 +2,7 @@ import { FontConfig, Font } from '../../src/StyledDittoImGui';
 
 const baseFont: Font = {
     family: 'monospace',
-    sizeInPoints: 12,
+    sizeInPoints: 11,
     style: 'normal',
 };
 

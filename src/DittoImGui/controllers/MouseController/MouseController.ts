@@ -3,8 +3,7 @@ import { FocusCPI } from '../../services/FocusService';
 import { Controller } from '../Controller';
 
 export class MouseController implements Controller {
-    private hoveredElementIsFocusable: boolean = false;
-    private anElementIsFocused: boolean = false;
+    private hoversElement: boolean = false;
 
     constructor(
         private readonly mouse: MouseCPI,
@@ -24,15 +23,17 @@ export class MouseController implements Controller {
     }
 
     onBeginElement(): void {
-        const { focus } = this;
-        if (!focus.isElementFocusable()) {
+        const { focus, mouse } = this;
+
+        if (!this.mouse.hoversElement()) {
             return;
         }
 
-        this.anElementIsFocused = this.anElementIsFocused || focus.isElementFocused();
+        this.hoversElement = true;
+        const mouseWasInteracted = mouse.isM1Down() || mouse.isM2Down();
 
-        if (this.mouse.hoversElement() && focus.isElementFocusable()) {
-            this.hoveredElementIsFocusable = true;
+        if (focus.isElementFocusable() && mouseWasInteracted) {
+            focus.focusElement();
         }
     }
 
@@ -40,15 +41,11 @@ export class MouseController implements Controller {
         const { mouse } = this;
         const mouseWasInteracted = mouse.isM1Down() || mouse.isM2Down();
 
-        if (!this.hoveredElementIsFocusable
-            && this.anElementIsFocused
-            && mouseWasInteracted
-        ) {
+        if (!this.hoversElement && mouseWasInteracted) {
             this.focus.blur();
         }
 
-        this.hoveredElementIsFocusable = false;
-        this.anElementIsFocused = false;
+        this.hoversElement = false;
     }
 
     isElementHighlighted(): boolean {

@@ -1,4 +1,4 @@
-import { StateComponentKey, FOCUSABLE } from '../../src/DittoImGui';
+import { StateComponentKey } from '../../src/DittoImGui';
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { bevelBox } from './bevelBox';
 import { beginTitleBar, endTitleBar } from './titleBar';
@@ -13,7 +13,7 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
     const borderWidth = gui.boxSize.getBorderWidth();
     const borderWidthX2 = borderWidth * 2;
 
-    gui.beginLayer(key, FOCUSABLE);
+    gui.beginLayer(key);
 
     const state = gui.state.getStateComponent(stateKey, { x, y, collapsed: false });
     const isWindowInteracted = gui.controller.isElementInteracted();
@@ -35,16 +35,11 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
     gui.draw.clip();
 
     beginTitleBar(gui, key);
-    const isTitlebarFocused = gui.focus.isElementFocused();
     const isTitlebarDragged = gui.controller.isElementDragged();
     const isTitlebarToggled = gui.controller.isElementToggled();
     const dragX = isTitlebarDragged ? gui.controller.getDragX() : 0;
     const dragY = isTitlebarDragged ? gui.controller.getDragY() : 0;
     endTitleBar(gui);
-
-    if (isTitlebarFocused || isWindowInteracted) {
-        gui.focus.focusElement();
-    }
 
     if (isTitlebarDragged) {
         state.x += dragX;
