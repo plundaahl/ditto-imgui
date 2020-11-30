@@ -40,10 +40,10 @@ export class ServiceManagerImpl implements ServiceManager {
         hookRunner.registerHookable(stateManager);
         hookRunner.registerHookable(drawHandler);
         hookRunner.registerHookable(mouseHandler);
+        hookRunner.registerHookable(boundsService);
         hookRunner.registerHookable(layoutHandler);
         hookRunner.registerHookable(focusManager);
         hookRunner.registerHookable(keyboardService);
-        hookRunner.registerHookable(boundsService);
     }
 
     readonly draw: DrawService;

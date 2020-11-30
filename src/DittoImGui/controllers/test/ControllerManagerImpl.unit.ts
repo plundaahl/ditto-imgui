@@ -48,6 +48,8 @@ beforeEach(() => {
         bounds: {
             getElementBounds: jest.fn(),
             getChildBounds: jest.fn(),
+            getParentBounds: jest.fn(),
+            getSiblingBounds: jest.fn(),
         },
     };
 

@@ -8,7 +8,6 @@ export function button(gui: StyledDittoContext, buttonText: string) {
 
     gui.beginElement(buttonText, FOCUSABLE);
 
-
     gui.bounds.getElementBounds().h = gui.draw.measureText('M').height
         + border + border
         + padding + padding;

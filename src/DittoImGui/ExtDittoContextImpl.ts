@@ -13,7 +13,7 @@ import { ServiceManagerImpl, ServiceManager } from './services';
 import { DrawServiceImpl } from './services/DrawService';
 import { MouseServiceImpl, createMouseWatcher } from './services/MouseService';
 import { StateServiceImpl } from './services/StateService';
-import { LayoutServiceImpl } from './services/LayoutService';
+import { LayoutServiceImpl, LayoutFunction } from './services/LayoutService';
 import { FocusServiceImpl } from './services/FocusService';
 import { BrowserFocusHandleImpl, configureFocusElements } from './services/FocusService/BrowserFocusHandle';
 import { KeyboardServiceImpl } from './services/KeyboardService';
@@ -21,7 +21,6 @@ import { BoundsServiceImpl } from './services/BoundsService';
 
 import { ObjectPool } from './lib/ObjectPool';
 import { ElementFactoryImpl } from './factories/ElementFactory';
-import { basicVerticalLayoutFn } from './defaults/layout';
 
 import { ControllerManagerImpl } from './controllers';
 import { MouseControllerFactory } from './controllers/MouseController';
@@ -30,7 +29,10 @@ import { MouseControllerFactory } from './controllers/MouseController';
  * Simplifies the API by encapsulating DittoContextImpl's object composition.
  */
 export class ExtDittoContextImpl extends DittoContextImpl {
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(
+        canvas: HTMLCanvasElement,
+        defaultLayout: LayoutFunction,
+    ) {
         const canvasContext = canvas.getContext('2d');
         if (canvasContext === null) {
             throw new Error('Cannot get canvas context');
@@ -58,7 +60,7 @@ export class ExtDittoContextImpl extends DittoContextImpl {
                 new DrawServiceImpl(),
                 new MouseServiceImpl(createMouseWatcher(canvas)),
                 new StateServiceImpl(),
-                new LayoutServiceImpl(basicVerticalLayoutFn),
+                new LayoutServiceImpl(defaultLayout),
                 new FocusServiceImpl(
                     new BrowserFocusHandleImpl(
                         canvas,

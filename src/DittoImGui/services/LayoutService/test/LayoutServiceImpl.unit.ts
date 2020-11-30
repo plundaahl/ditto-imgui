@@ -59,9 +59,9 @@ describe('onBeginElement', () => {
             jest.clearAllMocks();
         });
 
-        test("should pass its parent into defaultLayoutFn", () => {
+        test("should call defaultLayoutFn", () => {
             instance.onBeginElement(element);
-            expect(defaultLayoutFn).toHaveBeenCalledWith(element.parent);
+            expect(defaultLayoutFn).toHaveBeenCalled();
         });
     });
 });

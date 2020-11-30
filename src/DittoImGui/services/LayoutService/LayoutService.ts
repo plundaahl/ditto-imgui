@@ -1,7 +1,7 @@
 import { UiElement } from '../../types';
 
 export interface LayoutFunction {
-    (parent: UiElement): void
+    (): void
 }
 
 export interface LayoutAPI {

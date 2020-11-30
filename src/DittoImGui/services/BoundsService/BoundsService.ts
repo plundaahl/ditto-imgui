@@ -4,6 +4,8 @@ import { UiElement, Box } from '../../types';
 interface BoundsServiceShared {
     getElementBounds(): Box;
     getChildBounds(): Readonly<Box>;
+    getSiblingBounds(): Readonly<Box>;
+    getParentBounds(): Readonly<Box> | undefined;
 }
 
 export interface BoundsServiceAPI extends BoundsServiceShared {}

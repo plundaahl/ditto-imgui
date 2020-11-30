@@ -18,10 +18,7 @@ export class BoundsServiceImpl implements BoundsService {
     }
 
     onEndElement(): void {
-        const box = this.usedBoundsStack.pop();
-        if (box) {
-            this.releaseBoundingBox(box);
-        }
+        this.usedBoundsStack.pop();
 
         const element = this.elementStack.pop();
         if (!element) {
@@ -92,6 +89,40 @@ export class BoundsServiceImpl implements BoundsService {
         return bounds;
     }
 
+    getSiblingBounds(): Readonly<Box> {
+        const element = this.getCurElement();
+        if (!element) {
+            throw new Error('No element is active');
+        }
+
+        const parent = element && element.parent;
+        const siblingBounds = this.usedBoundsStack[this.usedBoundsStack.length - 2];
+        if (parent && siblingBounds && parent.layer === element.layer) {
+            return siblingBounds;
+        }
+
+        const selfBounds = this.getChildBounds();
+        if (!selfBounds) {
+            throw new Error('Should not happen - no bounds for current element');
+        }
+
+        return selfBounds;
+    }
+
+    getParentBounds(): Readonly<Box> | undefined {
+        const element = this.getCurElement();
+        if (!element) {
+            throw new Error('No element is active');
+        }
+
+        const parent = element && element.parent;
+        if (!parent || parent.layer !== element.layer) {
+            return;
+        }
+
+        return parent.bounds;
+    }
+
     private getCurElement(): UiElement | undefined {
         const { elementStack } = this;
         return elementStack[elementStack.length - 1];
@@ -109,9 +140,5 @@ export class BoundsServiceImpl implements BoundsService {
             w: 0,
             h: 0,
         };
-    }
-
-    private releaseBoundingBox(box: Box): void {
-        // no-op
     }
 }

@@ -42,7 +42,7 @@ export class LayoutServiceImpl implements LayoutService {
         }
 
         const layoutFn = layoutFunctionMap.get(parent) || this.defaultLayoutFn;
-        layoutFn(parent);
+        layoutFn();
     }
 
     onEndElement(): void {
