@@ -1,12 +1,12 @@
-import { ColorCore } from '../ColorCore';
+import { RgbColor } from '../RgbColor';
 import { HexColor } from '../HexColor';
 
 describe('fromString', () => {
-    let core: ColorCore;
+    let core: RgbColor;
     let instance: HexColor;
 
     beforeEach(() => {
-        core = new ColorCore();
+        core = new RgbColor();
         instance = new HexColor(core);
     });
 
@@ -31,11 +31,11 @@ describe('fromString', () => {
 });
 
 describe('toString', () => {
-    let core: ColorCore;
+    let core: RgbColor;
     let instance: HexColor;
 
     beforeEach(() => {
-        core = new ColorCore();
+        core = new RgbColor();
         instance = new HexColor(core);
     });
 

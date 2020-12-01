@@ -1,19 +1,23 @@
-import { ColorCore } from './ColorCore';
+import { RgbColor } from './RgbColor';
 
 const hexRegex = /(^#[0-9a-fA-F]{3}$)|(^#[0-9a-fA-F]{6}$)/;
 const HEX = 16;
 
 export class HexColor {
-    private readonly data: ColorCore;
+    private readonly data: RgbColor;
+    private _r: number;
+    private _g: number;
+    private _b: number;
+    private hexString: string;
 
     constructor();
     constructor(hexcode: string);
-    constructor(colorData: ColorCore);
+    constructor(colorData: RgbColor);
     constructor(arg?: any) {
-        if (arg instanceof ColorCore) {
+        if (arg instanceof RgbColor) {
             this.data = arg;
         } else {
-            this.data = new ColorCore();
+            this.data = new RgbColor();
         }
 
         if (typeof arg === 'string') {
@@ -41,6 +45,9 @@ export class HexColor {
     }
 
     public toString(): string {
+        if (this.isCacheValid()) {
+            return this.hexString;
+        }
         const { data } = this;
 
         let r = data.r.toString(HEX);
@@ -51,6 +58,24 @@ export class HexColor {
         g = data.g < HEX ? `0${g}` : g;
         b = data.b < HEX ? `0${b}` : b;
 
-        return `#${r}${g}${b}`;
+        this.updateCache();
+        this.hexString = `#${r}${g}${b}`;
+        return this.hexString;
+    }
+
+    private isCacheValid(): boolean {
+        const { data } = this;
+        return (
+            this._r === data.r &&
+            this._g === data.g &&
+            this._b === data.b
+        );
+    }
+
+    private updateCache() {
+        const { data } = this;
+        this._r = data.r;
+        this._g = data.g;
+        this._b = data.b;
     }
 }

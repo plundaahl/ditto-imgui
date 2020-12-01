@@ -1,15 +1,16 @@
-import { ColorCore } from './ColorCore';
+import { HslColor } from './HslColor';
 import { HexColor } from './HexColor';
 import { RgbColor } from './RgbColor';
 
 export class Color {
+    private readonly hsl: HslColor;
     private readonly rgb: RgbColor;
     private readonly hex: HexColor;
 
     constructor() {
-        const core = new ColorCore();
-        this.rgb = new RgbColor(core);
-        this.hex = new HexColor(core);
+        this.hsl = new HslColor();
+        this.rgb = new RgbColor(this.hsl);
+        this.hex = new HexColor(this.rgb);
     }
 
     get r(): number { return this.rgb.r; }
@@ -19,11 +20,26 @@ export class Color {
     get b(): number { return this.rgb.b; }
     set b(v: number) { this.rgb.b = v; }
 
+    get h(): number { return this.hsl.h; }
+    set h(v: number) { this.hsl.h = v; }
+    get s(): number { return this.hsl.s; }
+    set s(v: number) { this.hsl.s = v; }
+    get l(): number { return this.hsl.l; }
+    set l(v: number) { this.hsl.l = v; }
+
     static fromRgb(r: number, g: number, b: number): Color {
         const color = new Color();
         color.r = r;
         color.g = g;
         color.b = b;
+        return color;
+    }
+
+    static fromHsl(h: number, s: number, l: number): Color {
+        const color = new Color();
+        color.h = h;
+        color.s = s;
+        color.l = l;
         return color;
     }
 
@@ -40,16 +56,22 @@ export class Color {
     }
 
     lighten(amount: number): Color {
-        this.r *= (1 + amount);
-        this.g *= (1 + amount);
-        this.b *= (1 + amount);
+        this.l *= (1 + amount);
         return this;
     }
 
     darken(amount: number): Color {
-        this.r *= (1 - amount);
-        this.g *= (1 - amount);
-        this.b *= (1 - amount);
+        this.l *= (1 - amount);
+        return this;
+    }
+
+    saturate(amount: number): Color {
+        this.s *= (1 + amount);
+        return this;
+    }
+
+    desaturate(amount: number): Color {
+        this.s *= (1 - amount);
         return this;
     }
 
@@ -61,11 +83,23 @@ export class Color {
         return this.rgb.toString();
     }
 
+    toHslString(): string {
+        return this.hsl.toString();
+    }
+
     fromRgb(r: number, g: number, b: number): Color {
         const { rgb } = this;
         rgb.r = r;
         rgb.g = g;
         rgb.b = b;
+        return this;
+    }
+
+    fromhsl(h: number, s: number, l: number): Color {
+        const { hsl } = this;
+        hsl.h = h;
+        hsl.s = s;
+        hsl.l = l;
         return this;
     }
 
