@@ -2,7 +2,7 @@ import { run } from './runner';
 import { theme, boxSize, font } from './config';
 import { setupCanvas, resetCanvas } from './util';
 import { StyledDittoContextImpl } from '../src/StyledDittoImGui';
-import { button, panel, slider, editableText } from './widgets';
+import { panel, slider, colorSwatch } from './widgets';
 import Color from '../src/lib/Color';
 
 const { canvas, context } = setupCanvas();
@@ -20,18 +20,13 @@ function main() {
     resetCanvas(context);
 
     panel.begin(gui, 'Control Panel', 50, 50, 300, 400);
+    colorSwatch(gui, 'color', color);
     slider(gui, 'Hue', hue, 0, 360, Math.round);
     slider(gui, 'Saturation', sat, 0, 1);
     slider(gui, 'Luma', lum, 0, 1);
     slider(gui, 'Red', red, 0, 255, Math.round);
     slider(gui, 'Green', grn, 0, 255, Math.round);
     slider(gui, 'Blue', blu, 0, 255, Math.round);
-    panel.end(gui);
-
-    panel.begin(gui, 'Output', 350, 50, 75, 100);
-    gui.draw.setFillStyle(color.toHexString());
-    const { x, y, w, h } = gui.bounds.getElementBounds();
-    gui.draw.fillRect(x, y, w, h);
     panel.end(gui);
 
     gui.render();

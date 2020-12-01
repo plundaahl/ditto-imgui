@@ -48,7 +48,7 @@ export class HslColor {
         this._l = l;
     }
 
-    toHslString(): string {
-        return `hsl(${this._h},${Math.round(this._s * 100)}%,${Math.round(this._l * 100)}%)`;
+    toString(): string {
+        return `hsl(${Math.round(this._h)},${Math.round(this._s * 100)}%,${Math.round(this._l * 100)}%)`;
     }
 }
