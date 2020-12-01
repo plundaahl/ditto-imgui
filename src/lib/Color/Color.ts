@@ -95,7 +95,7 @@ export class Color {
         return this;
     }
 
-    fromhsl(h: number, s: number, l: number): Color {
+    fromHsl(h: number, s: number, l: number): Color {
         const { hsl } = this;
         hsl.h = h;
         hsl.s = s;

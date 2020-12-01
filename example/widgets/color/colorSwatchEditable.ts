@@ -1,0 +1,46 @@
+import { StyledDittoContext } from '../../../src/StyledDittoImGui';
+import { StateComponentKey } from '../../../src/DittoImGui';
+import { drawColorSwatch } from './drawColorSwatch';
+import { colorEditor } from './colorEditor';
+import Color from '../../../src/lib/Color';
+import {
+    DISPLAY_MODE_NONE,
+    DISPLAY_MODE_HSL,
+} from './DisplayMode';
+
+const stateKey = new StateComponentKey('colorSwatchEditable', {
+    displayMode: DISPLAY_MODE_NONE,
+    open: false,
+});
+
+export function colorSwatchEditable(
+    gui: StyledDittoContext,
+    key: string,
+    color: Color,
+) {
+    gui.beginElement(key);
+    const state = gui.state.getStateComponent(stateKey);
+    const { x, y } = gui.bounds.getElementBounds();
+
+    drawColorSwatch(gui, color, state.displayMode);
+    if (state.open) {
+        const closed = colorEditor(gui, 'editor', color, x, y);
+        if (closed) {
+            state.open = false;
+        }
+    }
+
+    // behavior
+    if (gui.controller.isElementTriggered()) {
+        state.displayMode = (state.displayMode + 1) % (DISPLAY_MODE_HSL + 1);
+    }
+
+    if (gui.controller.isElementToggled()) {
+        state.open = true;
+    }
+
+    const toggled = gui.controller.isElementToggled();
+    gui.endElement();
+
+    return toggled;
+}
