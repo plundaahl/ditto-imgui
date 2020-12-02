@@ -1,6 +1,6 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { FOCUSABLE } from '../../src/DittoImGui';
-import { bevelBox } from './bevelBox';
+import { boxBevelled } from './box';
 
 export function button(gui: StyledDittoContext, buttonText: string) {
     const border = gui.boxSize.getBorderWidth();
@@ -27,7 +27,7 @@ export function button(gui: StyledDittoContext, buttonText: string) {
         : isFocused
             ? 'focused'
             : 'idle';
-    bevelBox(gui, x, y, w, h, region, mode);
+    boxBevelled(gui, x, y, w, h, region, mode);
 
     // text
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'detail'));

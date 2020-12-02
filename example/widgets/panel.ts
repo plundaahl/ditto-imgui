@@ -1,6 +1,6 @@
 import { StateComponentKey } from '../../src/DittoImGui';
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
-import { bevelBox } from './bevelBox';
+import { boxBevelled } from './box';
 import { beginTitleBar, endTitleBar } from './titleBar';
 
 const stateKey = new StateComponentKey('example/panel', {
@@ -24,7 +24,7 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
     bounds.w = w;
     bounds.h = h;
 
-    bevelBox(gui, state.x, state.y, w, h, 'panel', 'idle');
+    boxBevelled(gui, state.x, state.y, w, h, 'panel', 'idle');
     gui.draw.beginPath();
     gui.draw.rect(
         state.x + borderWidth,

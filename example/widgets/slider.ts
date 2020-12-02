@@ -1,6 +1,6 @@
 import { StyledDittoContext, Mode } from '../../src/StyledDittoImGui';
 import { FOCUSABLE } from '../../src/DittoImGui';
-import { bevelBox } from './bevelBox';
+import { boxBevelled } from './box';
 
 const TWO_THIRDS = 2 / 3;
 
@@ -39,7 +39,7 @@ let mode: Mode = 'idle';
     const value = valueBinding();
 
     // box
-    bevelBox(gui, x, y, w * TWO_THIRDS, h, 'editable', mode);
+    boxBevelled(gui, x, y, w * TWO_THIRDS, h, 'editable', mode);
 
     // slider
     {

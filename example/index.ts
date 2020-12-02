@@ -2,7 +2,7 @@ import { run } from './runner';
 import { theme, boxSize, font } from './config';
 import { setupCanvas, resetCanvas } from './util';
 import { StyledDittoContextImpl } from '../src/StyledDittoImGui';
-import { panel, colorSwatchEditable } from './widgets';
+import { panel, colorSwatchEditable, containerCollapsable } from './widgets';
 import Color from '../src/lib/Color';
 
 const { canvas, context } = setupCanvas();
@@ -15,8 +15,16 @@ function main() {
     resetCanvas(context);
 
     panel.begin(gui, 'Control Panel', 50, 50, 300, 400);
-    colorSwatchEditable(gui, 'color', color);
-    colorSwatchEditable(gui, 'color2', color2);
+
+    if (containerCollapsable.begin(gui, 'hithere')) {
+        if (containerCollapsable.begin(gui, 'byethere')) {
+            colorSwatchEditable(gui, 'color', color);
+            colorSwatchEditable(gui, 'color2', color2);
+        }
+        containerCollapsable.end(gui);
+    }
+    containerCollapsable.end(gui);
+
     panel.end(gui);
 
     gui.render();

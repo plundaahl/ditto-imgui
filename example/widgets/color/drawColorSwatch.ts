@@ -1,5 +1,5 @@
 import { StyledDittoContext } from '../../../src/StyledDittoImGui';
-import { bevelBox } from '../bevelBox';
+import { boxBevelled } from '../box';
 import Color from '../../../src/lib/Color';
 import {
     DISPLAY_MODE_HEX,
@@ -28,7 +28,7 @@ export function drawColorSwatch(
     const { x, y, w, h } = bounds;
 
     // border
-    bevelBox(gui, x, y, w, h, REGION, MODE);
+    boxBevelled(gui, x, y, w, h, REGION, MODE);
 
     // color display
     gui.draw.setFillStyle(color.toHexString());

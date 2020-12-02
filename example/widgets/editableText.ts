@@ -1,7 +1,7 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { FOCUSABLE, StateComponentKey } from '../../src/DittoImGui';
 import { TextPainter } from './TextPainter';
-import { bevelBox } from './bevelBox';
+import { boxBevelled } from './box';
 
 const stateKey = new StateComponentKey('example/editableText', {
     dragX: -1,
@@ -72,7 +72,7 @@ export function editableText(
             )
             : textHeight;
 
-    bevelBox(gui, x, y, w, h, 'editable', 'idle');
+    boxBevelled(gui, x, y, w, h, 'editable', 'idle');
     gui.draw.beginPath();
     gui.draw.rect(
         x + border,

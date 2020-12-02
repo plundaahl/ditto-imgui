@@ -1,0 +1,1 @@
+export { containerCollapsable } from './containerCollapsable';

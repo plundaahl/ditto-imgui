@@ -2,9 +2,9 @@ import {
     StyledDittoContext,
     RegionType,
     Mode,
-} from '../../src/StyledDittoImGui';
+} from '../../../src/StyledDittoImGui';
 
-export function bevelBox(
+export function boxBevelled(
     gui: StyledDittoContext,
     x: number,
     y: number,
