@@ -1,13 +1,17 @@
-import { StyledDittoContext } from '../../src/StyledDittoImGui';
+import { StyledDittoContext, RegionType } from '../../src/StyledDittoImGui';
 import { FOCUSABLE } from '../../src/DittoImGui';
 import { boxBevelled } from './box';
 
-export function button(gui: StyledDittoContext, buttonText: string) {
+export function button(
+    gui: StyledDittoContext,
+    buttonText: string,
+    region: RegionType = 'controlStd',
+) {
     const border = gui.boxSize.getBorderWidth();
     const padding = gui.boxSize.getPadding();
 
     gui.beginElement(buttonText, FOCUSABLE);
-    gui.draw.setFont(gui.font.getFont('controlStd', 'idle'));
+    gui.draw.setFont(gui.font.getFont(region, 'idle'));
     gui.bounds.getElementBounds().h = gui.draw.measureText('M').height
         + border + border
         + padding + padding;
@@ -21,7 +25,6 @@ export function button(gui: StyledDittoContext, buttonText: string) {
         gui.focus.focusElement();
     }
 
-    const region = 'controlStd';
     const mode = isTriggered || gui.controller.isElementReadied()
         ? 'active'
         : isFocused
