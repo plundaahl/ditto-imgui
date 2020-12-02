@@ -16,6 +16,10 @@ export function drawColorSwatch(
     gui: StyledDittoContext,
     color: Color,
     displayMode: number,
+    x: number,
+    y: number,
+    w: number,
+    h?: number,
 ) {
     const bounds = gui.bounds.getElementBounds();
     const border = gui.boxSize.getBorderWidth();
@@ -24,8 +28,10 @@ export function drawColorSwatch(
     const paddingX2 = padding * 2;
 
     gui.draw.setFont(gui.font.getFont(REGION, MODE));
-    bounds.h = gui.draw.measureText('M').ascent + borderX2 + paddingX2;
-    const { x, y, w, h } = bounds;
+    if (!h) {
+        bounds.h = gui.draw.measureText('M').ascent + borderX2 + paddingX2;
+        h = bounds.h;
+    }
 
     // border
     boxBevelled(gui, x, y, w, h, REGION, MODE);

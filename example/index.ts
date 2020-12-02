@@ -19,9 +19,13 @@ function main() {
     if (containerCollapsable.begin(gui, 'hithere')) {
         if (containerCollapsable.begin(gui, 'byethere')) {
             colorSwatchEditable(gui, 'color', color);
-            colorSwatchEditable(gui, 'color2', color2);
         }
         containerCollapsable.end(gui);
+    }
+    containerCollapsable.end(gui);
+
+    if (containerCollapsable.begin(gui, 'sup')) {
+        colorSwatchEditable(gui, 'color2', color2);
     }
     containerCollapsable.end(gui);
 

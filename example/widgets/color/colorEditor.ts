@@ -1,5 +1,5 @@
 import { StyledDittoContext } from '../../../src/StyledDittoImGui';
-import { StateComponentKey } from '../../../src/DittoImGui';
+import { StateComponentKey, PERSISTENT } from '../../../src/DittoImGui';
 import { panel } from '../panel';
 import { slider } from '../slider';
 import { button } from '../button';
@@ -27,7 +27,7 @@ export function colorEditor(
     x: number,
     y: number,
 ) {
-    panel.begin(gui, key, x, y, 300, 400);
+    panel.begin(gui, key, x, y, 300, 400, PERSISTENT);
 
     const state = gui.state.getStateComponent(stateKey, {
         h: color.h,
@@ -37,7 +37,7 @@ export function colorEditor(
 
     editColor.fromHsl(state.h, state.s, state.l);
 
-    colorSwatch(gui, 'color', editColor);
+    colorSwatch(gui, 'color', editColor, false);
     slider(gui, 'Hue', hue, 0, 360, Math.round);
     slider(gui, 'Saturation', sat, 0, 1);
     slider(gui, 'Luma', lum, 0, 1);
@@ -45,7 +45,7 @@ export function colorEditor(
     slider(gui, 'Green', grn, 0, 255, Math.round);
     slider(gui, 'Blue', blu, 0, 255, Math.round);
     const accepted = button(gui, 'Accept');
-    const cancelled = button(gui, 'Cancelled');
+    const cancelled = button(gui, 'Cancel');
     const closed = accepted || cancelled;
 
     state.h = editColor.h;

@@ -1,5 +1,5 @@
 import { StyledDittoContext } from '../../../src/StyledDittoImGui';
-import { StateComponentKey } from '../../../src/DittoImGui';
+import { StateComponentKey, PERSISTENT } from '../../../src/DittoImGui';
 import {
     boxBevelled,
     boxFramed,
@@ -15,7 +15,7 @@ function begin(
     key: string,
     open: boolean = false,
 ) {
-    gui.beginElement(key);
+    gui.beginElement(key, PERSISTENT);
     const { x, y, w } = gui.bounds.getElementBounds();
     const state = gui.state.getStateComponent(stateKey, { open, headerHeight: 0 });
 

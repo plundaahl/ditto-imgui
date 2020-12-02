@@ -9,11 +9,11 @@ const stateKey = new StateComponentKey('example/panel', {
     collapsed: false,
 });
 
-function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, w: number, h: number) {
+function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, w: number, h: number, extraFlags: number = 0) {
     const borderWidth = gui.boxSize.getBorderWidth();
     const borderWidthX2 = borderWidth * 2;
 
-    gui.beginLayer(key);
+    gui.beginLayer(key, extraFlags);
 
     const state = gui.state.getStateComponent(stateKey, { x, y, collapsed: false });
     const isWindowInteracted = gui.controller.isElementInteracted();
