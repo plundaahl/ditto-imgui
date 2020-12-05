@@ -24,15 +24,7 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
     bounds.w = w;
     bounds.h = h;
 
-    boxBevelled(gui, state.x, state.y, w, h, 'panel', 'idle');
-    gui.draw.beginPath();
-    gui.draw.rect(
-        state.x + borderWidth,
-        state.y + borderWidth,
-        w - borderWidthX2,
-        h - borderWidthX2,
-    );
-    gui.draw.clip();
+    boxBevelled.begin(gui, state.x, state.y, w, h, 'panel', 'idle');
 
     beginTitleBar(gui, key);
     const isTitlebarDragged = gui.controller.isElementDragged();
@@ -40,6 +32,8 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
     const dragX = isTitlebarDragged ? gui.controller.getDragX() : 0;
     const dragY = isTitlebarDragged ? gui.controller.getDragY() : 0;
     endTitleBar(gui);
+
+    boxBevelled.end(gui);
 
     if (isTitlebarDragged) {
         state.x += dragX;

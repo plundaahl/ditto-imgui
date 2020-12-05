@@ -69,7 +69,6 @@ function header(
     const paddingX2 = padding * 2;
     const paddingAndBorder = border + padding;
 
-
     const region = 'controlStd';
     const mode = 'idle';
     const bounds = gui.bounds.getElementBounds();
@@ -84,7 +83,7 @@ function header(
 
     // header box
     const { x, y, w, h } = bounds;
-    boxBevelled(gui, x, y, w, h, region, mode);
+    boxBevelled.begin(gui, x, y, w, h, region, mode);
 
     // arrow
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'detail'));
@@ -123,6 +122,7 @@ function header(
     gui.draw.restore();
 
     const isTriggered = gui.controller.isElementTriggered();
+    boxBevelled.end(gui);
     gui.endElement();
 
     return isTriggered;

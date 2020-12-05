@@ -72,15 +72,7 @@ export function editableText(
             )
             : textHeight;
 
-    boxBevelled(gui, x, y, w, h, 'editable', 'idle');
-    gui.draw.beginPath();
-    gui.draw.rect(
-        x + border,
-        y + border,
-        w + borderX2,
-        h + borderX2,
-    );
-    gui.draw.clip();
+    boxBevelled.begin(gui, x, y, w, h, 'editable', 'idle');
     textPainter.paint();
 
     if (gui.focus.isElementFocused()) {
@@ -152,6 +144,7 @@ export function editableText(
         }
     }
 
+    boxBevelled.end(gui);
     gui.draw.restore();
     gui.endElement();
 }

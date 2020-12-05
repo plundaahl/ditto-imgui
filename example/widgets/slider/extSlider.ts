@@ -11,7 +11,6 @@ function begin(
     constraintFn?: (v: number) => number,
 ) {
     gui.beginElement('slider', FOCUSABLE);
-    gui.draw.save();
 
     const isFocused = gui.focus.isElementFocused();
     const isInteracted = gui.controller.isElementInteracted();
@@ -37,15 +36,7 @@ function begin(
     }
 
     // draw box
-    boxBevelled(gui, x, y, w, h, 'editable', mode);
-    gui.draw.beginPath();
-    gui.draw.rect(
-        x + border,
-        y + border,
-        w - borderX2,
-        h - borderX2,
-    );
-    gui.draw.clip();
+    boxBevelled.begin(gui, x, y, w, h, 'editable', mode);
 
     // draw slider
     gui.draw.setFillStyle(isFocused
@@ -86,6 +77,7 @@ function begin(
 function end(
     gui: StyledDittoContext,
 ) {
+    boxBevelled.end(gui);
     gui.draw.restore();
     gui.endElement();
 }

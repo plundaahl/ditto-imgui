@@ -38,15 +38,15 @@ function begin(
     const { x, y, w, h } = bounds;
 
     // border
-    boxBevelled(gui, x, y, w, h, REGION, MODE);
+    boxBevelled.begin(gui, x, y, w, h, REGION, MODE);
 
     // color display
     gui.draw.setFillStyle(color.toHexString());
     gui.draw.fillRect(
-        x + border,
-        y + border,
-        w - borderX2,
-        h - borderX2,
+        x,
+        y,
+        w,
+        h,
     );
 
     // text output
@@ -66,6 +66,7 @@ function begin(
 }
 
 function end(gui: StyledDittoContext) {
+    boxBevelled.end(gui);
     gui.endElement();
 }
 

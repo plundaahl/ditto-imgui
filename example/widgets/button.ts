@@ -30,11 +30,14 @@ export function button(
         : isFocused
             ? 'focused'
             : 'idle';
-    boxBevelled(gui, x, y, w, h, region, mode);
 
     // text
+    boxBevelled.begin(gui, x, y, w, h, region, mode);
+
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'detail'));
     gui.draw.drawText(buttonText, x + border + padding, y + border + padding);
+
+    boxBevelled.end(gui);
 
     gui.endElement();
     return isTriggered;
