@@ -14,7 +14,11 @@ export function createBasicVerticalLayoutFn(getGui: () => StyledDittoContext) {
             return;
         }
 
-        elementBounds.y = siblingBounds.y + siblingBounds.h + padding;
+        if (siblingBounds.h > 0) {
+            elementBounds.y = siblingBounds.y + siblingBounds.h + padding;
+        } else {
+            elementBounds.y = parentBounds.y + padding + border;
+        }
         elementBounds.x = parentBounds.x + padding + border;
         elementBounds.w = parentBounds.w - ((padding + border) * 2);
     }

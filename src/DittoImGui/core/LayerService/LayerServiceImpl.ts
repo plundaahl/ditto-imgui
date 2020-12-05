@@ -10,7 +10,7 @@ export class LayerServiceImpl implements LayerService {
     private readonly layersSeenThisFrame: Set<Layer> = new Set();
     private readonly layerOrder: Layer[] = [];
     private readonly layerStack: Layer[] = [];
-    private readonly moveToFrontRequests: Set<Layer> = new Set();
+    private readonly moveToFrontRequests: Layer[] = [];
     private state: LayerServiceState = LayerServiceState.BUILD_MODE;
 
     constructor() {
@@ -73,7 +73,7 @@ export class LayerServiceImpl implements LayerService {
         if (!layer) {
             throw new Error('No layer currently active. Ensure #bringCurrentLayerToFront is only called between matching beginLayer and endLayer calls.');
         }
-        this.moveToFrontRequests.add(layer);
+        this.moveToFrontRequests.push(layer);
     }
 
     onPreRender(): void {
@@ -96,7 +96,7 @@ export class LayerServiceImpl implements LayerService {
         // sort layers
         layerOrder.sort(this.compareLayersForSorting);
         layerOrder.length -= nLayersNotSeen;
-        this.moveToFrontRequests.clear();
+        this.moveToFrontRequests.length = 0;
 
         for (let i = 0; i < layerOrder.length; i++) {
             layerOrder[i].zIndex = i;
@@ -117,11 +117,14 @@ export class LayerServiceImpl implements LayerService {
     }
 
     private compareLayersForSorting(a: Layer, b: Layer): number {
-        const aToFront = this.moveToFrontRequests.has(a);
-        const bToFront = this.moveToFrontRequests.has(b);
+        const indexOfA = this.moveToFrontRequests.indexOf(a);
+        const indexOfB = this.moveToFrontRequests.indexOf(b);
+
+        const aToFront = indexOfA >= 0;
+        const bToFront = indexOfB >= 0;
 
         if (aToFront && bToFront) {
-            return 0;
+            return indexOfA - indexOfB;
         } else if (aToFront) {
             return 1;
         } else if (bToFront) {
