@@ -4,7 +4,7 @@ import {
     Mode,
 } from '../../../src/StyledDittoImGui';
 
-export function boxFramed(
+function begin(
     gui: StyledDittoContext,
     x: number,
     y: number,
@@ -49,4 +49,18 @@ export function boxFramed(
     gui.draw.stroke();
 
     gui.draw.restore();
+
+    // clip contents
+    gui.draw.save();
+    gui.draw.beginPath();
+    gui.draw.rect(x + 1, y + 1, w - 2, h - 2);
+    gui.draw.clip();
 }
+
+function end(
+    gui: StyledDittoContext,
+) {
+    gui.draw.restore();
+}
+
+export const boxFramed = { begin, end };

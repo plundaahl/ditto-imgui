@@ -38,7 +38,7 @@ function end(gui: StyledDittoContext) {
         gui.bounds.getElementBounds().h = childrenBounds.h + border + padding;
 
         const { x, y, w, h } = gui.bounds.getElementBounds();
-        boxFramed(
+        boxFramed.begin(
             gui,
             x,
             y,
@@ -47,6 +47,7 @@ function end(gui: StyledDittoContext) {
             'controlStd',
             'idle',
         );
+        boxFramed.end(gui);
     } else {
         gui.bounds.getElementBounds().h = state.headerHeight;
     }
