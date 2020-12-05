@@ -17,6 +17,9 @@ import {
     containerCollapsable,
     button,
     row,
+    menu,
+    menuItem,
+    subMenu,
 } from './widgets';
 import Color from '../src/lib/Color';
 
@@ -24,8 +27,31 @@ const { canvas, context } = setupCanvas();
 const gui = new StyledDittoContextImpl(canvas, theme, boxSize, font);
 let colors = convertThemeToColors(theme);
 
+let menuOpen: boolean = false;
+const menuOpenBinding = (_ = menuOpen) => menuOpen = _;
+
 function main() {
     resetCanvas(context);
+
+    panel.begin(gui, 'Menu Panel', 500, 50, 200, 100);
+    if (button(gui, 'openmenu')) {
+        menuOpenBinding(true);
+    }
+    if (menu.begin(gui, 'menu', 550, 80, 200, menuOpenBinding)) {
+        if (subMenu.begin(gui, 'drink', 200)) {
+            if (menuItem(gui, 'beer')) { console.log('beer'); }
+            if (menuItem(gui, 'whiskey')) { console.log('whiskey'); }
+            if (menuItem(gui, 'wine')) { console.log('wine'); }
+        }
+        subMenu.end(gui);
+
+        if (subMenu.begin(gui, 'food', 200)) {
+            if (menuItem(gui, 'cheese')) { console.log('cheese'); }
+        }
+        subMenu.end(gui);
+    }
+    menu.end(gui);
+    panel.end(gui);
 
     panel.begin(gui, 'Control Panel', 50, 50, 300, 400);
     for (const r of regionTypes) {
