@@ -24,17 +24,18 @@ const { canvas, context } = setupCanvas();
 const gui = new StyledDittoContextImpl(canvas, theme, boxSize, font);
 let colors = convertThemeToColors(theme);
 
+const color = new Color();
+
 function main() {
     resetCanvas(context);
 
     panel.begin(gui, 'Control Panel', 50, 50, 300, 400);
-
     for (const r of regionTypes) {
         if (containerCollapsable.begin(gui, r, false)) {
             for (const m of modes) {
                 if (containerCollapsable.begin(gui, m, false)) {
                     for (const a of themeAspects) {
-                        colorSwatchEditable(gui, a, colors[r][m][a], true);
+                        colorSwatchEditable(gui, a, colors[r][m][a]);
                     }
                 }
                 containerCollapsable.end(gui);
