@@ -16,6 +16,7 @@ import {
     colorSwatchEditable,
     containerCollapsable,
     button,
+    row,
 } from './widgets';
 import Color from '../src/lib/Color';
 
@@ -42,6 +43,8 @@ function main() {
         containerCollapsable.end(gui);
     }
 
+    row.beginRow(gui, 'submissionrow', 2);
+    row.beginCell(gui, 'apply');
     if (button(gui, 'apply', 'controlImportant')) {
         for (const r of regionTypes) {
             for (const m of modes) {
@@ -51,10 +54,14 @@ function main() {
             }
         }
     }
+    row.endCell(gui);
 
+    row.beginCell(gui, 'cancel');
     if (button(gui, 'cancel', 'controlImportant')) {
         colors = convertThemeToColors(theme);
     }
+    row.endCell(gui);
+    row.endRow(gui);
 
     panel.end(gui);
 
