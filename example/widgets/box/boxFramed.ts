@@ -12,8 +12,14 @@ function begin(
     h: number,
     region: RegionType,
     mode: Mode,
+    bgColor?: string,
 ) {
     gui.draw.save();
+
+    if (bgColor) {
+        gui.draw.setFillStyle(bgColor);
+        gui.draw.fillRect(x, y, w, h);
+    }
 
     const highlight = gui.theme.getColor(region, mode, 'bgHighlight');
     const lowlight = gui.theme.getColor(region, mode, 'bgLowlight');
