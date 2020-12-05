@@ -24,8 +24,6 @@ const { canvas, context } = setupCanvas();
 const gui = new StyledDittoContextImpl(canvas, theme, boxSize, font);
 let colors = convertThemeToColors(theme);
 
-const color = new Color();
-
 function main() {
     resetCanvas(context);
 
