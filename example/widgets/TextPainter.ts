@@ -252,6 +252,18 @@ export class TextPainter {
         return char;
     }
 
+    getXPosOfCharacter(charPos: number): number {
+        let charIdx = charPos;
+
+        for (const line of this.lines) {
+            if (line.length < charIdx) {
+                charIdx -= line.length;
+            }
+        }
+
+        return (charIdx * this.charWidth) + this.x;
+    }
+
     paint() {
         const gui = this.context;
         const {
