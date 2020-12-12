@@ -33,7 +33,7 @@ function getTextPainter(gui: StyledDittoContext): TextPainter {
     return textPainters.get(gui) as TextPainter;
 }
 
-export function extEditableText(
+function begin(
     gui: StyledDittoContext,
     key: string,
     valueBinding: (t?: string) => string,
@@ -116,7 +116,9 @@ export function extEditableText(
     }
 
     updateScrolling(gui, textPainter, state);
+}
 
+function end(gui: StyledDittoContext) {
     boxBevelled.end(gui);
     gui.draw.restore();
     gui.endElement();
@@ -357,3 +359,8 @@ function updateScrolling(
         state.scrollX += (cursorXOffset - right);
     }
 }
+
+export const extEditableText = {
+    begin,
+    end,
+};

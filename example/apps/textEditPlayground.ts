@@ -9,10 +9,7 @@ const textBinding = (_ = text) => text = _;
 
 export function textEditPlayground(gui: StyledDittoContextImpl) {
     panel.begin(gui, 'Example', 50, 50, 400, 200);
-    editableText(
-        gui,
-        'Example',
-        textBinding,
-    );
+    editableText(gui, 'Editor A', textBinding);
+    editableText(gui, 'Editor B', textBinding);
     panel.end(gui);
 }
