@@ -58,6 +58,7 @@ function begin(
     const w = bounds.w;
 
     let text = valueBinding();
+    state.cursorPos = Math.min(state.cursorPos, text.length);
 
     gui.draw.setFont(gui.font.getFont('editable', 'idle'));
     gui.draw.setFillStyle('#000000');
@@ -66,7 +67,7 @@ function begin(
         const builder = textPainter
             .startBuilder(
                 text,
-                x - state.scrollX - border,
+                x - state.scrollX,
                 y,
                 '#000000',
             )
