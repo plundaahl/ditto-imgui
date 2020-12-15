@@ -1,13 +1,19 @@
-import { DittoContext, StateComponentKey } from '../../src/DittoImGui';
+import { StyledDittoContext } from '../../src/StyledDittoImGui';
+import { StateComponentKey } from '../../src/DittoImGui';
+import { boxBevelled } from './box';
 
 const SCROLLBAR_WIDTH = 15;
 const stateKey = new StateComponentKey('example/scrollRegion', {
     offsetY: 0,
     parentH: 0,
     drawY: false,
+    minHeight: 0,
 });
 
-function beginScrollRegion(gui: DittoContext, key: string) {
+function beginScrollRegion(
+    gui: StyledDittoContext,
+    key: string,
+) {
     const parentBounds = gui.bounds.getElementBounds();
 
     gui.beginElement(key); // CONTAINER
@@ -31,7 +37,7 @@ function beginScrollRegion(gui: DittoContext, key: string) {
     contentBounds.h = 999999;
 }
 
-function endScrollRegion(gui: DittoContext) {
+function endScrollRegion(gui: StyledDittoContext) {
     const state = gui.state.getStateComponent(stateKey);
     const { parentH, offsetY } = state;
     const bounds = gui.bounds.getElementBounds();
@@ -41,8 +47,9 @@ function endScrollRegion(gui: DittoContext) {
     );
 
     bounds.y += offsetY;
-    bounds.h = parentH;
+    bounds.h = gui.bounds.getChildBounds().h;
     gui.endElement(); // CONTENT
+    gui.bounds.getElementBounds().h = gui.bounds.getChildBounds().h;
 
     const percentOfContentOnScreenY = parentH / childrenHeight;
     const offscreenContentHeight = childrenHeight - parentH;
@@ -62,6 +69,7 @@ function endScrollRegion(gui: DittoContext) {
         bounds.h = scrollbarHeight;
 
         const { x, y, w, h } = bounds;
+        boxBevelled.begin(gui, x, y, w, h, 'controlStd', 'idle');
         gui.draw.setFillStyle('#EEEEEE');
         gui.draw.setStrokeStyle('#000000');
         gui.draw.fillRect(x, y, w, h);

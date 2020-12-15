@@ -3,55 +3,7 @@ import {
     RegionType,
     Mode,
 } from '../../../src/StyledDittoImGui';
-
-function boxBevelledOld(
-    gui: StyledDittoContext,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    region: RegionType,
-    mode: Mode,
-    inward: boolean = false,
-) {
-    const borderWidth = gui.boxSize.getBorderWidth();
-    const borderWidthX2 = borderWidth * 2;
-
-    gui.draw.save();
-
-    // lower-right border
-    gui.draw.setFillStyle(
-        inward
-            ? gui.theme.getColor(region, mode, 'bgHighlight')
-            : gui.theme.getColor(region, mode, 'bgLowlight')
-    );
-    gui.draw.fillRect(x, y, w, h);
-
-    // upper-left border
-    gui.draw.setFillStyle(
-       inward 
-            ? gui.theme.getColor(region, mode, 'bgLowlight')
-            : gui.theme.getColor(region, mode, 'bgHighlight')
-    );
-    gui.draw.beginPath();
-    gui.draw.moveTo(x, y + h);
-    gui.draw.lineTo(x + borderWidth, y + h - borderWidth);
-    gui.draw.lineTo(x + w - borderWidth, y + borderWidth);
-    gui.draw.lineTo(x + w, y);
-    gui.draw.lineTo(x, y);
-    gui.draw.fill();
-
-    // background
-    gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'bg'));
-    gui.draw.fillRect(
-        x + borderWidth,
-        y + borderWidth,
-        w - borderWidthX2,
-        h - borderWidthX2,
-    );
-
-    gui.draw.restore();
-}
+import { drawBoxBevelled } from '../drawUtils';
 
 function begin(
     gui: StyledDittoContext,
@@ -66,40 +18,7 @@ function begin(
     const borderWidth = gui.boxSize.getBorderWidth();
     const borderWidthX2 = borderWidth * 2;
 
-    gui.draw.save();
-
-    // lower-right border
-    gui.draw.setFillStyle(
-        inward
-            ? gui.theme.getColor(region, mode, 'bgHighlight')
-            : gui.theme.getColor(region, mode, 'bgLowlight')
-    );
-    gui.draw.fillRect(x, y, w, h);
-
-    // upper-left border
-    gui.draw.setFillStyle(
-       inward 
-            ? gui.theme.getColor(region, mode, 'bgLowlight')
-            : gui.theme.getColor(region, mode, 'bgHighlight')
-    );
-    gui.draw.beginPath();
-    gui.draw.moveTo(x, y + h);
-    gui.draw.lineTo(x + borderWidth, y + h - borderWidth);
-    gui.draw.lineTo(x + w - borderWidth, y + borderWidth);
-    gui.draw.lineTo(x + w, y);
-    gui.draw.lineTo(x, y);
-    gui.draw.fill();
-
-    // background
-    gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'bg'));
-    gui.draw.fillRect(
-        x + borderWidth,
-        y + borderWidth,
-        w - borderWidthX2,
-        h - borderWidthX2,
-    );
-
-    gui.draw.restore();
+    drawBoxBevelled(gui, x, y, w, h, region, mode, inward);
 
     // clip inner contents
     gui.draw.save();

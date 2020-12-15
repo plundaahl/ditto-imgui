@@ -8,3 +8,4 @@ export * from './container';
 export * from './layout';
 export * from './macro';
 export * from './menu';
+export * from './box';
