@@ -1,7 +1,16 @@
 import { StateComponentKey } from '../../src/DittoImGui';
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
-import { boxBevelled } from './box';
+import { extBoxBevelled as boxBevelled } from './box';
 import { beginTitleBar, endTitleBar } from './titleBar';
+import { fillLayout, verticalLayout } from './layout';
+
+const { createFillLayout } = fillLayout;
+const {
+    createVerticalLayout,
+    AUTOFILL_WIDTH,
+    WITH_BORDER,
+    WITH_PADDING,
+} = verticalLayout;
 
 const stateKey = new StateComponentKey('example/panel', {
     x: 0,
@@ -14,6 +23,7 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
     const borderWidthX2 = borderWidth * 2;
 
     gui.beginLayer(key, extraFlags);
+    gui.layout.setLayout(createFillLayout(gui));
 
     const state = gui.state.getStateComponent(stateKey, { x, y, collapsed: false });
     const isWindowInteracted = gui.controller.isElementInteracted();
@@ -24,7 +34,8 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
     bounds.w = w;
     bounds.h = h;
 
-    boxBevelled.begin(gui, state.x, state.y, w, h, 'panel', 'idle');
+    boxBevelled.begin(gui, 'box', 0, true);
+    gui.layout.setLayout(createVerticalLayout(gui, AUTOFILL_WIDTH));
 
     beginTitleBar(gui, key);
     const isTitlebarDragged = gui.controller.isElementDragged();
@@ -32,8 +43,6 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
     const dragX = isTitlebarDragged ? gui.controller.getDragX() : 0;
     const dragY = isTitlebarDragged ? gui.controller.getDragY() : 0;
     endTitleBar(gui);
-
-    boxBevelled.end(gui);
 
     if (isTitlebarDragged) {
         state.x += dragX;
@@ -52,9 +61,20 @@ function beginPanel(gui: StyledDittoContext, key: string, x: number, y: number, 
         const childBounds = gui.bounds.getChildBounds();
         bounds.h = childBounds.h + (childBounds.y - bounds.y) + borderWidthX2;
     }
+
+    gui.beginElement('contents');
+    gui.bounds.getElementBounds().h = h - gui.bounds.getSiblingBounds().h;
+    gui.layout.setLayout(
+        createVerticalLayout(
+            gui,
+            WITH_BORDER | WITH_PADDING | AUTOFILL_WIDTH
+        )
+    );
 }
 
 function endPanel(gui: StyledDittoContext) {
+    gui.endElement();
+    boxBevelled.end(gui, 'panel', 'idle');
     gui.endLayer();
 }
 

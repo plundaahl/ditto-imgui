@@ -17,11 +17,18 @@ function begin(
     gui: StyledDittoContext,
     key: string,
     flags: number = 0,
+    customLayout: boolean = false,
 ) {
     gui.beginElement(key, flags); // bevel
-    gui.layout.setLayout(
-        createVerticalLayout(gui, WITH_BORDER | WITH_PADDING | AUTOFILL_WIDTH),
-    );
+
+    if (!customLayout) {
+        gui.layout.setLayout(
+            createVerticalLayout(
+                gui,
+                WITH_BORDER | WITH_PADDING | AUTOFILL_WIDTH,
+            ),
+        );
+    }
 }
 
 function end(
