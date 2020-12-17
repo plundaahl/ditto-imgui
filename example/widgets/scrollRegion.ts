@@ -1,6 +1,6 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { StateComponentKey } from '../../src/DittoImGui';
-import { boxBevelled } from './box';
+import { extBoxBevelled as boxBevelled } from './box';
 
 const SCROLLBAR_WIDTH = 15;
 const stateKey = new StateComponentKey('example/scrollRegion', {
@@ -44,15 +44,10 @@ function endScrollRegion(gui: StyledDittoContext) {
 
     const topPadding = gui.bounds.getChildBounds().y - bounds.y;
 
-    const childrenHeight: number = gui.bounds.getChildBounds().h + topPadding;
+    const childrenHeight = gui.bounds.getChildBounds().h + topPadding + topPadding;
 
     bounds.y += offsetY;
-    bounds.h = gui.bounds.getChildBounds().h + topPadding + topPadding;
-    {
-        const { x, y, w, h } = gui.bounds.getElementBounds();
-        gui.draw.setStrokeStyle('red');
-        gui.draw.strokeRect(x, y, w, h);
-    }
+    bounds.h = childrenHeight;
     gui.endElement(); // CONTENT
     gui.bounds.getElementBounds().h = gui.bounds.getChildBounds().h;
 
@@ -66,19 +61,12 @@ function endScrollRegion(gui: StyledDittoContext) {
     const parentBounds = gui.bounds.getElementBounds();
 
     if (state.drawY) {
-        gui.beginElement('scrollY');
+        boxBevelled.begin(gui, 'scrollY');
         const bounds = gui.bounds.getElementBounds();
         bounds.x = parentBounds.x + parentBounds.w - SCROLLBAR_WIDTH;
         bounds.y = parentBounds.y + scrollbarOffsetY;
         bounds.w = SCROLLBAR_WIDTH;
         bounds.h = scrollbarHeight;
-
-        const { x, y, w, h } = bounds;
-        boxBevelled.begin(gui, x, y, w, h, 'controlStd', 'idle');
-        gui.draw.setFillStyle('#EEEEEE');
-        gui.draw.setStrokeStyle('#000000');
-        gui.draw.fillRect(x, y, w, h);
-        gui.draw.strokeRect(x, y, w, h);
 
         if (gui.controller.isElementDragged()) {
             if (percentOfContentOnScreenY < 1) {
@@ -90,7 +78,7 @@ function endScrollRegion(gui: StyledDittoContext) {
                 state.offsetY = Math.min(childrenHeight - parentH, state.offsetY);
             }
         }
-        gui.endElement();
+        boxBevelled.end(gui, 'controlStd', 'idle');
     }
 
     state.drawY = percentOfContentOnScreenY < 1;
