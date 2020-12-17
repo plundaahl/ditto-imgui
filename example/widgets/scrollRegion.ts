@@ -42,12 +42,17 @@ function endScrollRegion(gui: StyledDittoContext) {
     const { parentH, offsetY } = state;
     const bounds = gui.bounds.getElementBounds();
 
-    const childrenHeight: number = gui.bounds.getChildBounds().h + (
-        gui.bounds.getChildBounds().y - bounds.y
-    );
+    const topPadding = gui.bounds.getChildBounds().y - bounds.y;
+
+    const childrenHeight: number = gui.bounds.getChildBounds().h + topPadding;
 
     bounds.y += offsetY;
-    bounds.h = gui.bounds.getChildBounds().h;
+    bounds.h = gui.bounds.getChildBounds().h + topPadding + topPadding;
+    {
+        const { x, y, w, h } = gui.bounds.getElementBounds();
+        gui.draw.setStrokeStyle('red');
+        gui.draw.strokeRect(x, y, w, h);
+    }
     gui.endElement(); // CONTENT
     gui.bounds.getElementBounds().h = gui.bounds.getChildBounds().h;
 
