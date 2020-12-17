@@ -9,13 +9,25 @@ export function button(
 ) {
     const border = gui.boxSize.getBorderWidth();
     const padding = gui.boxSize.getPadding();
+    const borderAndPadding = border + padding;
 
-    extBoxBevelled.begin(gui, 'box', FOCUSABLE);
+    extBoxBevelled.begin(gui, 'box');
 
     gui.draw.setFont(gui.font.getFont(region, 'idle'));
     gui.bounds.getElementBounds().h = gui.draw.measureText('M').height
-        + border + border
-        + padding + padding;
+        + ((borderAndPadding) * 2);
+
+    gui.beginElement('text', FOCUSABLE);
+    const bounds = gui.bounds.getElementBounds();
+    const parentBounds = gui.bounds.getParentBounds();
+    if (!parentBounds) {
+        throw new Error();
+    }
+
+    bounds.x = parentBounds.x;
+    bounds.y = parentBounds.y;
+    bounds.w = parentBounds.w;
+    bounds.h = parentBounds.h;
 
     const isTriggered = gui.controller.isElementTriggered();
     const isInteracted = gui.controller.isElementInteracted();
@@ -34,8 +46,9 @@ export function button(
     const { x, y } = gui.bounds.getElementBounds();
 
     gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'detail'));
-    gui.draw.drawText(buttonText, x + padding, y + padding);
+    gui.draw.drawText(buttonText, x + borderAndPadding, y + borderAndPadding);
 
+    gui.endElement();
     extBoxBevelled.end(gui, region, mode);
     return isTriggered;
 }
