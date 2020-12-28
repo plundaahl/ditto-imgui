@@ -5,7 +5,10 @@ export interface LayoutFunction {
 }
 
 export interface LayoutAPI {
-    setLayout(layoutFunction: LayoutFunction): void;
+    addConstraints(...constraints: LayoutFunction[]): void;
+    addChildConstraints(...constraints: LayoutFunction[]): void;
+    addGlobalConstraints(...constraints: LayoutFunction[]): void;
+    calculateLayout(): void;
 }
 
 export interface LayoutCPI {}

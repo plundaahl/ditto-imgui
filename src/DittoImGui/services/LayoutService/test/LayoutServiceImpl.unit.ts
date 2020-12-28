@@ -1,15 +1,102 @@
 import { Layer, UiElement } from '../../../types';
-import { LayoutFunction, LayoutService } from '../LayoutService';
+import { LayoutService, LayoutFunction } from '../LayoutService';
 import { LayoutServiceImpl } from '../LayoutServiceImpl';
 
-let defaultLayoutFn: LayoutFunction;
 let instance: LayoutService;
 let defaultLayer: Layer;
 
 beforeEach(() => {
     defaultLayer = createLayer();
-    defaultLayoutFn = jest.fn();
-    instance = new LayoutServiceImpl(defaultLayoutFn);
+    instance = new LayoutServiceImpl();
+});
+
+describe('addGlobalConstraints', () => {
+    let constraints: LayoutFunction[];
+    beforeEach(() => constraints = [jest.fn(), jest.fn(), jest.fn()]);
+
+    describe('Given addGlobalConstraints has been called', () => {
+        beforeEach(() => instance.addGlobalConstraints(...constraints));
+
+        describe('And an element is active', () => {
+            beforeEach(() => instance.onBeginElement(createElement()));
+
+            describe('When calculateLayout is called', () => {
+                beforeEach(() => instance.calculateLayout());
+
+                test('Each constraint should be run', () => {
+                    for (const constraint of constraints) {
+                        expect(constraint).toHaveBeenCalled();
+                    }
+                });
+            });
+        });
+
+        describe('And no element is active', () => {
+            test('calculateLayout should error', () => {
+                expect(instance.calculateLayout).toThrow();
+            });
+        });
+    });
+});
+
+describe('addChildConstraints', () => {
+    let constraints: LayoutFunction[];
+    beforeEach(() => constraints = [jest.fn(), jest.fn(), jest.fn()]);
+
+    describe('Given an element is active', () => {
+        let parent: UiElement;
+
+        beforeEach(() => {
+            parent = createElement();
+            instance.onBeginElement(parent);
+        });
+
+        describe('And addChildConstraints has been called', () => {
+            beforeEach(() => instance.addChildConstraints(...constraints));
+
+            describe('And a child is added on same layer', () => {
+                beforeEach(() => {
+                    const child = createElement({ parent, layer: parent.layer });
+                    parent.children.push(child);
+                    instance.onBeginElement(child);
+                });
+
+                describe('When calculateLayout is called', () => {
+                    beforeEach(() => instance.calculateLayout());
+
+                    test('Each constraint should be run', () => {
+                        for (const constraint of constraints) {
+                            expect(constraint).toHaveBeenCalled();
+                        }
+                    });
+                });
+            });
+
+            describe('And a child is added on different layer', () => {
+                beforeEach(() => {
+                    const child = createElement({ parent, layer: createLayer({ key: 'someotherlayer' }) });
+                    parent.children.push(child);
+                    instance.onBeginElement(child);
+                });
+
+                describe('When calculateLayout is called', () => {
+                    beforeEach(() => instance.calculateLayout());
+
+                    test('Child constraints should NOT be run', () => {
+                        for (const constraint of constraints) {
+                            expect(constraint).not.toHaveBeenCalled();
+                        }
+                    });
+                });
+            });
+        })
+    });
+
+    describe('Given no element is active', () => {
+        test('addChildConstraints should error', () => {
+            expect(instance.addChildConstraints).toThrow();
+        });
+    });
 });
 
 describe('onBeginElement', () => {
@@ -17,11 +104,6 @@ describe('onBeginElement', () => {
 
     describe('given no elements were previously pushed', () => {
         beforeEach(() => element = createElement());
-
-        test('should not run layout function', () => {
-            instance.onBeginElement(element);
-            expect(defaultLayoutFn).not.toHaveBeenCalled();
-        });
     });
 
     describe('given parent and element are on different layers', () => {
@@ -34,10 +116,6 @@ describe('onBeginElement', () => {
             instance.onBeginElement(grandparent);
 
             jest.clearAllMocks();
-        });
-
-        test('should not run layout function', () => {
-            expect(defaultLayoutFn).not.toHaveBeenCalled();
         });
     });
 
@@ -57,93 +135,6 @@ describe('onBeginElement', () => {
             instance.onBeginElement(sibling);
             instance.onEndElement();
             jest.clearAllMocks();
-        });
-
-        test("should call defaultLayoutFn", () => {
-            instance.onBeginElement(element);
-            expect(defaultLayoutFn).toHaveBeenCalled();
-        });
-    });
-});
-
-describe('setLayout', () => {
-    let parent: UiElement;
-    let child: UiElement;
-    let customLayoutFn: LayoutFunction;
-
-    beforeEach(() => {
-        customLayoutFn = jest.fn();
-        child = createElement();
-        parent = createElement({}, child);
-
-        instance.onBeginElement(parent);
-    });
-
-    describe('given setLayout has been called for an element', () => {
-        beforeEach(() => instance.setLayout(customLayoutFn));
-
-        describe('when a child is added on same layer', () => {
-            beforeEach(() => instance.onBeginElement(child));
-
-            test('The default layout function should not be called', () => {
-                expect(defaultLayoutFn).not.toHaveBeenCalled();
-            });
-
-            test('The new layout function should be called', () => {
-                expect(customLayoutFn).toHaveBeenCalled();
-            });
-        });
-
-        describe('when it is called a second time for the same element', () => {
-            test('then it should error', () => {
-                expect(() => { instance.setLayout(jest.fn()); }).toThrow();
-            });
-        });
-    });
-
-    describe('given setLayout has not been called for an element', () => {
-        describe('when a child is added on same layer', () => {
-            beforeEach(() => instance.onBeginElement(child));
-
-            test('The default layout function should be called', () => {
-                expect(defaultLayoutFn).toHaveBeenCalled();
-            });
-        });
-    });
-});
-
-describe('onPostRender', () => {
-    let parent: UiElement;
-    let child: UiElement;
-    let customLayoutFn: LayoutFunction;
-
-    beforeEach(() => {
-        customLayoutFn = jest.fn();
-        child = createElement();
-        parent = createElement({}, child);
-
-        instance.onBeginElement(parent);
-    });
-
-    describe('given custom layout was set for an element before onPostRender', () => {
-        beforeEach(() => {
-            instance.setLayout(customLayoutFn);
-            instance.onEndElement();
-            instance.onPostRender();
-        });
-
-        describe('when that element is added again', () => {
-            beforeEach(() => { instance.onBeginElement(parent); });
-
-            test('calling setLayout again should not error', () => {
-                expect(() => instance.setLayout(customLayoutFn)).not.toThrow();
-            });
-        });
-    });
-
-    describe('given element stack is not empty', () => {
-        test('should error', () => {
-            expect(instance.onPostRender).toThrow();
         });
     });
 });

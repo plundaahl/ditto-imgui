@@ -13,7 +13,7 @@ import { ServiceManagerImpl, ServiceManager } from './services';
 import { DrawServiceImpl } from './services/DrawService';
 import { MouseServiceImpl, createMouseWatcher } from './services/MouseService';
 import { StateServiceImpl } from './services/StateService';
-import { LayoutServiceImpl, LayoutFunction } from './services/LayoutService';
+import { LayoutServiceImpl } from './services/LayoutService';
 import { FocusServiceImpl } from './services/FocusService';
 import { BrowserFocusHandleImpl, configureFocusElements } from './services/FocusService/BrowserFocusHandle';
 import { KeyboardServiceImpl } from './services/KeyboardService';
@@ -31,7 +31,6 @@ import { MouseControllerFactory } from './controllers/MouseController';
 export class ExtDittoContextImpl extends DittoContextImpl {
     constructor(
         canvas: HTMLCanvasElement,
-        defaultLayout: LayoutFunction,
     ) {
         const canvasContext = canvas.getContext('2d');
         if (canvasContext === null) {
@@ -60,7 +59,7 @@ export class ExtDittoContextImpl extends DittoContextImpl {
                 new DrawServiceImpl(),
                 new MouseServiceImpl(createMouseWatcher(canvas)),
                 new StateServiceImpl(),
-                new LayoutServiceImpl(defaultLayout),
+                new LayoutServiceImpl(),
                 new FocusServiceImpl(
                     new BrowserFocusHandleImpl(
                         canvas,

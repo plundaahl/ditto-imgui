@@ -26,7 +26,7 @@ beforeEach(() => {
     hookRunner = spy(new HookRunnerImpl());
     drawService = spy(new DrawServiceImpl());
     stateManager = spy(new StateServiceImpl());
-    layoutHandler = spy(new LayoutServiceImpl(jest.fn()));
+    layoutHandler = spy(new LayoutServiceImpl());
     focusManager = spy(new FocusServiceImpl(createTestBrowserFocusHandle()));
     mouseHandler = spy(new MouseServiceImpl({
         posX: 50,

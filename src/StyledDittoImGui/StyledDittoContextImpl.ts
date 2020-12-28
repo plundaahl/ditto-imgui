@@ -3,7 +3,6 @@ import { StyledDittoContext } from './StyledDittoContext';
 import { ThemeManager, ThemeManagerImpl, Theme } from './ThemeManager';
 import { BoxSizeManager, BoxSizeManagerImpl, BoxSizeConfig } from './BoxSizeManager';
 import { FontConfig, FontManager, FontManagerImpl } from './FontManager';
-import { createBasicVerticalLayoutFn } from './layouts';
 
 export class StyledDittoContextImpl extends ExtDittoContextImpl implements StyledDittoContext {
     readonly theme: ThemeManager;
@@ -16,10 +15,7 @@ export class StyledDittoContextImpl extends ExtDittoContextImpl implements Style
         boxSizing: BoxSizeConfig,
         font: FontConfig,
     ) {
-        super(
-            canvas,
-            createBasicVerticalLayoutFn(() => this),
-        );
+        super(canvas);
         this.theme = new ThemeManagerImpl(defaultThemeSpec);
         this.boxSize = new BoxSizeManagerImpl(boxSizing);
         this.font = new FontManagerImpl(font);
