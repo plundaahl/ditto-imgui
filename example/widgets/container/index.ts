@@ -1,1 +1,0 @@
-export { containerCollapsable } from './containerCollapsable';

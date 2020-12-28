@@ -1,1 +1,0 @@
-export { control } from './control';
