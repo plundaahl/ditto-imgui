@@ -67,6 +67,17 @@ export class BoxSizeServiceImpl implements BoxSizeService {
         return paddingStack[idx];
     }
 
+    get parentBorder(): number {
+        const { borderStack } = this;
+        if (!borderStack.length) {
+            throw new Error('No element active');
+        } else if (borderStack.length === 1) {
+            return 0;
+        }
+        const idx = borderStack.length - 2;
+        return borderStack[idx];
+    }
+
     get parentTotalSpacing(): number {
         const { borderStack } = this;
         if (!borderStack.length) {

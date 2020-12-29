@@ -1,6 +1,3 @@
-import { UiElement, Layer } from '../../DittoImGui/types';
-import { Box } from './Box';
-
 export interface BoxSizeAPI {
     defaultPadding: number;
     defaultBorder: number;
@@ -8,6 +5,7 @@ export interface BoxSizeAPI {
     border: number;
     readonly totalSpacing: number;
     readonly parentPadding: number;
+    readonly parentBorder: number;
     readonly parentTotalSpacing: number;
 }
 

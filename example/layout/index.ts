@@ -25,9 +25,10 @@ export function widthPercentOfParent(g: StyledDittoContext, percent: number) {
             return;
         }
 
-        const padding = g.boxSize.parentTotalSpacing;
+        const padding = g.boxSize.parentPadding;
+        const availSpace = (parentBounds.w - (g.boxSize.parentBorder * 2) - padding);
         const bounds = g.bounds.getElementBounds();
-        bounds.w = (parentBounds.w - (padding * 2)) * percent;
+        bounds.w = (availSpace * percent) - padding;
     };
 }
 
@@ -38,9 +39,10 @@ export function heightPercentOfParent(g: StyledDittoContext, percent: number) {
             return;
         }
 
-        const padding = g.boxSize.parentTotalSpacing;
+        const padding = g.boxSize.parentPadding;
+        const availSpace = (parentBounds.h - (g.boxSize.parentBorder * 2) - padding);
         const bounds = g.bounds.getElementBounds();
-        bounds.h = (parentBounds.h - (padding * 2)) * percent;
+        bounds.h = (availSpace * percent) - padding;
     };
 }
 
@@ -50,9 +52,12 @@ export function xPercentOfParent(g: StyledDittoContext, percent: number) {
         if (!parentBounds) {
             return;
         }
-        const padding = g.boxSize.parentTotalSpacing;
+
+        const padding = g.boxSize.parentPadding;
+        const border = g.boxSize.parentBorder;
+        const availSpace = (parentBounds.w - (border * 2) - padding);
         const bounds = g.bounds.getElementBounds();
-        bounds.x = parentBounds.x + padding + ((parentBounds.w - (padding * 2)) * percent);
+        bounds.x = parentBounds.x + (availSpace * percent) + padding + border;
     };
 }
 
@@ -62,9 +67,12 @@ export function yPercentOfParent(g: StyledDittoContext, percent: number) {
         if (!parentBounds) {
             return;
         }
-        const padding = g.boxSize.parentTotalSpacing;
+
+        const padding = g.boxSize.parentPadding;
+        const border = g.boxSize.parentBorder;
+        const availSpace = (parentBounds.h - (border * 2) - padding);
         const bounds = g.bounds.getElementBounds();
-        bounds.y = parentBounds.y + padding + ((parentBounds.w - (padding * 2)) * percent);
+        bounds.y = parentBounds.y + (availSpace * percent) + padding + border;
     };
 }
 
