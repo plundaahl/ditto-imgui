@@ -1,23 +1,49 @@
 import { ExtDittoContextImpl } from '../DittoImGui';
 import { StyledDittoContext } from './StyledDittoContext';
 import { ThemeManager, ThemeManagerImpl, Theme } from './ThemeManager';
-import { BoxSizeManager, BoxSizeManagerImpl, BoxSizeConfig } from './BoxSizeManager';
+import { BoxSizeService, BoxSizeAPI, BoxSizeServiceImpl } from './BoxSizeService';
 import { FontConfig, FontManager, FontManagerImpl } from './FontManager';
 
 export class StyledDittoContextImpl extends ExtDittoContextImpl implements StyledDittoContext {
-    readonly theme: ThemeManager;
-    readonly boxSize: BoxSizeManager;
-    readonly font: FontManager;
+    private readonly boxSizeService: BoxSizeService;
 
     constructor(
         canvas: HTMLCanvasElement,
         defaultThemeSpec: Theme,
-        boxSizing: BoxSizeConfig,
         font: FontConfig,
     ) {
         super(canvas);
         this.theme = new ThemeManagerImpl(defaultThemeSpec);
-        this.boxSize = new BoxSizeManagerImpl(boxSizing);
+        this.boxSizeService = new BoxSizeServiceImpl();
         this.font = new FontManagerImpl(font);
+    }
+
+    readonly theme: ThemeManager;
+    readonly font: FontManager;
+    get boxSize(): BoxSizeAPI { return this.boxSizeService };
+
+    beginLayer(key: string, flags?: number) {
+        super.beginLayer(key, flags);
+        this.boxSizeService.onBeginLayer();
+    }
+
+    endLayer() {
+        super.endLayer();
+        this.boxSizeService.onEndLayer();
+    }
+
+    beginElement(key: string, flags?: number) {
+        super.beginElement(key, flags);
+        this.boxSizeService.onBeginElement();
+    }
+
+    endElement() {
+        super.endElement();
+        this.boxSizeService.onEndElement();
+    }
+
+    render() {
+        super.render();
+        this.boxSizeService.onPostRender();
     }
 }

@@ -8,30 +8,24 @@ import * as layout from '../layout';
 
 const RED = '#FF0000';
 
-const params = (window as any);
-params.appWidth = 400;
-params.appHeight = 400;
-
 export function testApp(g: StyledDittoContext) {
-    panel.begin(g, 'testpanel',
-        layout.xOf(g, 200),
-        layout.yOf(g, 200),
-        layout.widthOf(g, params.appWidth),
-        layout.heightOf(g, params.appHeight),
-    );
+    g.boxSize.defaultPadding = 10;
+    g.boxSize.defaultBorder = 1;
+
+    panel.begin(g, 'testpanel', 200, 200, 400, 400);
     g.layout.addChildConstraints(
         layout.widthFillsParent(g),
         layout.belowLastSibling(g),
     );
 
-    box(g, 'foo', RED, layout.heightOf(g, 50));
-    box(g, 'bar', RED, layout.heightOf(g, 50), layout.widthOf(g, 80));
-    container.begin(g, 'baz', RED, layout.heightOf(g, 200));
+    box(g, 'foo', RED, layout.heightExactly(g, 50));
+    box(g, 'bar', RED, layout.heightExactly(g, 50), layout.widthExactly(g, 80));
+    container.begin(g, 'baz', RED, layout.heightExactly(g, 200));
     {
         g.layout.addChildConstraints(
             layout.widthPercentOfParent(g, 0.25),
-            layout.heightOf(g, 50),
-            layout.yOf(g, 340),
+            layout.heightExactly(g, 50),
+            layout.yPercentOfParent(g, 0),
         );
 
         box(g, 'foo', RED, layout.xPercentOfParent(g, 0));

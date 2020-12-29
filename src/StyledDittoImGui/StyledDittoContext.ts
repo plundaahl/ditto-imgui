@@ -1,10 +1,10 @@
 import { DittoContext } from '../DittoImGui';
 import { ThemeManager } from './ThemeManager';
-import { BoxSizeManager } from './BoxSizeManager';
+import { BoxSizeAPI } from './BoxSizeService';
 import { FontManager } from './FontManager';
 
 export interface StyledDittoContext extends DittoContext {
     theme: ThemeManager;
-    boxSize: BoxSizeManager;
+    boxSize: BoxSizeAPI;
     font: FontManager;
 }

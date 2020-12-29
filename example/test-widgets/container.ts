@@ -1,4 +1,5 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
+import { drawBorderBox } from './drawUtils';
 
 const colors: string[] = [];
 
@@ -21,8 +22,7 @@ export const container = {
         const { x, y, w, h } = gui.bounds.getElementBounds();
 
         gui.draw.setStrokeStyle(colors.pop() || '#FF0000');
-        gui.draw.strokeRect(x, y, w, h);
-
+        drawBorderBox(gui, x, y, w, h, gui.boxSize.border);
         gui.endElement();
     },
 };
