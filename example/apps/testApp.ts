@@ -11,13 +11,17 @@ const RED = '#FF0000';
 const params = (window as any);
 params.nChildren = 4;
 
+(window as any).defaultWidth = 1;
+
 export function testApp(g: StyledDittoContext) {
     g.boxSize.defaultPadding = 10;
     g.boxSize.defaultBorder = 1;
 
     panel.begin(g, 'testpanel', 200, 200, 400, 400);
     g.layout.addChildConstraints(
-        layout.widthFillsParent(g),
+        layout.widthAtMostFractionOfParent(g, 1),
+        layout.defaultWidthFillsParent(g),
+        layout.defaultXFractionOfParent(g, 0),
         layout.belowLastSibling(g),
     );
 
@@ -28,13 +32,13 @@ export function testApp(g: StyledDittoContext) {
         let percentPerChild = 1 / params.nChildren;
 
         g.layout.addChildConstraints(
-            layout.widthPercentOfParent(g, percentPerChild),
+            layout.widthFractionOfParent(g, percentPerChild),
             layout.heightExactly(g, 50),
-            layout.yPercentOfParent(g, 0),
+            layout.yFractionOfParent(g, 0),
         );
 
         for (let i = 0; i < params.nChildren; i++) {
-            box(g, `foo${i}`, RED, layout.xPercentOfParent(g, percentPerChild * i));
+            box(g, `foo${i}`, RED, layout.xFractionOfParent(g, percentPerChild * i));
         }
     }
     container.end(g);
