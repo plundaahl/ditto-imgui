@@ -1,5 +1,6 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { drawBorderBox } from './drawUtils';
+import * as layout from '../layout';
 
 const colors: string[] = [];
 
@@ -13,7 +14,10 @@ export const container = {
         colors.push(color);
         gui.beginElement(key);
 
-        gui.layout.addConstraints(...constraints);
+        gui.layout.addConstraints(
+            layout.allDimensionsAtLeastZero(gui),
+            ...constraints,
+        );
         gui.layout.calculateLayout();
     },
 

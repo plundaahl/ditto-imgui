@@ -19,7 +19,9 @@ export function testApp(g: StyledDittoContext) {
 
     panel.begin(g, 'testpanel', 200, 200, 400, 400);
     g.layout.addChildConstraints(
+        layout.allDimensionsAtLeastZero(g),
         layout.widthAtMostFractionOfParent(g, 1),
+        layout.heightAtMostSpaceBelowLastSibling(g),
         layout.defaultWidthFillsParent(g),
         layout.defaultXFractionOfParent(g, 0),
         layout.belowLastSibling(g),
@@ -32,6 +34,7 @@ export function testApp(g: StyledDittoContext) {
         let percentPerChild = 1 / params.nChildren;
 
         g.layout.addChildConstraints(
+            layout.allDimensionsAtLeastZero(g),
             layout.widthFractionOfParent(g, percentPerChild),
             layout.heightExactly(g, 50),
             layout.yFractionOfParent(g, 0),

@@ -346,3 +346,37 @@ export function heightFillsSpaceBelowLastSibling(g: StyledDittoContext) {
         bounds.h = (parentBounds.y + parentBounds.h) - bounds.y - g.boxSize.parentTotalSpacing;
     };
 }
+
+export function heightAtMostSpaceBelowLastSibling(g: StyledDittoContext) {
+    return () => {
+        const siblingBounds = g.bounds.getSiblingBounds();
+        if (!siblingBounds) {
+            return;
+        }
+
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+
+        const bounds = g.bounds.getElementBounds();
+
+        bounds.y = siblingBounds.h
+            ? bounds.y = siblingBounds.y + siblingBounds.h + g.boxSize.parentPadding
+            : bounds.y = parentBounds.y + g.boxSize.parentTotalSpacing;
+
+        bounds.h = Math.min(
+            (parentBounds.y + parentBounds.h) - bounds.y - g.boxSize.parentTotalSpacing,
+            bounds.h,
+        );
+    };
+}
+
+// UTIL
+export function allDimensionsAtLeastZero(g: StyledDittoContext) {
+    return () => {
+        const bounds = g.bounds.getElementBounds();
+        bounds.w = Math.max(bounds.w, 0);
+        bounds.h = Math.max(bounds.h, 0);
+    };
+}
