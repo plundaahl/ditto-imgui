@@ -31,8 +31,9 @@ export class LayoutServiceImpl implements LayoutService {
     }
 
     calculateLayout(): void {
-        for (const constraint of this.currentElementConstraints) {
-            constraint();
+        const { currentElementConstraints } = this;
+        for (let i = currentElementConstraints.length - 1; i >= 0; i--) {
+            currentElementConstraints[i]();
         }
     }
 
