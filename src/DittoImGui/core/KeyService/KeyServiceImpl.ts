@@ -38,4 +38,12 @@ export class KeyServiceImpl implements KeyService {
             throw new Error('No key currently pushed');
         }
     }
+
+    getElementKey(): string {
+        return this.keyStack[this.keyStack.length - 1];
+    }
+
+    getParentKey(): string | undefined {
+        return this.keyStack[this.keyStack.length - 2];
+    }
 }

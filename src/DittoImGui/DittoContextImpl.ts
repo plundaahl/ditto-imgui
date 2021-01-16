@@ -6,6 +6,7 @@ import { ControllerManager } from './controllers';
 import { DrawAPI } from './services/DrawService';
 import { FocusAPI } from './services/FocusService';
 import { LayerAPI } from './core/LayerService';
+import { KeyAPI } from './core/KeyService';
 import { LayoutAPI } from './services/LayoutService';
 import { MouseAPI } from './services/MouseService';
 import { StateAPI } from './services/StateService';
@@ -15,6 +16,7 @@ import { ControllerAPI } from './controllers';
 
 export class DittoContextImpl implements DittoContext {
     controller: ControllerAPI;
+    key: KeyAPI;
     layer: LayerAPI;
     draw: DrawAPI;
     mouse: MouseAPI;
@@ -37,6 +39,7 @@ export class DittoContextImpl implements DittoContext {
         this.render = this.render.bind(this);
 
         this.layer = core.layer;
+        this.key = core.key;
 
         this.draw = serviceManager.draw;
         this.mouse = serviceManager.mouse;

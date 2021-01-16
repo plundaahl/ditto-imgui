@@ -22,10 +22,12 @@ export class CoreImpl implements Core {
 
         this.element = elementBuilder;
         this.layer = layerBuilder;
+        this.key = keyBuilder;
     }
 
     readonly element: ElementService;
     readonly layer: LayerService;
+    readonly key: KeyService;
 
     get curLayer(): Readonly<Layer> {
         const layer = this.layerBuilder.getCurrentLayer();

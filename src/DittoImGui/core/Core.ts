@@ -1,6 +1,7 @@
 import { Layer } from "../types";
 import { LayerAPI } from './LayerService';
 import { ElementAPI, ElementService } from './ElementService';
+import { KeyAPI, KeyService } from './KeyService';
 
 interface CoreShared {}
 
@@ -10,6 +11,7 @@ export interface CoreCPI extends CoreShared {
 
 export interface CoreAPI extends CoreShared {
     readonly layer: LayerAPI;
+    readonly key: KeyAPI;
 }
 
 export interface Core extends CoreCPI, CoreAPI {
@@ -22,5 +24,6 @@ export interface Core extends CoreCPI, CoreAPI {
     postRender(): void;
     readonly element: Readonly<ElementService>;
     readonly curLayer: Readonly<Layer>;
+    readonly key: Readonly<KeyService>;
 }
 
