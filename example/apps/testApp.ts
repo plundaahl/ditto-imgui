@@ -9,7 +9,7 @@ import * as layout from '../layout';
 const RED = '#FF0000';
 
 const params = (window as any);
-params.nChildren = 9;
+params.nChildren = 4;
 params.defaultWidth = 1;
 
 export function testApp(g: StyledDittoContext) {
@@ -19,27 +19,22 @@ export function testApp(g: StyledDittoContext) {
     panel.begin(g, 'testpanel', 200, 200, 400, 400);
     g.layout.addChildConstraints(
         layout.allDimensionsAtLeastZero(g),
-        layout.widthAtMostFractionOfParent(g, 1),
-        layout.heightAtMostSpaceBelowLastSibling(g),
-        layout.defaultWidthFillsParent(g),
-        layout.defaultXFractionOfParent(g, 0),
-        layout.belowLastSibling(g),
+        layout.edgesWithinParent(g),
     );
 
-    box(g, 'foo', RED, layout.heightExactly(g, 50));
-    box(g, 'bar', RED, layout.heightExactly(g, 50), layout.widthExactly(g, 80));
-    container.begin(g, 'baz', RED, layout.heightExactly(g, 200));
-    {
-        g.layout.addChildConstraints(
-            layout.allDimensionsAtLeastZero(g),
-            layout.asGridCell(g, 4, 4),
+    for (let i = 0; i < params.nChildren; i++) {
+        const size = ((((i * 11) + 1) % 6) * 10) + 10;
+        box(g, `${i}-box`, RED,
+            layout.leftOfLastSibling(g),
+            layout.heightExactly(g, size),
+            layout.widthExactly(g, size),
         );
-
-        for (let i = 0; i < params.nChildren; i++) {
-            box(g, `foo${i}`, RED);
-        }
     }
-    container.end(g);
+
+    box(g, 'end', RED,
+        layout.defaultHeightExactly(g, 50),
+        layout.fillLeftOfLastSibling(g),
+    );
 
     panel.end(g);
 }

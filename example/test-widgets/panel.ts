@@ -66,7 +66,7 @@ export const panel = {
         // Contents
         container.begin(gui, 'contents', '#FF0000',
             layout.widthFillsParent(gui),
-            layout.heightFillsSpaceBelowLastSibling(gui),
+            layout.fillBelowLastSibling(gui),
         );
         gui.boxSize.border = 0;
     },

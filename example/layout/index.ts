@@ -203,6 +203,27 @@ export function xExactly(g: StyledDittoContext, x: number) {
     return () => g.bounds.getElementBounds().x = x;
 }
 
+export function defaultXExactly(g: StyledDittoContext, x: number) {
+    return () => {
+        const bounds = g.bounds.getElementBounds();
+        bounds.x = bounds.x || x;
+    };
+}
+
+export function xAtMostExactly(g: StyledDittoContext, x: number) {
+    return () => {
+        const bounds = g.bounds.getElementBounds();
+        bounds.x = Math.min(bounds.x, x);
+    };
+}
+
+export function xAtLeastExactly(g: StyledDittoContext, x: number) {
+    return () => {
+        const bounds = g.bounds.getElementBounds();
+        bounds.x = Math.max(bounds.x, x);
+    };
+}
+
 export function xFractionOfParent(g: StyledDittoContext, fraction: number) {
     return () => {
         const parentBounds = g.bounds.getParentBounds();
@@ -218,13 +239,6 @@ export function xFractionOfParent(g: StyledDittoContext, fraction: number) {
     };
 }
 
-export function defaultXExactly(g: StyledDittoContext, x: number) {
-    return () => {
-        const bounds = g.bounds.getElementBounds();
-        bounds.x = bounds.x || x;
-    };
-}
-
 export function defaultXFractionOfParent(g: StyledDittoContext, fraction: number) {
     return () => {
         const parentBounds = g.bounds.getParentBounds();
@@ -232,7 +246,7 @@ export function defaultXFractionOfParent(g: StyledDittoContext, fraction: number
             return;
         }
         const bounds = g.bounds.getElementBounds();
-        if (bounds.x === undefined) {
+        if (bounds.x) {
             return;
         }
         const padding = g.boxSize.parentPadding;
@@ -242,9 +256,64 @@ export function defaultXFractionOfParent(g: StyledDittoContext, fraction: number
     };
 }
 
+export function xAtMostFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return () => {
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+        const bounds = g.bounds.getElementBounds();
+        const padding = g.boxSize.parentPadding;
+        const border = g.boxSize.parentBorder;
+        const availSpace = (parentBounds.w - (border * 2) - padding);
+        bounds.x = Math.min(
+            bounds.x,
+            parentBounds.x + (availSpace * fraction) + padding + border,
+        );
+    };
+}
+
+export function xAtLeastFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return () => {
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+        const bounds = g.bounds.getElementBounds();
+        const padding = g.boxSize.parentPadding;
+        const border = g.boxSize.parentBorder;
+        const availSpace = (parentBounds.w - (border * 2) - padding);
+        bounds.x = Math.max(
+            bounds.x,
+            parentBounds.x + (availSpace * fraction) + padding + border,
+        );
+    };
+}
+
 // Y
 export function yExactly(g: StyledDittoContext, y: number) {
     return () => g.bounds.getElementBounds().y = y;
+}
+
+export function defaultYExactly(g: StyledDittoContext, y: number) {
+    return () => {
+        const bounds = g.bounds.getElementBounds();
+        bounds.y = bounds.y || y;
+    };
+}
+
+export function yAtLeastExactly(g: StyledDittoContext, y: number) {
+    return () => {
+        const bounds = g.bounds.getElementBounds();
+        bounds.y = Math.max(bounds.y, y);
+    };
+}
+
+export function yAtMostExactly(g: StyledDittoContext, y: number) {
+    return () => {
+        const bounds = g.bounds.getElementBounds();
+        bounds.y = Math.min(bounds.y, y);
+    };
 }
 
 export function yFractionOfParent(g: StyledDittoContext, fraction: number) {
@@ -262,13 +331,6 @@ export function yFractionOfParent(g: StyledDittoContext, fraction: number) {
     };
 }
 
-export function defaultYExactly(g: StyledDittoContext, y: number) {
-    return () => {
-        const bounds = g.bounds.getElementBounds();
-        bounds.y = bounds.y || y;
-    };
-}
-
 export function defaultYFractionOfParent(g: StyledDittoContext, fraction: number) {
     return () => {
         const parentBounds = g.bounds.getParentBounds();
@@ -276,7 +338,7 @@ export function defaultYFractionOfParent(g: StyledDittoContext, fraction: number
             return;
         }
         const bounds = g.bounds.getElementBounds();
-        if (bounds.y === undefined) {
+        if (bounds.y) {
             return;
         }
         const padding = g.boxSize.parentPadding;
@@ -286,91 +348,229 @@ export function defaultYFractionOfParent(g: StyledDittoContext, fraction: number
     };
 }
 
+export function yAtMostFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return () => {
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+        const bounds = g.bounds.getElementBounds();
+        const padding = g.boxSize.parentPadding;
+        const border = g.boxSize.parentBorder;
+        const availSpace = (parentBounds.w - (border * 2) - padding);
+        bounds.y = Math.min(
+            bounds.y,
+            parentBounds.y + (availSpace * fraction) + padding + border,
+        );
+    };
+}
+
+export function yAtLeastFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return () => {
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+        const bounds = g.bounds.getElementBounds();
+        const padding = g.boxSize.parentPadding;
+        const border = g.boxSize.parentBorder;
+        const availSpace = (parentBounds.w - (border * 2) - padding);
+        bounds.y = Math.max(
+            bounds.y,
+            parentBounds.y + (availSpace * fraction) + padding + border,
+        );
+    };
+}
+
 // CHILDREN
-export function belowLastSibling(g: StyledDittoContext) {
+function afterLastSibling(
+    g: StyledDittoContext,
+    xOrY: 'x' | 'y',
+    wOrH: 'w' | 'h',
+    defaultFn: boolean = false,
+) {
     return () => {
         const siblingBounds = g.bounds.getSiblingBounds();
         if (!siblingBounds) {
             return;
         }
 
-        if (siblingBounds.h) {
-            g.bounds.getElementBounds().y = siblingBounds.y + siblingBounds.h + g.boxSize.parentPadding;
+        const bounds = g.bounds.getElementBounds();
+        if (defaultFn && bounds[xOrY]) {
+            return;
+        }
+
+        if (siblingBounds[wOrH]) {
+            bounds[xOrY] = siblingBounds[xOrY] + siblingBounds[wOrH] + g.boxSize.parentPadding;
         } else {
             const parentBounds = g.bounds.getParentBounds();
             if (!parentBounds) {
                 return;
             }
-            g.bounds.getElementBounds().y = parentBounds.y + g.boxSize.parentTotalSpacing;
+            bounds[xOrY] = parentBounds[xOrY] + g.boxSize.parentTotalSpacing;
         }
     };
+}
+
+export function beforeLastSibling(
+    g: StyledDittoContext,
+    xOrY: 'x' | 'y',
+    wOrH: 'w' | 'h',
+    defaultFn: boolean = false,
+) {
+    return () => {
+        const siblingBounds = g.bounds.getSiblingBounds();
+        if (!siblingBounds) {
+            return;
+        }
+
+        const bounds = g.bounds.getElementBounds();
+        if (defaultFn && bounds[xOrY]) {
+            return;
+        }
+
+        if (siblingBounds[wOrH]) {
+            bounds[xOrY] = siblingBounds[xOrY] - bounds[wOrH] - g.boxSize.parentPadding;
+        } else {
+            const parentBounds = g.bounds.getParentBounds();
+            if (!parentBounds) {
+                return;
+            }
+            bounds[xOrY] = parentBounds[xOrY] + parentBounds[wOrH] - bounds[wOrH] - g.boxSize.parentTotalSpacing;
+        }
+    };
+}
+
+// relative arrangements
+export function belowLastSibling(g: StyledDittoContext) {
+    return afterLastSibling(g, 'y', 'h');
 }
 
 export function aboveLastSibling(g: StyledDittoContext) {
+    return beforeLastSibling(g, 'y', 'h');
+}
+
+export function rightOfLastSibling(g: StyledDittoContext) {
+    return afterLastSibling(g, 'x', 'w');
+}
+
+export function leftOfLastSibling(g: StyledDittoContext) {
+    return beforeLastSibling(g, 'x', 'w');
+}
+
+// default relative arrangements
+export function defaultBelowLastSibling(g: StyledDittoContext) {
+    return afterLastSibling(g, 'y', 'h', true);
+}
+
+export function defaultAboveLastSibling(g: StyledDittoContext) {
+    return beforeLastSibling(g, 'y', 'h', true);
+}
+
+export function defaultRightOfLastSibling(g: StyledDittoContext) {
+    return afterLastSibling(g, 'x', 'w', true);
+}
+
+export function defaultLeftOfLastSibling(g: StyledDittoContext) {
+    return beforeLastSibling(g, 'x', 'w', true);
+}
+
+// RELATIVE FILLS
+export function fillsAfterLastSibling(
+    g: StyledDittoContext,
+    xOrY: 'x' | 'y',
+    wOrH: 'w' | 'h',
+    defaultFn: boolean = false,
+) {
     return () => {
         const siblingBounds = g.bounds.getSiblingBounds();
         if (!siblingBounds) {
             return;
         }
 
-        const elementBounds = g.bounds.getElementBounds();
-        if (siblingBounds.h) {
-            elementBounds.y = siblingBounds.y - elementBounds.h - g.boxSize.parentPadding;
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+
+        const bounds = g.bounds.getElementBounds();
+        if (defaultFn && bounds[wOrH]) {
+            return;
+        }
+
+        bounds[xOrY] = siblingBounds[wOrH]
+            ? bounds[xOrY] = siblingBounds[xOrY] + siblingBounds[wOrH] + g.boxSize.parentPadding
+            : bounds[xOrY] = parentBounds[xOrY] + g.boxSize.parentTotalSpacing;
+
+        bounds[wOrH] = (parentBounds[xOrY] + parentBounds[wOrH]) - bounds[xOrY] - g.boxSize.parentTotalSpacing;
+    };
+}
+
+export function fillBeforeLastSibling(
+    g: StyledDittoContext,
+    xOrY: 'x' | 'y',
+    wOrH: 'w' | 'h',
+    defaultFn: boolean = false,
+) {
+    return () => {
+        const siblingBounds = g.bounds.getSiblingBounds();
+        if (!siblingBounds) {
+            return;
+        }
+
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+
+        const bounds = g.bounds.getElementBounds();
+        if (defaultFn && bounds[wOrH]) {
+            return;
+        }
+
+        const totalSpacing = g.boxSize.parentTotalSpacing;
+        const padding = g.boxSize.padding;
+
+        bounds[xOrY] = parentBounds[xOrY] + totalSpacing;
+
+        if (siblingBounds[wOrH]) {
+            bounds[wOrH] = siblingBounds[xOrY] - bounds[xOrY] - padding;
         } else {
-            const parentBounds = g.bounds.getParentBounds();
-            if (!parentBounds) {
-                return;
-            }
-            elementBounds.y = parentBounds.y + parentBounds.h - elementBounds.h - g.boxSize.parentTotalSpacing;
+            bounds[wOrH] = bounds[xOrY] + parentBounds[wOrH] - (totalSpacing * 2);
         }
     };
 }
 
-export function heightFillsSpaceBelowLastSibling(g: StyledDittoContext) {
-    return () => {
-        const siblingBounds = g.bounds.getSiblingBounds();
-        if (!siblingBounds) {
-            return;
-        }
-
-        const parentBounds = g.bounds.getParentBounds();
-        if (!parentBounds) {
-            return;
-        }
-
-        const bounds = g.bounds.getElementBounds();
-
-        bounds.y = siblingBounds.h
-            ? bounds.y = siblingBounds.y + siblingBounds.h + g.boxSize.parentPadding
-            : bounds.y = parentBounds.y + g.boxSize.parentTotalSpacing;
-
-        bounds.h = (parentBounds.y + parentBounds.h) - bounds.y - g.boxSize.parentTotalSpacing;
-    };
+export function fillBelowLastSibling(g: StyledDittoContext) {
+    return fillsAfterLastSibling(g, 'y', 'h');
 }
 
-export function heightAtMostSpaceBelowLastSibling(g: StyledDittoContext) {
-    return () => {
-        const siblingBounds = g.bounds.getSiblingBounds();
-        if (!siblingBounds) {
-            return;
-        }
+export function fillRightOfLastSibling(g: StyledDittoContext) {
+    return fillsAfterLastSibling(g, 'x', 'w');
+}
 
-        const parentBounds = g.bounds.getParentBounds();
-        if (!parentBounds) {
-            return;
-        }
+export function fillAboveLastSibling(g: StyledDittoContext) {
+    return fillBeforeLastSibling(g, 'y', 'h');
+}
 
-        const bounds = g.bounds.getElementBounds();
+export function fillLeftOfLastSibling(g: StyledDittoContext) {
+    return fillBeforeLastSibling(g, 'x', 'w');
+}
 
-        bounds.y = siblingBounds.h
-            ? bounds.y = siblingBounds.y + siblingBounds.h + g.boxSize.parentPadding
-            : bounds.y = parentBounds.y + g.boxSize.parentTotalSpacing;
+export function defaultFillBelowLastSibling(g: StyledDittoContext) {
+    return fillsAfterLastSibling(g, 'y', 'h', true);
+}
 
-        bounds.h = Math.min(
-            (parentBounds.y + parentBounds.h) - bounds.y - g.boxSize.parentTotalSpacing,
-            bounds.h,
-        );
-    };
+export function defaultFillRightOfLastSibling(g: StyledDittoContext) {
+    return fillsAfterLastSibling(g, 'x', 'w', true);
+}
+
+export function defaultFillAboveLastSibling(g: StyledDittoContext) {
+    return fillBeforeLastSibling(g, 'y', 'h', true);
+}
+
+export function defaultFillLeftOfLastSibling(g: StyledDittoContext) {
+    return fillBeforeLastSibling(g, 'x', 'w', true);
 }
 
 // UTIL
@@ -461,5 +661,129 @@ export function asGridCell(
                 cell++;
             }
         }
+    };
+}
+
+// CONTENT CONSTRAINTS
+export function collapseBottomToContents(g: StyledDittoContext) {
+    return () => {
+        const childBounds = g.bounds.getChildBounds();
+        const bounds = g.bounds.getElementBounds();
+        const edgeSpacing = g.boxSize.totalSpacing;
+        bounds.h = Math.min(bounds.h, (childBounds.y + childBounds.h) + edgeSpacing - bounds.y);
+    };
+}
+
+export function collapseRightToContents(g: StyledDittoContext) {
+    return () => {
+        const childBounds = g.bounds.getChildBounds();
+        const bounds = g.bounds.getElementBounds();
+        const edgeSpacing = g.boxSize.totalSpacing;
+        bounds.w = Math.min(bounds.w, (childBounds.x + childBounds.w) + edgeSpacing - bounds.x);
+    };
+}
+
+export function collapseLeftToContents(g: StyledDittoContext) {
+    return () => {
+        const childBounds = g.bounds.getChildBounds();
+        const bounds = g.bounds.getElementBounds();
+        const edgeSpacing = g.boxSize.totalSpacing;
+
+        const prevRight = bounds.x + bounds.w;
+
+        bounds.x = childBounds.x - edgeSpacing;
+        bounds.w = prevRight - bounds.x;
+    };
+}
+
+export function collapseTopToContents(g: StyledDittoContext) {
+    return () => {
+        const childBounds = g.bounds.getChildBounds();
+        const bounds = g.bounds.getElementBounds();
+        const edgeSpacing = g.boxSize.totalSpacing;
+
+        const prevBottom = bounds.y + bounds.h;
+
+        bounds.y = childBounds.y - edgeSpacing;
+        bounds.h = prevBottom - bounds.y;
+    };
+}
+
+// TOP
+function startAtLeastFractionOfParent(
+    g: StyledDittoContext,
+    fraction: number,
+    xOrY: 'x' | 'y',
+    wOrH: 'w' | 'h',
+) {
+    return () => {
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+        const bounds = g.bounds.getElementBounds();
+        const totalSpacing = g.boxSize.parentTotalSpacing;
+        const availSpace = parentBounds[wOrH] - (totalSpacing * 2);
+        const prevEnd = bounds[xOrY] + bounds[wOrH];
+
+        bounds[xOrY] = Math.max(
+            bounds[xOrY],
+            parentBounds[xOrY] + (availSpace * fraction) + totalSpacing,
+        );
+        bounds[wOrH] = prevEnd - bounds[xOrY];
+    };
+}
+
+function endAtMostFractionOfParent(
+    g: StyledDittoContext,
+    fraction: number,
+    xOrY: 'x' | 'y',
+    wOrH: 'w' | 'h',
+) {
+    return () => {
+        const parentBounds = g.bounds.getParentBounds();
+        if (!parentBounds) {
+            return;
+        }
+        const bounds = g.bounds.getElementBounds();
+        const totalSpacing = g.boxSize.parentTotalSpacing;
+        const availSpace = parentBounds[wOrH] - (totalSpacing * 2);
+
+        const end = Math.min(
+            bounds[xOrY] + bounds[wOrH],
+            parentBounds[xOrY] + (availSpace * fraction) + totalSpacing,
+        );
+
+        bounds[wOrH] = end - bounds[xOrY];
+    };
+}
+
+export function topAtLeastFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return startAtLeastFractionOfParent(g, fraction, 'y', 'h');
+}
+
+export function bottomAtMostFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return endAtMostFractionOfParent(g, fraction, 'y', 'h');
+}
+
+export function leftAtLeastFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return startAtLeastFractionOfParent(g, fraction, 'x', 'w');
+}
+
+export function rightAtMostFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return endAtMostFractionOfParent(g, fraction, 'x', 'w');
+}
+
+export function edgesWithinParent(g: StyledDittoContext) {
+    const leftConstraint = leftAtLeastFractionOfParent(g, 0);
+    const topConstraint = topAtLeastFractionOfParent(g, 0);
+    const rightConstraint = rightAtMostFractionOfParent(g, 1);
+    const bottomConstraint = bottomAtMostFractionOfParent(g, 1);
+
+    return () => {
+        leftConstraint();
+        topConstraint();
+        rightConstraint();
+        bottomConstraint();
     };
 }
