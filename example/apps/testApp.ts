@@ -38,7 +38,7 @@ export function testApp(g: StyledDittoContext) {
     );
     {
         g.layout.addChildConstraints(
-            layout.asGridCell(g, 60, 40, layout.FIXED_WIDTH | layout.FIXED_HEIGHT)
+            layout.asGrid(g, 60, 40, layout.FIXED_WIDTH | layout.FIXED_HEIGHT)
         );
 
         for (let i = 0; i < params.nChildren; i++) {

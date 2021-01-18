@@ -12,7 +12,7 @@ export const GROW_VERTICAL = gridFlag();
 export const FIXED_WIDTH = gridFlag();
 export const FIXED_HEIGHT = gridFlag();
 
-export function asGridCell(
+function gridCell(
     g: StyledDittoContext,
     width: number,
     height: number,
@@ -80,4 +80,23 @@ export function asGridCell(
             }
         }
     };
+}
+
+export function asGrid(
+    g: StyledDittoContext,
+    width: number,
+    height: number,
+    flags: number = TOP | LEFT | GROW_HORIZONTAL,
+) {
+    return gridCell(g, width, height, flags);
+}
+
+export function asGridCell(
+    g: StyledDittoContext,
+    width: number,
+    height: number,
+    flags: number = TOP | LEFT | GROW_HORIZONTAL,
+    cellNum: number,
+) {
+    return gridCell(g, width, height, flags, cellNum);
 }
