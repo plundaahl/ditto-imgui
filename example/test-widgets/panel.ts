@@ -38,7 +38,7 @@ export const panel = {
         // Draggable Bar
         {
             container.begin(gui, 'titlebar', '#FF0000',
-                layout.widthFillsParent(gui),
+                layout.fillParentHorizontally(gui),
                 layout.belowLastSibling(gui),
                 layout.heightExactly(gui, 30),
             );
@@ -65,7 +65,7 @@ export const panel = {
 
         // Contents
         container.begin(gui, 'contents', '#FF0000',
-            layout.widthFillsParent(gui),
+            layout.fillParentHorizontally(gui),
             layout.fillBelowLastSibling(gui),
         );
         gui.boxSize.border = 0;

@@ -9,7 +9,7 @@ import * as layout from '../layout';
 const RED = '#FF0000';
 
 const params = (window as any);
-params.nChildren = 4;
+params.nChildren = 17;
 params.defaultWidth = 1;
 
 export function testApp(g: StyledDittoContext) {
@@ -25,16 +25,27 @@ export function testApp(g: StyledDittoContext) {
     for (let i = 0; i < params.nChildren; i++) {
         const size = ((((i * 11) + 1) % 6) * 10) + 10;
         box(g, `${i}-box`, RED,
-            layout.leftOfLastSibling(g),
+            layout.belowLastSibling(g),
+            layout.xFractionOfParent(g, 0),
             layout.heightExactly(g, size),
-            layout.widthExactly(g, size),
+            layout.widthExactly(g, 100),
         );
     }
 
-    box(g, 'end', RED,
-        layout.defaultHeightExactly(g, 50),
-        layout.fillLeftOfLastSibling(g),
+    container.begin(g, 'grid-container', RED,
+        layout.fillRightOfLastSibling(g),
+        layout.fillParentVertically(g),
     );
+    {
+        g.layout.addChildConstraints(
+            layout.asGridCell(g, 60, 40, layout.FIXED_WIDTH | layout.FIXED_HEIGHT)
+        );
+
+        for (let i = 0; i < params.nChildren; i++) {
+            box(g, `gridcell-${i}`, RED);
+        }
+    }
+    container.end(g);
 
     panel.end(g);
 }
