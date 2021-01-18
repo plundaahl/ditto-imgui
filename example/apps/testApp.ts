@@ -3,6 +3,8 @@ import {
     panel,
     container,
     box,
+    textLabel,
+    WRAP,
 } from '../test-widgets';
 import * as layout from '../layout';
 
@@ -38,12 +40,12 @@ export function testApp(g: StyledDittoContext) {
     );
     {
         g.layout.addChildConstraints(
-            layout.asGrid(g, 60, 40, layout.FIXED_WIDTH | layout.FIXED_HEIGHT)
+            layout.fillParentHorizontally(g),
+            layout.belowLastSibling(g),
         );
 
-        for (let i = 0; i < params.nChildren; i++) {
-            box(g, `gridcell-${i}`, RED);
-        }
+        textLabel(g, 'test', 'I am some text! Hear me roar', WRAP);
+        textLabel(g, 'test2', 'A second label. Ho ho ho.');
     }
     container.end(g);
 
