@@ -3,6 +3,11 @@ import { flagFactory } from '../../src/DittoImGui/lib/FlagFactory';
 import { TextPainter } from './TextPainter';
 import * as layout from '../layout';
 
+const font = 'monospace';
+const fontHeading = `32px ${font}`;
+const fontSubHeading = `24px ${font}`;
+const fontText = `18px ${font}`;
+
 const textPainterMap = new Map<StyledDittoContext, TextPainter>();
 function getTextPainter(g: StyledDittoContext): TextPainter {
     const painter = textPainterMap.get(g) || new TextPainter(g);
@@ -45,3 +50,51 @@ export const textLabel = (
 
     g.endElement();
 };
+
+export const heading = (
+    g: StyledDittoContext,
+    key: string,
+    text: string,
+    ...constraints: {(): void}[]
+) => {
+    textLabel(
+        g,
+        key,
+        text,
+        WRAP,
+        'black',
+        fontHeading,
+        ...constraints);
+}
+
+export const subheading = (
+    g: StyledDittoContext,
+    key: string,
+    text: string,
+    ...constraints: {(): void}[]
+) => {
+    textLabel(
+        g,
+        key,
+        text,
+        WRAP,
+        'black',
+        fontSubHeading,
+        ...constraints);
+}
+
+export const text = (
+    g: StyledDittoContext,
+    key: string,
+    text: string,
+    ...constraints: {(): void}[]
+) => {
+    textLabel(
+        g,
+        key,
+        text,
+        WRAP,
+        'black',
+        fontText,
+        ...constraints);
+}

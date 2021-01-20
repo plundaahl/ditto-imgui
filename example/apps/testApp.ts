@@ -22,7 +22,7 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
     background.begin(g, 'bg', canvasMetrics.w, canvasMetrics.h);
     g.layout.addChildConstraints(
         layout.edgesWithinParent(g),
-        layout.belowLastSibling(g),
+        layout.alignBelowLastSibling(g),
         layout.fillParentHorizontally(g),
     );
 
@@ -39,7 +39,7 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
     for (let i = 0; i < params.nChildren; i++) {
         const size = ((((i * 11) + 1) % 6) * 10) + 10;
         box(g, `${i}-box`, RED,
-            layout.belowLastSibling(g),
+            layout.alignBelowLastSibling(g),
             layout.xFractionOfParent(g, 0),
             layout.heightExactly(g, size),
             layout.widthExactly(g, 100),
@@ -53,7 +53,7 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
     {
         g.layout.addChildConstraints(
             layout.fillParentHorizontally(g),
-            layout.belowLastSibling(g),
+            layout.alignBelowLastSibling(g),
         );
 
         textLabel(g, 'test', 'I am some text! Hear me roar', WRAP);

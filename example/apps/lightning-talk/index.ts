@@ -1,14 +1,9 @@
 import { StyledDittoContext } from '../../../src/StyledDittoImGui';
 import { background, button, container } from '../../test-widgets';
 import * as layout from '../../layout';
-import { intro } from './01-intro';
-import { slide02 } from './02-foo';
+import { slides } from './01-intro';
 
 let curSlide = 0;
-const slides = [
-    intro,
-    slide02,
-];
 function nextSlide() { curSlide = Math.min(curSlide + 1, slides.length - 1); }
 function prevSlide() { curSlide = Math.max(curSlide - 1, 0); }
 
@@ -31,7 +26,7 @@ export function lightningTalkSlides(
     {
         g.layout.addChildConstraints(
             layout.edgesWithinParent(g),
-            layout.belowLastSibling(g),
+            layout.alignBelowLastSibling(g),
             layout.fillParentHorizontally(g),
         );
 
@@ -42,15 +37,15 @@ export function lightningTalkSlides(
 
     // slide controls here
     container.begin(g, 'contents', 'white',
-        layout.leftFractionOfParent(g, 0.8),
-        layout.topFractionOfParent(g, 0.8),
-        layout.rightFractionOfParent(g, 1),
-        layout.bottomFractionOfParent(g, 1),
+        layout.alignRightFractionOfParent(g),
+        layout.alignBottomFractionOfParent(g),
+        layout.widthExactly(g, 200),
+        layout.heightFillsParent(g),
     );
     {
         g.layout.addChildConstraints(
             layout.fillParentHorizontally(g),
-            layout.aboveLastSibling(g),
+            layout.alignAboveLastSibling(g),
         );
 
         if (button(g, 'prev')) {
