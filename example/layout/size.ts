@@ -44,8 +44,8 @@ export function sizeFractionOfParent(
         }
 
         const spaceAtEdges = g.boxSize.parentTotalSpacing;
-        const availSpace = parentBounds[axis] - (spaceAtEdges * 2);
-        bounds[axis] = (availSpace * fraction);
+        const availSpace = parentBounds[axis] - (spaceAtEdges);
+        bounds[axis] = (availSpace * fraction) - spaceAtEdges;
     };
 }
 
