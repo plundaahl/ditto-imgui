@@ -4,9 +4,9 @@ import { TextPainter } from './TextPainter';
 import * as layout from '../layout';
 
 const font = 'monospace';
-const fontHeading = `32px ${font}`;
-const fontSubHeading = `24px ${font}`;
-const fontText = `18px ${font}`;
+const fontHeading = `48px ${font}`;
+const fontSubHeading = `32px ${font}`;
+const fontText = `32px ${font}`;
 
 const textPainterMap = new Map<StyledDittoContext, TextPainter>();
 function getTextPainter(g: StyledDittoContext): TextPainter {

@@ -35,6 +35,12 @@ export const panel = {
         gui.boxSize.border = PANEL_BORDER_WIDTH;
         gui.boxSize.padding = 0;
 
+        if (gui.mouse.hoversElement() || gui.mouse.hoversChild()) {
+            if (gui.mouse.isM1Down() || gui.mouse.isM2Down()) {
+                gui.layer.bringLayerToFront();
+            }
+        }
+
         // Draggable Bar
         {
             container.begin(gui, 'titlebar', '#FF0000',
