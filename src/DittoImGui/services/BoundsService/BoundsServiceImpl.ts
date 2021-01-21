@@ -31,6 +31,10 @@ export class BoundsServiceImpl implements BoundsService {
             return;
         }
 
+        if (element.layer !== parent.layer) {
+            return;
+        }
+
         const lastElemBounds = element.bounds;
 
         if (parent.children.length === 1) {
