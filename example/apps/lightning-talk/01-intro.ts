@@ -4,7 +4,6 @@ import {
     subheading,
     text,
 } from '../../test-widgets';
-import * as layout from '../../layout';
 import { sampleWindow } from './sample-window';
 
 export const slides: { (g: StyledDittoContext): void }[] = [];
@@ -131,7 +130,7 @@ slides.push(
     makeSlide(slideTimeline, 1),
 );
 
-function slideCoreArch(g: StyledDittoContext, version: number) {
+function slideCoreArch(g: StyledDittoContext) {
     let i = 0;
     const next = () => `${i++}`;
 
@@ -153,7 +152,7 @@ Services:
 `);
 }
 
-function slideCoreArch02(g: StyledDittoContext, version: number) {
+function slideCoreArch02(g: StyledDittoContext) {
     let i = 0;
     const next = () => `${i++}`;
 
@@ -180,8 +179,7 @@ slides.push(
     makeSlide(slideTimeline, 5),
 );
 
-function slideConclusion01(g: StyledDittoContext, version: number) {
-    let stop = 0;
+function slideConclusion01(g: StyledDittoContext) {
     let i = 0;
     const next = () => `${i++}`;
     heading(g, next(), 'Closing Thoughts');
@@ -189,8 +187,9 @@ function slideConclusion01(g: StyledDittoContext, version: number) {
 
     text(g, next(), 'First successful personal project');
     text(g, next(), '- Practiced a new programming style');
-    text(g, next(), '- Continually managed complexity');
     text(g, next(), '- Learned an architectural decoupling technique');
+    text(g, next(), '- Managed complexity');
+    text(g, next(), '- Made something I can demo');
 }
 
 function slideConclusion02(g: StyledDittoContext, version: number) {

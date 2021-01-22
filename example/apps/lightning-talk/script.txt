@@ -1,0 +1,45 @@
+
+INTRO
+=====
+
+Patrick
+Experience building
+        - UI framework
+        - Spare time
+        - From scratch
+
+What
+        - Windowed UIs
+        - Drag, layer, resize
+
+Immediate Mode
+        - Common in games (editors)
+        - Fast iteration time
+
+Ditto
+        - Is a clone
+
+Talk about the journey
+
+
+JOURNEY
+=======
+
+Two months
+Validate architecture
+        - Iterate
+        - 2 rewrites
+        - Find architecture where I can move quickly
+
+
+ARCHITECTURE
+============
+
+Dear ImGUI fairly monolithic
+I can't keep that much in my head
+
+Core
+        - Representing element data
+
+Services
+        - Everything else
