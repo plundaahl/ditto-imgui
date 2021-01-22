@@ -4,6 +4,7 @@ import {
     subheading,
     text,
 } from '../../test-widgets';
+import * as layout from '../../layout';
 import { sampleWindow } from './sample-window';
 
 export const slides: { (g: StyledDittoContext): void }[] = [];
@@ -15,18 +16,21 @@ function makeSlide(
 }
 
 function slide01(g: StyledDittoContext, version: number) {
+    let stop = 0;
     let i = 0;
+    const next = () => `${i++}`;
 
     heading(g, 'intro1', 'Side Project Showcase:');
     subheading(g, 'intro2', 'Building a UI Framework from Scratch');
     subheading(g, 'gap', '---------');
 
-    if (version === i++) { return; }
-    subheading(g, 'agenda', 'Agenda');
+    if (version === stop++) { return; }
+    sampleWindow(g);
 
-    text(g, 'item1', '- What is this thing?');
-    text(g, 'item2', '- How does it work?');
-    text(g, 'item3', '- Comparison');
+    text(g, next(), '- Windowed UIs in HTML Canvas');
+    text(g, next(), '- Uses "immediate mode" paradigm');
+    text(g, next(), '- Called "Ditto"');
+    text(g, next(), '- Loose based on Dear ImGui (github.com/ocornut/imgui)');
 }
 
 slides.push(
@@ -34,134 +38,180 @@ slides.push(
     makeSlide(slide01, 1),
 );
 
-function slide02(g: StyledDittoContext, version: number) {
-    let stop = 0;
+const timelineSlides = [
+`
+Core Architecture  |========
+Experiments        |     =======================
+Features           |              ===========
+Refactoring        |            ====    ======
+Widgets            |                       =========
+Layouts Rewrite    |                               ===========
+-------------------+------------------------------------------
+                   |Sep     Oct     Nov     Dec     Jan`,
+`
+Core Architecture  |[======]
+Experiments        |     =======================
+Features           |              ===========
+Refactoring        |            ====    ======
+Widgets            |                       =========
+Layouts Rewrite    |                               ===========
+-------------------+------------------------------------------
+                   |Sep     Oct     Nov     Dec     Jan
+\\\\
+September:
+    - Validate core architecture
+    - Done by iterating`,
+`
+Core Architecture  |========
+Experiments        |     [=======]==============
+Features           |              ===========
+Refactoring        |            []==    ======
+Widgets            |                       =========
+Layouts Rewrite    |                               ===========
+-------------------+------------------------------------------
+                   |Sep     Oct     Nov     Dec     Jan
+\\\\
+October:
+    - Figuring out key features
+    - Lots of iterating and experimentation
+    - Slower because I was spread out`,
+`
+Core Architecture  |========
+Experiments        |     =========[========]====
+Features           |              [========]=
+Refactoring        |            ==[=    ===]==
+Widgets            |                       =========
+Layouts Rewrite    |                               ===========
+-------------------+------------------------------------------
+                   |Sep     Oct     Nov     Dec     Jan
+\\\\
+November:
+    - Still experimenting
+    - Finally getting services done
+    - Bogged down by refactoring`,
+`
+Core Architecture  |========
+Experiments        |     ==================[===]
+Features           |              =========[]
+Refactoring        |            ====    ===[=]
+Widgets            |                       [=======]
+Layouts Rewrite    |                               ===========
+-------------------+------------------------------------------
+                   |Sep     Oct     Nov     Dec     Jan
+\\\\
+December:
+    - Creating widget library`,
+`
+Core Architecture  |========
+Experiments        |     =======================
+Features           |              ===========
+Refactoring        |            ====    ======
+Widgets            |                       =========
+Layouts Rewrite    |                               [=========]
+-------------------+------------------------------------------
+                   |Sep     Oct     Nov     Dec     Jan
+\\\\
+January:
+    - Throwing out widgets
+    - Rewriting layout code`,
+];
+
+function slideTimeline(g: StyledDittoContext, version: number) {
     let i = 0;
     const next = () => `${i++}`;
-    heading(g, next(), 'What Is This Thing?');
+
+    heading(g, next(), 'The Journey');
     subheading(g, next(), '---------');
 
-    if (version === stop++) { return; }
-    text(g, next(), '- A user interface library called "Ditto"');
-
-    if (version === stop++) { return; }
-    text(g, next(), '- Traditional windowed UIs, but in the browser');
-
-    if (version === stop++) { return; }
-    text(g, next(), '- Uses "immediate mode" paradigm');
-
-    if (version === stop++) { return; }
-    text(g, next(), '- Loose clone of Dear ImGui (github.com/ocornut/imgui)');
-
-    sampleWindow(g);
+    text(g, next(), timelineSlides[version])
 }
 
 slides.push(
-    makeSlide(slide02, 0),
-    makeSlide(slide02, 1),
-    makeSlide(slide02, 2),
-    makeSlide(slide02, 3),
-    makeSlide(slide02, 4),
+    makeSlide(slideTimeline, 0),
+    makeSlide(slideTimeline, 1),
 );
 
-function slide03(g: StyledDittoContext, version: number) {
-    let stop = 0;
+function slideCoreArch(g: StyledDittoContext, version: number) {
     let i = 0;
     const next = () => `${i++}`;
-    heading(g, next(), 'How Does It Work?');
+
+    heading(g, next(), 'Architecture');
     subheading(g, next(), '---------');
+    text(g, next(), `
+Core:
+    - Build + manage UI elements
+    - Layering
+    - Rendering
+Services:
+    - Mouse
+    - Keyboard
+    - Focus
+    - State Management
+    - Layouts
+    - Themes
+    - Draw Command Buffering
+`);
+}
 
-    if (version === stop++) { return; }
-    text(g, next(), 'Every frame, you tell Ditto what to do:');
+function slideCoreArch02(g: StyledDittoContext, version: number) {
+    let i = 0;
+    const next = () => `${i++}`;
 
-    if (version === stop++) { return; }
-    text(g, next(), '- Clear the screen');
-    text(g, next(), '- Create elements');
-    text(g, next(), '- Draw everything');
+    heading(g, next(), 'Architecture');
+    subheading(g, next(), '---------');
+    text(g, next(), `
+Downsides:
+    - Some duplication/wasted CPU cycles
+Benefits:
+    - Easily rewrite major features
+Requirements:
+    - Solid core architecture`);
 }
 
 slides.push(
-    makeSlide(slide03, 0),
-    makeSlide(slide03, 1),
-    makeSlide(slide03, 2),
+    makeSlide(slideCoreArch, 0),
+    makeSlide(slideCoreArch02, 0),
 );
 
-function slide04(g: StyledDittoContext, version: number) {
-    let stop = 0;
-    let i = 0;
-    const next = () => `${i++}`;
-    heading(g, next(), 'How Does It Work?');
-    subheading(g, next(), '---------');
-
-    text(g, next(), 'To draw an element, we run a function which:');
-
-    if (version === stop++) { return; }
-    text(g, next(), '- Tells Ditto about itself');
-    text(g, next(), '- Asks some questions');
-    text(g, next(), '- Generates drawing instructions');
-}
-
 slides.push(
-    makeSlide(slide04, 0),
-    makeSlide(slide04, 1),
+    makeSlide(slideTimeline, 2),
+    makeSlide(slideTimeline, 3),
+    makeSlide(slideTimeline, 4),
+    makeSlide(slideTimeline, 5),
 );
 
-function slide05(g: StyledDittoContext, version: number) {
+function slideConclusion01(g: StyledDittoContext, version: number) {
     let stop = 0;
     let i = 0;
     const next = () => `${i++}`;
-    heading(g, next(), 'How Does It Work?');
+    heading(g, next(), 'Closing Thoughts');
     subheading(g, next(), '---------');
 
-    text(g, next(), 'To render, Ditto:');
-
-    if (version === stop++) { return; }
-    text(g, next(), '- Puts the draw instructions in a list');
-    text(g, next(), '- Sorts them');
-    text(g, next(), '- Gives them to the browser');
-
-    if (version === stop++) { return; }
-    text(g, next(), 'Repeat, many times a second');
+    text(g, next(), 'First successful personal project');
+    text(g, next(), '- Practiced a new programming style');
+    text(g, next(), '- Continually managed complexity');
+    text(g, next(), '- Learned an architectural decoupling technique');
 }
 
-slides.push(
-    makeSlide(slide05, 0),
-    makeSlide(slide05, 1),
-    makeSlide(slide05, 2),
-);
-
-function slide06(g: StyledDittoContext, version: number) {
+function slideConclusion02(g: StyledDittoContext, version: number) {
     let stop = 0;
     let i = 0;
     const next = () => `${i++}`;
-    heading(g, next(), 'Immediate Mode GUIs vs. Other Paradigms');
+    heading(g, next(), 'Closing Thoughts');
     subheading(g, next(), '---------');
 
-    if (version === stop++) { return; }
-    text(g, next(), 'The Basics');
-    text(g, next(), '- Invented (I think) by Casey Muratori, mid 2000s');
-    text(g, next(), '- Used primarily in games');
+    text(g, next(), 'But...');
 
     if (version === stop++) { return; }
-    text(g, next(), 'CPU Cost');
-    text(g, next(), '- More expensive over time');
-    text(g, next(), '- More consistent costs each frame');
-    text(g, next(), '- Consistency = smoother frame rate');
+    text(g, next(), '... I\'m ready for it to end');
 
     if (version === stop++) { return; }
-    text(g, next(), 'Not Flashy');
-    text(g, next(), '- High CPU cost limits fancy graphics');
-    text(g, next(), '- Bad at animations');
-
-    if (version === stop++) { return; }
-    text(g, next(), 'Fast Prototyping');
-    text(g, next(), '- No cleanup code');
-    text(g, next(), '- No synchronization code');
+    heading(g, next(), '                        Thanks!');
 }
 
 slides.push(
-    makeSlide(slide06, 0),
-    makeSlide(slide06, 1),
-    makeSlide(slide06, 2),
-    makeSlide(slide06, 3),
+    makeSlide(slideConclusion01, 0),
+    makeSlide(slideConclusion02, 0),
+    makeSlide(slideConclusion02, 1),
+    makeSlide(slideConclusion02, 2),
 );
