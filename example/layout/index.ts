@@ -1,5 +1,5 @@
 export * from './alignToSibling';
-export * from './alignToParent';
+export * from './offsetFromParent';
 export * from './size';
 export * from './originEdges';
 export * from './fillToSibling';

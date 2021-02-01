@@ -1,34 +1,19 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import {
-    background,
     panel,
-    container,
     box,
-    textLabel,
-    WRAP,
 } from '../test-widgets';
 import * as layout from '../layout';
+import { offsetFromParentFlags as f } from '../layout/offsetFromParent';
 
 const RED = '#FF0000';
 
 const params = (window as any);
 params.nChildren = 17;
-params.defaultWidth = 1;
 
 export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: number }) {
     g.boxSize.defaultPadding = 10;
     g.boxSize.defaultBorder = 1;
-
-    background.begin(g, 'bg', canvasMetrics.w, canvasMetrics.h);
-    g.layout.addChildConstraints(
-        layout.edgesWithinParent(g),
-        layout.alignBelowLastSibling(g),
-        layout.fillParentHorizontally(g),
-    );
-
-    textLabel(g, 'test', 'I am some text! Hear me roar', WRAP);
-    textLabel(g, 'test2', 'A second label. Ho ho ho.');
-    background.end(g);
 
     panel.begin(g, 'testpanel', 200, 200, 400, 400);
     g.layout.addChildConstraints(
@@ -36,30 +21,18 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
         layout.edgesWithinParent(g),
     );
 
-    for (let i = 0; i < params.nChildren; i++) {
-        const size = ((((i * 11) + 1) % 6) * 10) + 10;
-        box(g, `${i}-box`, RED,
-            layout.alignBelowLastSibling(g),
-            layout.xFractionOfParent(g, 0),
-            layout.heightExactly(g, size),
+    for (let i = 0; i < 4; i++) {
+        box(g, `some-box`, RED,
+            layout.alignTopAmountFromParent(g),
+            layout.offsetFromParent(
+                g,
+                f.HORIZONTAL | f.ALIGN_END | f.TO_PARENT_END | f.BY_VALUE,
+                (i * -100),
+            ),
             layout.widthExactly(g, 100),
+            layout.heightFractionOfParent(g, 0.25),
         );
     }
-
-    container.begin(g, 'grid-container', RED,
-        layout.fillRightOfLastSibling(g),
-        layout.fillParentVertically(g),
-    );
-    {
-        g.layout.addChildConstraints(
-            layout.fillParentHorizontally(g),
-            layout.alignBelowLastSibling(g),
-        );
-
-        textLabel(g, 'test', 'I am some text! Hear me roar', WRAP);
-        textLabel(g, 'test2', 'A second label. Ho ho ho.');
-    }
-    container.end(g);
 
     panel.end(g);
 }
