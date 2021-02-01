@@ -22,15 +22,15 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
     );
 
     for (let i = 0; i < 4; i++) {
-        box(g, `some-box`, RED,
-            layout.alignTopAmountFromParent(g),
+        box(g, `some-box-${i}`, RED,
+            layout.alignLeftAmountFromParent(g),
             layout.offsetFromParent(
                 g,
-                f.HORIZONTAL | f.ALIGN_END | f.TO_PARENT_END | f.BY_VALUE,
+                f.VERTICAL | f.ALIGN_END | f.TO_PARENT_END | f.BY_VALUE,
                 (i * -100),
             ),
-            layout.widthExactly(g, 100),
-            layout.heightFractionOfParent(g, 0.25),
+            layout.heightExactly(g, 100),
+            layout.widthFractionOfParent(g, 0.25),
         );
     }
 

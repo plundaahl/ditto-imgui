@@ -12,6 +12,8 @@ const TO_PARENT_START = 0;
 const BY_VALUE = flag();
 const BY_FRACTION = 0;
 const BY_DEFAULT = flag();
+const AT_LEAST = flag();
+const AT_MOST = flag();
 
 export const offsetFromParentFlags = {
     HORIZONTAL,
@@ -23,6 +25,8 @@ export const offsetFromParentFlags = {
     BY_FRACTION,
     BY_VALUE,
     BY_DEFAULT,
+    AT_LEAST,
+    AT_MOST,
 };
 
 export function offsetFromParent(
@@ -49,12 +53,20 @@ export function offsetFromParent(
         const offsetValue = flags & BY_VALUE ? offset : 0;
         const offsetFraction = !(flags & BY_VALUE) ? availSpace * offset : 0;
 
-        bounds[start] = parentBounds[start]
+        const newStartPosition = parentBounds[start]
             + ((flags & ALIGN_END) ? 0 : totalSpacing)
             + ((flags & TO_PARENT_END) ? availSpace : 0)
             - ((flags & ALIGN_END) ? bounds[size] : 0)
             + offsetValue
             + offsetFraction;
+
+        if (flags & AT_MOST) {
+            bounds[start] = Math.min(bounds[start], newStartPosition);
+        } else if (flags & AT_LEAST) {
+            bounds[start] = Math.max(bounds[start], newStartPosition);
+        } else {
+            bounds[start] = newStartPosition;
+        }
     }
 }
 
