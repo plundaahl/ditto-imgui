@@ -1,162 +1,134 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
+import { flagFactory } from '../../src/DittoImGui/lib/FlagFactory';
 
-export function sizeExactly(
+const flag = flagFactory();
+
+const HORIZONTAL = 0;
+const VERTICAL = flag();
+const BY_VALUE = 0;
+const BY_FRACTION = flag();
+const BY_DEFAULT = flag();
+const IGNORE_SPACING = flag();
+const AT_LEAST = flag();
+const AT_MOST = flag();
+
+function setSize(
     g: StyledDittoContext,
+    flags: number,
     amount: number,
-    axis: 'w' | 'h',
-    defaultFn: boolean = false,
 ) {
     return () => {
-        const bounds = g.bounds.getElementBounds();
-        if (defaultFn && bounds[axis]) {
-            return;
-        } bounds[axis] = amount;
-    };
-}
+        const size = (flags & VERTICAL) ? 'h' : 'w';
 
-export function sizeLimitExactly(
-    g: StyledDittoContext,
-    amount: number,
-    axis: 'w' | 'h',
-    limitFn: (a: number, b: number) => number,
-) {
-    return () => {
         const bounds = g.bounds.getElementBounds();
-        bounds[axis] = limitFn(amount, bounds[axis]);
-    };
-}
-
-export function sizeFractionOfParent(
-    g: StyledDittoContext,
-    fraction: number,
-    axis: 'w' | 'h',
-    defaultFn: boolean = false,
-) {
-    return () => {
         const parentBounds = g.bounds.getParentBounds();
-        if (!parentBounds) {
+
+        if (flags & BY_DEFAULT && bounds[size]) {
             return;
         }
 
-        const bounds = g.bounds.getElementBounds();
-        if (defaultFn && bounds[axis]) {
-            return;
+        const parentSpacing = g.boxSize.parentTotalSpacing;
+        const spaceAtEdges = (flags & IGNORE_SPACING) ? 0 : parentSpacing;
+        const availSpace = parentBounds ? parentBounds[size] - spaceAtEdges : 0;
+
+        const newSize = ((flags & BY_FRACTION) ? availSpace * amount : amount)
+            - parentSpacing;
+
+        if (flags & AT_MOST) {
+            bounds[size] = Math.min(bounds[size], newSize);
+        } else if (flags & AT_LEAST) {
+            bounds[size] = Math.max(bounds[size], newSize);
+        } else {
+            bounds[size] = newSize;
         }
-
-        const spaceAtEdges = g.boxSize.parentTotalSpacing;
-        const availSpace = parentBounds[axis] - (spaceAtEdges);
-        bounds[axis] = (availSpace * fraction) - spaceAtEdges;
-    };
-}
-
-export function sizeLimitFractionOfParent(
-    g: StyledDittoContext,
-    fraction: number,
-    axis: 'w' | 'h',
-    limitFn: (a: number, b: number) => number,
-) {
-    return () => {
-        const parentBounds = g.bounds.getParentBounds();
-        if (!parentBounds) {
-            return;
-        }
-
-        const bounds = g.bounds.getElementBounds();
-        const spaceAtEdges = g.boxSize.parentTotalSpacing;
-        const availSpace = parentBounds[axis] - (spaceAtEdges * 2);
-
-        bounds[axis] = limitFn(
-            (availSpace * fraction) - spaceAtEdges,
-            bounds[axis],
-        );
     };
 }
 
 // exact values
-export function widthExactly(g: StyledDittoContext, width: number) {
-    return sizeExactly(g, width, 'w');
+export function widthExactlyAmount(g: StyledDittoContext, width: number) {
+    return setSize(g, HORIZONTAL | BY_VALUE, width);
 }
 
-export function heightExactly(g: StyledDittoContext, height: number) {
-    return sizeExactly(g, height, 'h');
+export function heightExactlyAmount(g: StyledDittoContext, height: number) {
+    return setSize(g, VERTICAL | BY_VALUE, height);
 }
 
 // default exact values
-export function defaultWidthExactly(g: StyledDittoContext, width: number) {
-    return sizeExactly(g, width, 'w', true);
+export function widthDefaultAmount(g: StyledDittoContext, width: number) {
+    return setSize(g, HORIZONTAL | BY_VALUE | BY_DEFAULT, width);
 }
 
-export function defaultHeightExactly(g: StyledDittoContext, height: number) {
-    return sizeExactly(g, height, 'h', true);
+export function heightDefaultAmount(g: StyledDittoContext, height: number) {
+    return setSize(g, VERTICAL | BY_VALUE | BY_DEFAULT, height);
 }
 
 // exact value limits
-export function widthAtMost(g: StyledDittoContext, amount: number) {
-    return sizeLimitExactly(g, amount, 'w', Math.min);
+export function widthAtMostAmount(g: StyledDittoContext, amount: number) {
+    return setSize(g, HORIZONTAL | BY_VALUE | AT_MOST, amount);
 }
 
-export function heightAtMost(g: StyledDittoContext, amount: number) {
-    return sizeLimitExactly(g, amount, 'h', Math.min);
+export function heightAtMostAmount(g: StyledDittoContext, amount: number) {
+    return setSize(g, VERTICAL | BY_VALUE | AT_MOST, amount);
 }
 
-export function widthAtLeast(g: StyledDittoContext, amount: number) {
-    return sizeLimitExactly(g, amount, 'w', Math.max);
+export function widthAtLeastAmount(g: StyledDittoContext, amount: number) {
+    return setSize(g, HORIZONTAL | BY_VALUE | AT_LEAST, amount);
 }
 
-export function heightAtLeast(g: StyledDittoContext, amount: number) {
-    return sizeLimitExactly(g, amount, 'h', Math.max);
+export function heightAtLeastAmount(g: StyledDittoContext, amount: number) {
+    return setSize(g, VERTICAL | BY_VALUE | AT_LEAST, amount);
 }
 
 // fractions of parent
-export function widthFractionOfParent(g: StyledDittoContext, fraction: number) {
-    return sizeFractionOfParent(g, fraction, 'w');
+export function widthExactlyFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return setSize(g, HORIZONTAL | BY_FRACTION, fraction);
 }
 
-export function heightFractionOfParent(g: StyledDittoContext, fraction: number) {
-    return sizeFractionOfParent(g, fraction, 'h');
+export function heightExactlyFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return setSize(g, VERTICAL | BY_FRACTION, fraction);
 }
 
 // default fraction-of-parent values
-export function defaultWidthFractionOfParent(g: StyledDittoContext, fraction: number) {
-    return sizeFractionOfParent(g, fraction, 'w', true);
+export function widthDefaultFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return setSize(g, HORIZONTAL | BY_FRACTION | BY_DEFAULT, fraction);
 }
 
-export function defaultHeightFractionOfParent(g: StyledDittoContext, fraction: number) {
-    return sizeFractionOfParent(g, fraction, 'h', true);
+export function heightDefaultFractionOfParent(g: StyledDittoContext, fraction: number) {
+    return setSize(g, VERTICAL | BY_FRACTION | BY_DEFAULT, fraction);
 }
 
 // fraction-of-parent limits
 export function widthAtMostFractionOfParent(g: StyledDittoContext, fraction: number) {
-    return sizeLimitFractionOfParent(g, fraction, 'w', Math.min);
+    return setSize(g, HORIZONTAL | BY_FRACTION | AT_MOST, fraction);
 }
 
 export function widthAtLeastFractionOfParent(g: StyledDittoContext, fraction: number) {
-    return sizeLimitFractionOfParent(g, fraction, 'w', Math.max);
+    return setSize(g, HORIZONTAL | BY_FRACTION | AT_LEAST, fraction);
 }
 
 export function heightAtMostFractionOfParent(g: StyledDittoContext, fraction: number) {
-    return sizeLimitFractionOfParent(g, fraction, 'h', Math.min);
+    return setSize(g, VERTICAL | BY_FRACTION | AT_MOST, fraction);
 }
 
 export function heightAtLeastFractionOfParent(g: StyledDittoContext, fraction: number) {
-    return sizeLimitFractionOfParent(g, fraction, 'h', Math.max);
+    return setSize(g, VERTICAL | BY_FRACTION | AT_LEAST, fraction);
 }
 
 // parent-fills
 export function widthFillsParent(g: StyledDittoContext) {
-    return sizeFractionOfParent(g, 1, 'w');
+    return widthExactlyFractionOfParent(g, 1);
 }
 
 export function defaultWidthFillsParent(g: StyledDittoContext) {
-    return sizeFractionOfParent(g, 1, 'w', true);
+    return widthDefaultFractionOfParent(g, 1);
 }
 
 export function heightFillsParent(g: StyledDittoContext) {
-    return sizeFractionOfParent(g, 1, 'h');
+    return heightExactlyFractionOfParent(g, 1);
 }
 
 export function defaultHeightFillsParent(g: StyledDittoContext) {
-    return sizeFractionOfParent(g, 1, 'h', true);
+    return heightDefaultFractionOfParent(g, 1);
 }
 
 // utilities

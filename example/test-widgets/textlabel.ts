@@ -42,7 +42,7 @@ export const textLabel = (
     const textPainter = builder.build();
 
     g.layout.addConstraints(
-        layout.defaultHeightExactly(g, textPainter.getHeight()),
+        layout.heightDefaultAmount(g, textPainter.getHeight()),
     );
 
     g.layout.calculateLayout();

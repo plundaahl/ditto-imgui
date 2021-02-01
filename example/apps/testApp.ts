@@ -4,7 +4,6 @@ import {
     box,
 } from '../test-widgets';
 import * as layout from '../layout';
-import { offsetFromParentFlags as f } from '../layout/offsetFromParent';
 
 const RED = '#FF0000';
 
@@ -23,14 +22,11 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
 
     for (let i = 0; i < 4; i++) {
         box(g, `some-box-${i}`, RED,
-            layout.alignLeftAmountFromParent(g),
-            layout.offsetFromParent(
-                g,
-                f.VERTICAL | f.ALIGN_END | f.TO_PARENT_END | f.BY_VALUE,
-                (i * -100),
-            ),
-            layout.heightExactly(g, 100),
-            layout.widthFractionOfParent(g, 0.25),
+            layout.offsetFromParentLeftByFraction(g, i * 0.25),
+            layout.offsetFromParentTop(g),
+            layout.heightExactlyFractionOfParent(g, 0.25),
+            layout.widthAtMostAmount(g, 100),
+            layout.widthExactlyFractionOfParent(g, 0.25),
         );
     }
 

@@ -70,8 +70,33 @@ export function offsetFromParent(
     }
 }
 
+// Zero offset
+export function offsetFromParentTop(g: StyledDittoContext) {
+    return offsetFromParent(g,
+        VERTICAL | ALIGN_START | TO_PARENT_START,
+    );
+}
+
+export function offsetFromParentBottom(g: StyledDittoContext) {
+    return offsetFromParent(g,
+        VERTICAL | ALIGN_END | TO_PARENT_END,
+    );
+}
+
+export function offsetFromParentLeft(g: StyledDittoContext) {
+    return offsetFromParent(g,
+        HORIZONTAL | ALIGN_START | TO_PARENT_START,
+    );
+}
+
+export function offsetFromParentRight(g: StyledDittoContext) {
+    return offsetFromParent(g,
+        HORIZONTAL | ALIGN_END | TO_PARENT_END,
+    );
+}
+
 // align by fraction of parent
-export function alignTopFractionOfParent(g: StyledDittoContext, frac: number = 0) {
+export function offsetFromParentTopByFraction(g: StyledDittoContext, frac: number = 0) {
     return offsetFromParent(
         g,
         BY_FRACTION | VERTICAL | ALIGN_START | TO_PARENT_START,
@@ -79,7 +104,7 @@ export function alignTopFractionOfParent(g: StyledDittoContext, frac: number = 0
     );
 }
 
-export function alignLeftFractionOfParent(g: StyledDittoContext, frac: number = 0) {
+export function offsetFromParentLeftByFraction(g: StyledDittoContext, frac: number = 0) {
     return offsetFromParent(
         g,
         BY_FRACTION | HORIZONTAL | ALIGN_START | TO_PARENT_START,
@@ -87,7 +112,7 @@ export function alignLeftFractionOfParent(g: StyledDittoContext, frac: number = 
     );
 }
 
-export function alignBottomFractionOfParent(g: StyledDittoContext, frac: number = 1) {
+export function offsetFromParentBottomByFraction(g: StyledDittoContext, frac: number = 1) {
     return offsetFromParent(
         g,
         BY_FRACTION | VERTICAL | ALIGN_END | TO_PARENT_END,
@@ -95,7 +120,7 @@ export function alignBottomFractionOfParent(g: StyledDittoContext, frac: number 
     );
 }
 
-export function alignRightFractionOfParent(g: StyledDittoContext, frac: number = 1) {
+export function offsetFromParentRightByFraction(g: StyledDittoContext, frac: number = 1) {
     return offsetFromParent(
         g,
         BY_FRACTION | HORIZONTAL | ALIGN_END | TO_PARENT_END,
@@ -104,7 +129,7 @@ export function alignRightFractionOfParent(g: StyledDittoContext, frac: number =
 }
 
 // align offset
-export function alignTopAmountFromParent(g: StyledDittoContext, offset: number = 0) {
+export function offsetFromParentTopByAmount(g: StyledDittoContext, offset: number = 0) {
     return offsetFromParent(
         g,
         BY_VALUE | VERTICAL | ALIGN_START | TO_PARENT_START,
@@ -112,7 +137,7 @@ export function alignTopAmountFromParent(g: StyledDittoContext, offset: number =
     );
 }
 
-export function alignLeftAmountFromParent(g: StyledDittoContext, offset: number = 0) {
+export function offsetFromParentLeftByAmount(g: StyledDittoContext, offset: number = 0) {
     return offsetFromParent(
         g,
         BY_VALUE | HORIZONTAL | ALIGN_START | TO_PARENT_START,
@@ -120,7 +145,7 @@ export function alignLeftAmountFromParent(g: StyledDittoContext, offset: number 
     );
 }
 
-export function alignBottomAmountFromParent(g: StyledDittoContext, offset: number = 0) {
+export function offsetFromParentBottomByAmount(g: StyledDittoContext, offset: number = 0) {
     return offsetFromParent(
         g,
         BY_VALUE | VERTICAL | ALIGN_END | TO_PARENT_END,
@@ -128,7 +153,7 @@ export function alignBottomAmountFromParent(g: StyledDittoContext, offset: numbe
     );
 }
 
-export function alignRightAmountFromParent(g: StyledDittoContext, offset: number = 0) {
+export function offsetFromParentRightByAmount(g: StyledDittoContext, offset: number = 0) {
     return offsetFromParent(
         g,
         BY_VALUE | HORIZONTAL | ALIGN_END | TO_PARENT_END,
