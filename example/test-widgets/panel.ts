@@ -45,8 +45,8 @@ export const panel = {
         {
             container.begin(gui, 'titlebar', '#FF0000',
                 layout.fillParentHorizontally(gui),
-                layout.alignBelowLastSibling(gui),
-                layout.heightExactlyAmount(gui, 30),
+                layout.offsetPosFromSiblingBottom(gui),
+                layout.sizeHeightByPx(gui, 30),
             );
             gui.boxSize.border = 0;
 

@@ -18,8 +18,8 @@ export const button = (
     const elemWidth = textMetrics.width + edgeSpacing;
 
     g.layout.addConstraints(
-        layout.heightDefaultAmount(g, elemHeight),
-        layout.widthDefaultAmount(g, elemWidth),
+        layout.sizeHeightByDefaultPx(g, elemHeight),
+        layout.sizeWidthByPx(g, elemWidth),
         ...constraints
     );
     g.layout.addChildConstraints(

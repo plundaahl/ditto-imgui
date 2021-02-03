@@ -15,7 +15,8 @@ export const container = {
         gui.beginElement(key);
 
         gui.layout.addConstraints(
-            layout.allDimensionsAtLeastZero(gui),
+            layout.sizeWidthByAtLeastPx(gui, 0),
+            layout.sizeHeightByAtLeastPx(gui, 0),
             ...constraints,
         );
         gui.layout.calculateLayout();
