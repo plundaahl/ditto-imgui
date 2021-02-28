@@ -3,6 +3,7 @@ import {
     panel,
     button,
     container,
+    verticallyCollapsableContainer,
 } from '../test-widgets';
 import * as layout from '../layout';
 
@@ -16,7 +17,12 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
         layout.fillParentHorizontally(g),
     );
 
-    container.begin(g, 'cont');
+    container.begin(g, 'container');
+    g.layout.addChildConstraints(
+        layout.fillParentHorizontally(g),
+        layout.fillParentVertically(g),
+    );
+    verticallyCollapsableContainer.begin(g, 'cont');
     g.layout.addChildConstraints(
         layout.asColDown(g),
     );
@@ -25,6 +31,7 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
         console.log('bar');
     }
 
+    verticallyCollapsableContainer.end(g);
     container.end(g);
     panel.end(g);
 }
