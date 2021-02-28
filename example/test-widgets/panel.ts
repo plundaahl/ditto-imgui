@@ -63,7 +63,7 @@ export const panel = {
 
         // Draggable Bar
         {
-            container.begin(gui, 'titlebar', '#FF0000',
+            container.begin(gui, 'titlebar',
                 layout.fillParentHorizontally(gui),
                 layout.offsetPosFromSiblingBottom(gui),
                 layout.sizeHeightByPx(gui, 30),
@@ -119,7 +119,7 @@ export const panel = {
         const isOpen = state.open;
 
         // Contents
-        container.begin(gui, 'contents', '#FF0000',
+        container.begin(gui, 'contents',
             layout.fillParentHorizontally(gui),
             layout.fillBelowLastSibling(gui),
         );

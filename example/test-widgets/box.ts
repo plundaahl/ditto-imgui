@@ -4,10 +4,9 @@ import { container } from './container';
 export const box = (
     g: StyledDittoContext,
     key: string,
-    color: string,
     ...constraints: {(): void}[]
 ) => {
-    container.begin(g, key, color);
+    container.begin(g, key);
     g.layout.addConstraints(...constraints);
     container.end(g);
 };

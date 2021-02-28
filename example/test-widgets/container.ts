@@ -2,16 +2,12 @@ import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { borderBox } from '../draw/box';
 import * as layout from '../layout';
 
-const colors: string[] = [];
-
 export const container = {
     begin: (
         gui: StyledDittoContext,
         key: string,
-        color: string = '#FF0000',
         ...constraints: {(): void}[]
     ) => {
-        colors.push(color);
         gui.beginElement(key);
         gui.boxSize.border = 2;
 
