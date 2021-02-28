@@ -14,18 +14,43 @@ export function borderBox(
     if (borderWidth === 0) {
         return;
     }
-    gui.draw.setLineWidth(borderWidth);
-    gui.draw.setStrokeStyle(gui.theme.getColor(region, mode, 'bgLowlight'));
-
-    const borderPosOffset = borderWidth * 0.5;
+    const halfBorderWidth = borderWidth * 0.5;
+    const borderPosOffset = halfBorderWidth;
     const borderSizeOffset = borderPosOffset * 2;
 
+    const bgColor = gui.theme.getColor(region, mode, borderWidth <= 1 ? 'bgLowlight' : 'bgHighlight');
+    gui.draw.setLineWidth(borderWidth);
+    gui.draw.setStrokeStyle(bgColor);
     gui.draw.strokeRect(
         x + borderPosOffset,
         y + borderPosOffset,
         w - borderSizeOffset,
         h - borderSizeOffset,
     );
+
+    if (borderWidth <= 1) {
+        return;
+    }
+    // Lowlight Top-Left
+    gui.draw.setFillStyle(gui.theme.getColor(region, mode, 'bgLowlight'));
+    gui.draw.beginPath();
+    gui.draw.moveTo(x, y + h);
+    gui.draw.lineTo(x + halfBorderWidth, y + h - halfBorderWidth);
+    gui.draw.lineTo(x + halfBorderWidth, y + halfBorderWidth);
+    gui.draw.lineTo(x + w - halfBorderWidth, y + halfBorderWidth);
+    gui.draw.lineTo(x + w, y);
+    gui.draw.lineTo(x, y);
+    gui.draw.fill();
+
+    // Lowlight Bottom-Right
+    gui.draw.beginPath();
+    gui.draw.moveTo(x + halfBorderWidth, y + h - halfBorderWidth);
+    gui.draw.lineTo(x + borderWidth, y + h - borderWidth);
+    gui.draw.lineTo(x + w - borderWidth, y + h - borderWidth);
+    gui.draw.lineTo(x + w - borderWidth, y + borderWidth);
+    gui.draw.lineTo(x + w - halfBorderWidth, y + halfBorderWidth);
+    gui.draw.lineTo(x + w - halfBorderWidth, y + h - halfBorderWidth);
+    gui.draw.fill();
 }
 
 export function bevelBox(
