@@ -1,5 +1,6 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { borderBox } from '../draw/box';
+import { region } from './region';
 import * as layout from '../layout';
 
 type DrawBoxFn = { (
@@ -31,28 +32,20 @@ export const container = {
         border: number = 2,
         drawBox: DrawBoxFn | undefined = drawDefaultBox,
     ) => {
-        gui.beginElement(key);
+        region.begin(gui, key);
         gui.boxSize.border = border;
-        const borderX2 = border * 2;
         drawBoxFns.push(drawBox);
-
-        gui.layout.addConstraints(
-            layout.sizeWidthByAtLeastPx(gui, borderX2),
-            layout.sizeHeightByAtLeastPx(gui, borderX2),
-        );
-        gui.layout.calculateLayout();
     },
 
     end: (gui: StyledDittoContext) => {
         gui.layout.calculateLayout();
-
         const drawBox = drawBoxFns.pop();
         if (drawBox) {
             const { x, y, w, h } = gui.bounds.getElementBounds();
             borderBox(gui, x, y, w, h, gui.boxSize.border, 'panel', 'idle');
         }
 
-        gui.endElement();
+        region.end(gui);
     },
 };
 

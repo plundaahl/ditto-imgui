@@ -2,7 +2,7 @@ import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { StateComponentKey } from '../../src/DittoImGui';
 import { bevelBox } from '../draw';
 import { draggableBorder, draggableCorner, Direction } from './draggableBorder';
-import { verticallyCollapsableContainer } from './container'
+import { collapsableRegion } from './region'
 import { miniButton } from './button';
 import { titleBar } from './titleBar';
 import * as layout from '../layout';
@@ -65,7 +65,7 @@ export const panel = {
         titleBar.end(gui);
 
         // Contents
-        verticallyCollapsableContainer.begin(gui, 'contents', state.open, 0, undefined);
+        collapsableRegion.begin(gui, 'contents', state.open);
         gui.layout.addConstraints(
             layout.fillParentHorizontally(gui),
             layout.fillBelowLastSibling(gui),
@@ -74,7 +74,7 @@ export const panel = {
     },
 
     end: (gui: StyledDittoContext) => {
-        verticallyCollapsableContainer.end(gui);
+        collapsableRegion.end(gui);
 
         const state = gui.state.getStateComponent(stateKey);
         const isOpen = state.open;

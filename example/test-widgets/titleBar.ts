@@ -1,5 +1,5 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
-import { container } from './container'
+import { region } from './region';
 import { textLabel } from './textlabel';
 import * as layout from '../layout';
 
@@ -22,7 +22,7 @@ export const titleBar = {
     ) => {
         storageStack.push({ title, dragXBinding, dragYBinding });
 
-        container.begin(gui, title, 0, undefined);
+        region.begin(gui, title);
         gui.layout.addConstraints(
             layout.fillParentHorizontally(gui),
             layout.offsetPosFromSiblingBottom(gui),
@@ -45,7 +45,7 @@ export const titleBar = {
         const { x, y, w, h } = gui.bounds.getElementBounds();
 
         // Begin Title Region
-        container.begin(gui, 'draggable-region', 0, undefined);
+        region.begin(gui, 'draggable-region');
         gui.layout.addConstraints(layout.fillLeftOfLastSibling(gui));
         gui.layout.addChildConstraints(
             layout.offsetPosFromParentLeft(gui),
@@ -63,7 +63,7 @@ export const titleBar = {
         textLabel(gui, 'title', title, 0, '#FFFFFF');
 
         const hoversDragRegion = gui.mouse.hoversElement() || gui.mouse.hoversChild();
-        container.end(gui);
+        region.end(gui);
         // End Title Region
 
         // Background + Hovering
@@ -80,6 +80,6 @@ export const titleBar = {
             gui.draw.fillRect(x, y, w, h);
         }
 
-        container.end(gui);
+        region.end(gui);
     },
 }
