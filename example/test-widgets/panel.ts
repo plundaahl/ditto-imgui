@@ -2,7 +2,7 @@ import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { StateComponentKey } from '../../src/DittoImGui';
 import { bevelBox } from '../draw';
 import { draggableBorder, draggableCorner, Direction } from './draggableBorder';
-import { container } from './container'
+import { container, verticallyCollapsableContainer } from './container'
 import { miniButton } from './button';
 import { TextPainter } from './TextPainter';
 import * as layout from '../layout';
@@ -19,7 +19,6 @@ const stateKey = new StateComponentKey('panel', {
     open: true,
     minimizedHieght: 0,
 });
-const containerStateKey = new StateComponentKey('panelContents', { open: true });
 
 const textPainterMap = new Map<StyledDittoContext, TextPainter>();
 function getTextPainter(g: StyledDittoContext): TextPainter {
@@ -63,7 +62,8 @@ export const panel = {
 
         // Draggable Bar
         {
-            container.begin(gui, 'titlebar',
+            container.begin(gui, 'titlebar', 0);
+            gui.layout.addConstraints(
                 layout.fillParentHorizontally(gui),
                 layout.offsetPosFromSiblingBottom(gui),
                 layout.sizeHeightByPx(gui, 30),
@@ -72,6 +72,7 @@ export const panel = {
                 layout.fillParentVertically(gui),
                 layout.offsetRightFromParentRight(gui),
             );
+            gui.layout.calculateLayout();
             gui.boxSize.border = 0;
             gui.boxSize.padding = PADDING;
             const { x, y, w, h } = gui.bounds.getElementBounds();
@@ -116,26 +117,21 @@ export const panel = {
             container.end(gui);
         }
 
-        const isOpen = state.open;
-
         // Contents
-        container.begin(gui, 'contents',
+        verticallyCollapsableContainer.begin(gui, 'contents', state.open, 0, undefined);
+        gui.layout.addConstraints(
             layout.fillParentHorizontally(gui),
             layout.fillBelowLastSibling(gui),
         );
-        gui.boxSize.border = 0;
-        gui.state.getStateComponent(containerStateKey).open = isOpen;
+        gui.layout.calculateLayout();
     },
 
     end: (gui: StyledDittoContext) => {
-        if (!gui.state.getStateComponent(containerStateKey).open) {
-            gui.bounds.getElementBounds().h = 0;
-        }
-        container.end(gui);
+        verticallyCollapsableContainer.end(gui);
 
         const state = gui.state.getStateComponent(stateKey);
         const isOpen = state.open;
-        const minimizedHieght = state.minimizedHieght;
+        const minimizedHieght = gui.bounds.getChildBounds().h;
         const { x, y, w, h: hBase } = state;
         const border = gui.boxSize.border;
 
