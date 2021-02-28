@@ -3,11 +3,22 @@ import { StateComponentKey } from '../../src/DittoImGui';
 import { bevelBox } from '../draw';
 import { draggableBorder, draggableCorner, Direction } from './draggableBorder';
 import { container } from './container'
+import { miniButton } from './button';
+import { TextPainter } from './TextPainter';
 import * as layout from '../layout';
 
 const PANEL_BORDER_WIDTH = 5;
+const PADDING = 2;
+const fontStyle = '16px monospace';
 
-const stateKey = new StateComponentKey('panel', { x: 0, y: 0, w: 300, h: 200 });
+const stateKey = new StateComponentKey('panel', { x: 0, y: 0, w: 300, h: 200, open: true });
+
+const textPainterMap = new Map<StyledDittoContext, TextPainter>();
+function getTextPainter(g: StyledDittoContext): TextPainter {
+    const painter = textPainterMap.get(g) || new TextPainter(g);
+    textPainterMap.set(g, painter);
+    return painter;
+}
 
 export const panel = {
     begin: (
@@ -24,6 +35,7 @@ export const panel = {
             y: yInit,
             w: wInit,
             h: hInit,
+            open: true,
         });
         const { x, y, w, h } = state;
         const bounds = gui.bounds.getElementBounds();
@@ -48,10 +60,15 @@ export const panel = {
                 layout.offsetPosFromSiblingBottom(gui),
                 layout.sizeHeightByPx(gui, 30),
             );
+            gui.layout.addChildConstraints(
+                layout.fillParentVertically(gui),
+                layout.offsetRightFromParentRight(gui),
+            );
             gui.boxSize.border = 0;
+            gui.boxSize.padding = PADDING;
+            const { x, y, w, h } = gui.bounds.getElementBounds();
 
             if (gui.mouse.hoversElement()) {
-                const { x, y, w, h } = gui.bounds.getElementBounds();
                 gui.draw.setFillStyle('#00CC00');
                 gui.draw.fillRect(x, y, w, h);
 
@@ -66,6 +83,20 @@ export const panel = {
                 gui.draw.fillRect(x, y, w, h);
             }
 
+            // title
+            {
+                gui.draw.setFont(fontStyle);
+                const metric = gui.draw.measureText(key);
+                const textYOffset = (h - metric.ascent - metric.descent) * 0.5 - PADDING;
+                getTextPainter(gui)
+                    .startBuilder(key, x + PADDING, y + textYOffset, '#FFFFFF')
+                    .build()
+                    .paint();
+            }
+
+            // button
+            gui.layout.calculateLayout();
+            miniButton(gui, '▼', layout.offsetLeftFromSiblingLeftByPx(gui, -18));
             container.end(gui);
         }
 
@@ -175,7 +206,6 @@ export const panel = {
         gui.draw.fillRect(x, y, w, h);
 
         gui.draw.setStrokeStyle('#666666');
-        // drawBorderBox(gui, x, y, w, h, gui.boxSize.border);
         bevelBox(gui, x, y, w, h, gui.boxSize.border, 'panel', 'idle');
 
         gui.endLayer();

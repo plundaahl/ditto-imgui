@@ -120,7 +120,7 @@ export class TextPainter {
     private lineHeight: number;
     private charWidth: number;
     private descent: number;
-    
+
     constructor(private context: DittoContext) {
         this.onBuild = this.onBuild.bind(this);
         this.sharedData = {
@@ -197,26 +197,26 @@ export class TextPainter {
 
         const metrics = gui.draw.measureText('M');
         const WIDTH_SCALING = metrics.width / (gui.draw.measureText(oneHundredMs).width * 0.01);
-    
+
         if (multiLine && wordWrap) {
             const wrappedLines: string[] = [];
             const maxLineLength = Math.max(Math.floor((w / metrics.width) * WIDTH_SCALING), 1);
-    
+
             for (const line of lines) {
                 let remain = line;
                 while (remain.length > 0) {
                     const remainingLength = remain.length;
                     const lastSpaceIndex = remain.lastIndexOf(' ', maxLineLength) + 1;
-    
+
                     const splitPos = remainingLength < maxLineLength
                         ? remainingLength
                         : lastSpaceIndex > 0 ? lastSpaceIndex : maxLineLength;
-    
+
                     wrappedLines.push(remain.substr(0, splitPos));
                     remain = remain.substr(splitPos);
                 }
             }
-    
+
             lines = wrappedLines;
         }
 
@@ -278,9 +278,9 @@ export class TextPainter {
             selectFgStyle,
             descent,
         } = this;
-    
+
         let cursorX = cursorPos;
-        
+
         let selMin = -1;
         let selMax = -1;
 
