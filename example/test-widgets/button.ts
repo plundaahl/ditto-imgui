@@ -15,7 +15,7 @@ export const button = (
     g.beginElement(text);
     g.draw.setFont(fontStyle);
 
-    g.boxSize.border = 3;
+    g.boxSize.border = 2;
     g.boxSize.padding = 5;
 
     const edgeSpacing = (g.boxSize.border + g.boxSize.padding) * 2;
