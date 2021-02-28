@@ -80,6 +80,7 @@ export const extTextButton = (
     const isHot = isHovered && g.mouse.isM1Down();
     const mode = isHot ? 'idle' : 'idle';
 
+    g.layout.calculateLayout();
     textLabel(
         g,
         'label',

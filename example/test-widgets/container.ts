@@ -33,11 +33,12 @@ export const container = {
     ) => {
         gui.beginElement(key);
         gui.boxSize.border = border;
+        const borderX2 = border * 2;
         drawBoxFns.push(drawBox);
 
         gui.layout.addConstraints(
-            layout.sizeWidthByAtLeastPx(gui, 0),
-            layout.sizeHeightByAtLeastPx(gui, 0),
+            layout.sizeWidthByAtLeastPx(gui, borderX2),
+            layout.sizeHeightByAtLeastPx(gui, borderX2),
         );
         gui.layout.calculateLayout();
     },
