@@ -11,7 +11,15 @@ const PANEL_BORDER_WIDTH = 5;
 const PADDING = 2;
 const fontStyle = '16px monospace';
 
-const stateKey = new StateComponentKey('panel', { x: 0, y: 0, w: 300, h: 200, open: true });
+const stateKey = new StateComponentKey('panel', {
+    x: 0,
+    y: 0,
+    w: 300,
+    h: 200,
+    open: true,
+    minimizedHieght: 0,
+});
+const containerStateKey = new StateComponentKey('panelContents', { open: true });
 
 const textPainterMap = new Map<StyledDittoContext, TextPainter>();
 function getTextPainter(g: StyledDittoContext): TextPainter {
@@ -36,6 +44,7 @@ export const panel = {
             w: wInit,
             h: hInit,
             open: true,
+            minimizedHieght: 0,
         });
         const { x, y, w, h } = state;
         const bounds = gui.bounds.getElementBounds();
@@ -43,7 +52,6 @@ export const panel = {
         bounds.y = y;
         bounds.w = w;
         bounds.h = h;
-
         gui.boxSize.border = PANEL_BORDER_WIDTH;
         gui.boxSize.padding = 0;
 
@@ -89,16 +97,26 @@ export const panel = {
                 const metric = gui.draw.measureText(key);
                 const textYOffset = (h - metric.ascent - metric.descent) * 0.5 - PADDING;
                 getTextPainter(gui)
-                    .startBuilder(key, x + PADDING, y + textYOffset, '#FFFFFF')
+                    .startBuilder(key, x + textYOffset, y + textYOffset, '#FFFFFF')
                     .build()
                     .paint();
             }
 
             // button
             gui.layout.calculateLayout();
-            miniButton(gui, '▼', layout.offsetLeftFromSiblingLeftByPx(gui, -18));
+            state.minimizedHieght = gui.bounds.getElementBounds().h;
+            const minimizeButtonText = state.open ? '▼' : '◄';
+            if (miniButton(
+                gui,
+                minimizeButtonText,
+                layout.offsetLeftFromSiblingLeftByPx(gui, -18)
+            )) {
+                state.open = !state.open;
+            }
             container.end(gui);
         }
+
+        const isOpen = state.open;
 
         // Contents
         container.begin(gui, 'contents', '#FF0000',
@@ -106,14 +124,24 @@ export const panel = {
             layout.fillBelowLastSibling(gui),
         );
         gui.boxSize.border = 0;
+        gui.state.getStateComponent(containerStateKey).open = isOpen;
     },
 
     end: (gui: StyledDittoContext) => {
+        if (!gui.state.getStateComponent(containerStateKey).open) {
+            gui.bounds.getElementBounds().h = 0;
+        }
         container.end(gui);
 
         const state = gui.state.getStateComponent(stateKey);
-        const { x, y, w, h } = state;
+        const isOpen = state.open;
+        const minimizedHieght = state.minimizedHieght;
+        const { x, y, w, h: hBase } = state;
         const border = gui.boxSize.border;
+
+        const h = isOpen
+            ? hBase
+            : minimizedHieght + border + border;
 
         const bindTop = (_ = state.y) => {
             state.h -= (_ - state.y);
@@ -128,25 +156,27 @@ export const panel = {
         const bindBottom = (_ = state.h) => state.h = _;
         const bindRight = (_ = state.w) => state.w = _;
 
-        draggableBorder(
-            gui,
-            Direction.TOP,
-            bindTop,
-            x + border,
-            y,
-            w - (border * 2),
-            border,
-        );
+        if (isOpen) {
+            draggableBorder(
+                gui,
+                Direction.TOP,
+                bindTop,
+                x + border,
+                y,
+                w - (border * 2),
+                border,
+            );
 
-        draggableBorder(
-            gui,
-            Direction.BOTTOM,
-            bindBottom,
-            x + border,
-            y + h - border,
-            w - (border * 2),
-            border,
-        );
+            draggableBorder(
+                gui,
+                Direction.BOTTOM,
+                bindBottom,
+                x + border,
+                y + h - border,
+                w - (border * 2),
+                border,
+            );
+        }
 
         draggableBorder(
             gui,
@@ -168,33 +198,35 @@ export const panel = {
             h - (border * 2),
         );
 
-        draggableCorner(gui, 'topleft', bindLeft, bindTop,
-            x,
-            y,
-            border,
-            border,
-        );
+        if (isOpen) {
+            draggableCorner(gui, 'topleft', bindLeft, bindTop,
+                x,
+                y,
+                border,
+                border,
+            );
 
-        draggableCorner(gui, 'topRight', bindRight, bindTop,
-            x + w - border,
-            y,
-            border,
-            border,
-        );
+            draggableCorner(gui, 'topRight', bindRight, bindTop,
+                x + w - border,
+                y,
+                border,
+                border,
+            );
 
-        draggableCorner(gui, 'bottomRight', bindRight, bindBottom,
-            x + w - border,
-            y + h - border,
-            border,
-            border,
-        );
+            draggableCorner(gui, 'bottomRight', bindRight, bindBottom,
+                x + w - border,
+                y + h - border,
+                border,
+                border,
+            );
 
-        draggableCorner(gui, 'bottomLeft', bindLeft, bindBottom,
-            x,
-            y + h - border,
-            border,
-            border,
-        );
+            draggableCorner(gui, 'bottomLeft', bindLeft, bindBottom,
+                x,
+                y + h - border,
+                border,
+                border,
+            );
+        }
 
         const bounds = gui.bounds.getElementBounds();
         bounds.x = x;
