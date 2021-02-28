@@ -1,5 +1,5 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
-import { drawBorderBox } from './drawUtils';
+import { borderBox } from '../draw/box';
 import * as layout from '../layout';
 
 const colors: string[] = [];
@@ -13,6 +13,7 @@ export const container = {
     ) => {
         colors.push(color);
         gui.beginElement(key);
+        gui.boxSize.border = 2;
 
         gui.layout.addConstraints(
             layout.sizeWidthByAtLeastPx(gui, 0),
@@ -26,8 +27,7 @@ export const container = {
         gui.layout.calculateLayout();
 
         const { x, y, w, h } = gui.bounds.getElementBounds();
-        gui.draw.setStrokeStyle(colors.pop() || '#FF0000');
-        drawBorderBox(gui, x, y, w, h, gui.boxSize.border);
+        borderBox(gui, x, y, w, h, gui.boxSize.border, 'panel', 'idle');
 
         gui.endElement();
     },

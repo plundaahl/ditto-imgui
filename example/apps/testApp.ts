@@ -2,6 +2,7 @@ import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import {
     panel,
     button,
+    container,
 } from '../test-widgets';
 import * as layout from '../layout';
 
@@ -11,6 +12,12 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
 
     panel.begin(g, 'testpanel', 200, 200, 400, 400);
     g.layout.addChildConstraints(
+        layout.fillParentVertically(g),
+        layout.fillParentHorizontally(g),
+    );
+
+    container.begin(g, 'cont');
+    g.layout.addChildConstraints(
         layout.asColDown(g),
     );
 
@@ -18,5 +25,6 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
         console.log('bar');
     }
 
+    container.end(g);
     panel.end(g);
 }

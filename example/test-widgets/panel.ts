@@ -1,6 +1,6 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { StateComponentKey } from '../../src/DittoImGui';
-import { drawBorderBox } from './drawUtils';
+import { bevelBox } from '../draw';
 import { draggableBorder, draggableCorner, Direction } from './draggableBorder';
 import { container } from './container'
 import * as layout from '../layout';
@@ -175,7 +175,8 @@ export const panel = {
         gui.draw.fillRect(x, y, w, h);
 
         gui.draw.setStrokeStyle('#666666');
-        drawBorderBox(gui, x, y, w, h, gui.boxSize.border);
+        // drawBorderBox(gui, x, y, w, h, gui.boxSize.border);
+        bevelBox(gui, x, y, w, h, gui.boxSize.border, 'panel', 'idle');
 
         gui.endLayer();
     },

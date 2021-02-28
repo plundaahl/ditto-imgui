@@ -11,7 +11,7 @@ const BRIGHT_TEAL = '#5FA';
 const baseHighlight = 0.75;
 const baseLowlight = 0.5;
 
-const darkMetal = mkTheme(DARK_METAL, WHITE);
+const darkMetal = mkTheme(DARK_METAL, WHITE, 1.5);
 const brightMetal = mkTheme(BRIGHT_METAL, WHITE);
 
 const darkTeal = mkTheme(DARK_TEAL, WHITE);

@@ -8,11 +8,14 @@ export function borderBox(
     w: number,
     h: number,
     borderWidth: number,
+    region: RegionType,
+    mode: Mode,
 ) {
     if (borderWidth === 0) {
         return;
     }
     gui.draw.setLineWidth(borderWidth);
+    gui.draw.setStrokeStyle(gui.theme.getColor(region, mode, 'bgLowlight'));
 
     const borderPosOffset = borderWidth * 0.5;
     const borderSizeOffset = borderPosOffset * 2;
