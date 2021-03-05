@@ -5,8 +5,6 @@ import * as layout from '../layout';
 
 const fontStyle = '16px monospace';
 
-const debug = (window as any);
-
 const beginExtButton = (
     g: StyledDittoContext,
     key: string,
@@ -25,8 +23,6 @@ const beginExtButton = (
     const textMetrics = g.draw.measureText(key);
     const elemHeight = textMetrics.height + textMetrics.descent + edgeSpacing;
     const elemWidth = textMetrics.width + edgeSpacing;
-
-    debug.elemHeight = textMetrics;
 
     g.layout.addConstraints(
         layout.sizeHeightByDefaultPx(g, elemHeight),
