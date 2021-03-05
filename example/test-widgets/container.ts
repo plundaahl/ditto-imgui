@@ -1,7 +1,7 @@
 import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import { borderBox } from '../draw/box';
 import { region } from './region';
-import { button } from './button';
+import { button, buttonWithIcon } from './button';
 import { StateComponentKey } from '../../src/DittoImGui';
 import * as layout from '../layout';
 
@@ -46,7 +46,7 @@ export const verticallyCollapsableContainer = {
         const state = gui.state.getStateComponent(collapsableStateKey, { open: openByDefault });
 
         // open/close button
-        if (button(gui, key)) {
+        if (buttonWithIcon(gui, key, state.open ? '▼' : '◄')) {
             state.open = !state.open;
         }
 
