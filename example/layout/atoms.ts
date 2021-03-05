@@ -90,8 +90,7 @@ function setSize(
 
         const availSpace = parentBounds ? parentBounds[size] - spaceAtStart: 0;
 
-        const newSize = ((flags & BY_FR) ? availSpace * amount : amount)
-            - spaceAtEnd;
+        const newSize = ((flags & BY_FR) ? (availSpace * amount) - spaceAtEnd : amount);
 
         if (flags & AT_MOST) {
             bounds[size] = Math.min(bounds[size], newSize);

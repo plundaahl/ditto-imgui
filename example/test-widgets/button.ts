@@ -23,7 +23,7 @@ const beginExtButton = (
     const edgeSpacing = (g.boxSize.border + g.boxSize.padding) * 2;
 
     const textMetrics = g.draw.measureText(key);
-    const elemHeight = textMetrics.height + textMetrics.ascent + edgeSpacing;
+    const elemHeight = textMetrics.height + textMetrics.descent + edgeSpacing;
     const elemWidth = textMetrics.width + edgeSpacing;
 
     debug.elemHeight = textMetrics;

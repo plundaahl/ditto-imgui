@@ -36,6 +36,7 @@ export const verticallyCollapsableContainer = {
         gui.layout.addConstraints(
             layout.sizeWidthByAtLeastPx(gui, 0),
             layout.sizeHeightByAtLeastPx(gui, 0),
+            layout.collapseBottomToChildren(gui),
             ...constraints
         );
         gui.layout.addChildConstraints(layout.asColDown(gui));
