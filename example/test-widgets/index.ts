@@ -5,3 +5,4 @@ export * from './textlabel';
 export * from './background';
 export * from './button';
 export * from './region';
+export * from './checkbox';

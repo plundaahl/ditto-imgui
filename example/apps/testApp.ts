@@ -2,10 +2,13 @@ import { StyledDittoContext } from '../../src/StyledDittoImGui';
 import {
     panel,
     button,
+    checkbox,
     container,
     verticallyCollapsableContainer,
 } from '../test-widgets';
 import * as layout from '../layout';
+
+let checkboxValue = false;
 
 export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: number }) {
     g.boxSize.defaultPadding = 10;
@@ -30,6 +33,8 @@ export function testApp(g: StyledDittoContext, canvasMetrics: { w: number, h: nu
     if (button(g, 'Foo')) {
         console.log('bar');
     }
+
+    checkboxValue = checkbox(g, 'A checkbox', checkboxValue);
 
     verticallyCollapsableContainer.end(g);
     container.end(g);
